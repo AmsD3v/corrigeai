@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from typing import Optional, List
+from datetime import datetime
 
 # --- INÍCIO DA CORREÇÃO DEFINITIVA DE IMPORTAÇÃO ---
 # Usando importações relativas ('.') para todos os módulos,
@@ -842,6 +843,9 @@ async def approve_transaction(
             detail=f"Cannot approve transaction with status: {transaction.status}"
         )
     
+    # Calculate total coins
+    total_coins = transaction.coins_amount + transaction.bonus_coins
+    
     # Update transaction status
     transaction.status = "approved"
     transaction.approved_at = datetime.utcnow()
@@ -849,7 +853,6 @@ async def approve_transaction(
     # Add credits to user
     user = db.query(models.User).filter(models.User.id == transaction.user_id).first()
     if user:
-        total_coins = transaction.coins_amount + transaction.bonus_coins
         user.credits += total_coins
         logging.info(f"Admin {admin_user.email} approved transaction {transaction_id}. Added {total_coins} credits to user {user.email}")
     
