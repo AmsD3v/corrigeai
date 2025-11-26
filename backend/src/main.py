@@ -332,10 +332,13 @@ async def submit_essay(
     # Calculate required credits
     required_credits = 3 if submission.correction_type == "premium" else 1
     
-    if current_user.credits < required_credits:
+    # Check total available credits (free + paid)
+    total_available = (current_user.free_credits or 0) + current_user.credits
+    
+    if total_available < required_credits:
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
-            detail=f"Créditos insuficientes. Necessário: {required_credits}, Disponível: {current_user.credits}",
+            detail=f"Créditos insuficientes. Necessário: {required_credits}, Disponível: {total_available} (Grátis: {current_user.free_credits or 0}, CorriCoins: {current_user.credits})",
         )
 
     db_submission = models.Submission(
@@ -343,8 +346,26 @@ async def submit_essay(
     )
     db.add(db_submission)
     
-    # Deduct credits based on type
-    current_user.credits -= required_credits
+    # Deduct credits: use free_credits first, then paid credits
+    credits_to_deduct = required_credits
+    free_credits_available = current_user.free_credits or 0
+    
+    if free_credits_available > 0:
+        # Use free credits first
+        if free_credits_available >= credits_to_deduct:
+            # All from free credits
+            current_user.free_credits -= credits_to_deduct
+            logging.info(f"✅ Deducted {credits_to_deduct} free credits. Remaining free: {current_user.free_credits}")
+        else:
+            # Use all free credits + some paid credits
+            remaining_needed = credits_to_deduct - free_credits_available
+            current_user.free_credits = 0
+            current_user.credits -= remaining_needed
+            logging.info(f"✅ Deducted {free_credits_available} free credits + {remaining_needed} CorriCoins. Remaining: Free={current_user.free_credits}, Paid={current_user.credits}")
+    else:
+        # No free credits, use paid credits only
+        current_user.credits -= credits_to_deduct
+        logging.info(f"✅ Deducted {credits_to_deduct} CorriCoins. Remaining: {current_user.credits}")
     
     db.commit()
     db.refresh(db_submission)
