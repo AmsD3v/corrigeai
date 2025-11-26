@@ -18,12 +18,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ role }) => {
     return <Navigate to="/login" />;
   }
 
-  if (role && user && user.role !== role) {
-    // Se o usuário não tiver o papel necessário
-    if (role === 'admin') {
+  if (role && user) {
+    // Check admin access using is_admin field
+    if (role === 'admin' && !user.is_admin) {
       return <Navigate to="/painel" />;
-    } else {
-      return <Navigate to="/admin" />;
     }
   }
 
