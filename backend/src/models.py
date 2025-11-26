@@ -33,6 +33,7 @@ class Submission(Base):
     content = Column(Text)
     submitted_at = Column(DateTime, default=datetime.utcnow)
     status = Column(String, default="pending")
+    correction_type = Column(String, default="advanced")  # "advanced" or "premium"
     owner_id = Column(Integer, ForeignKey("user.id"))
 
     owner = relationship("User", back_populates="submissions")
