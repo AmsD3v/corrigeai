@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import PanelLayout from '../../components/PanelLayout';
+import apiClient from '../../services/api';
 
 interface Transaction {
     id: number;
-    date: string;
-    package: string;
-    credits: number;
-    amount: number;
-    status: 'completed' | 'pending' | 'failed';
-    paymentMethod: string;
+    created_at: string;
+    package_name: string;
+    coins_amount: number;
+    bonus_coins: number;
+    price: number;
+    status: string;
+    payment_method?: string;
 }
 
 const MinhasCompras = () => {
@@ -16,40 +18,28 @@ const MinhasCompras = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // TODO: Fetch transactions from API
-        // For now, using mock data
-        setTimeout(() => {
-            // Mock data - uncomment to test with transactions
-            // setTransactions([
-            //   {
-            //     id: 1,
-            //     date: '2025-11-22T10:30:00',
-            //     package: 'Pacote de 10 Créditos',
-            //     credits: 10,
-            //     amount: 21.78,
-            //     status: 'completed',
-            //     paymentMethod: 'Cartão de Crédito'
-            //   },
-            //   {
-            //     id: 2,
-            //     date: '2025-11-20T14:15:00',
-            //     package: 'Pacote de 5 Créditos',
-            //     credits: 5,
-            //     amount: 13.22,
-            //     status: 'completed',
-            //     paymentMethod: 'PIX'
-            //   }
-            // ]);
-            setTransactions([]);
-            setLoading(false);
-        }, 500);
+        const fetchTransactions = async () => {
+            try {
+                const response = await apiClient.get('/api/payment/transactions');
+                console.log('Transactions loaded:', response.data);
+                setTransactions(response.data);
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+                setTransactions([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTransactions();
     }, []);
 
     const getStatusBadge = (status: string) => {
-        const statusConfig = {
-            completed: { label: 'Concluída', color: '#10b981' },
+        const statusConfig: Record<string, { label: string; color: string }> = {
+            approved: { label: 'Aprovado', color: '#10b981' },
             pending: { label: 'Pendente', color: '#f59e0b' },
-            failed: { label: 'Falhou', color: '#ef4444' }
+            rejected: { label: 'Rejeitado', color: '#ef4444' },
+            cancelled: { label: 'Cancelado', color: '#64748b' }
         };
 
         const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
@@ -202,11 +192,11 @@ const MinhasCompras = () => {
                             >
                                 <div>
                                     <div style={{ fontSize: '14px', fontWeight: '600', color: '#fff' }}>
-                                        {transaction.package}
+                                        {transaction.package_name}
                                     </div>
                                 </div>
                                 <div style={{ fontSize: '14px', color: '#94a3b8' }}>
-                                    {formatDate(transaction.date)}
+                                    {formatDate(transaction.created_at)}
                                 </div>
                                 <div>
                                     <span style={{
@@ -217,14 +207,14 @@ const MinhasCompras = () => {
                                         background: '#4F46E520',
                                         color: '#4F46E5'
                                     }}>
-                                        +{transaction.credits}
+                                        +{transaction.coins_amount + transaction.bonus_coins}
                                     </span>
                                 </div>
                                 <div style={{ fontSize: '14px', fontWeight: '600', color: '#10b981' }}>
-                                    {formatCurrency(transaction.amount)}
+                                    {formatCurrency(transaction.price / 100)}
                                 </div>
                                 <div style={{ fontSize: '13px', color: '#94a3b8' }}>
-                                    {transaction.paymentMethod}
+                                    {transaction.payment_method || 'N/A'}
                                 </div>
                                 <div>
                                     {getStatusBadge(transaction.status)}
@@ -277,7 +267,7 @@ const MinhasCompras = () => {
                                 Créditos Adquiridos
                             </div>
                             <div style={{ fontSize: '24px', fontWeight: '700', color: '#4F46E5' }}>
-                                {transactions.reduce((sum, t) => sum + t.credits, 0)}
+                                {transactions.reduce((sum, t) => sum + t.coins_amount + t.bonus_coins, 0)}
                             </div>
                         </div>
                         <div>
@@ -285,7 +275,7 @@ const MinhasCompras = () => {
                                 Total Investido
                             </div>
                             <div style={{ fontSize: '24px', fontWeight: '700', color: '#10b981' }}>
-                                {formatCurrency(transactions.reduce((sum, t) => sum + t.amount, 0))}
+                                {formatCurrency(transactions.reduce((sum, t) => sum + (t.price / 100), 0))}
                             </div>
                         </div>
                     </div>
