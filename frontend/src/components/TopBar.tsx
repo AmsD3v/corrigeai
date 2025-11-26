@@ -19,9 +19,6 @@ const TopBar = ({ userCredits = 0, userCoins = 0 }: TopBarProps) => {
         const fetchCredits = async () => {
             try {
                 const response = await apiClient.get('/users/me');
-                console.log('🔍 DEBUG - User data from /users/me:', response.data);
-                console.log('🪙 Credits:', response.data.credits);
-                console.log('⚡ Free Credits:', response.data.free_credits);
                 setCredits(response.data.credits || 0);
                 setFreeCredits(response.data.free_credits || 0);
             } catch (error) {
