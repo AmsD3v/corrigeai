@@ -123,3 +123,13 @@ class Package(Base):
     is_active = Column(Boolean, default=True)
     is_popular = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Settings(Base):
+    """Global application settings (one row only)"""
+    __tablename__ = "settings"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True, default=1)
+    active_ai_provider = Column(String, default="groq")  # groq, gemini, huggingface, together
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

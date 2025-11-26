@@ -115,41 +115,76 @@ Tema: {theme}
 
 def get_active_provider() -> tuple[str, Optional[str]]:
     """
-    Get active AI provider from environment.
+    Get active AI provider from database + environment.
     Returns: (provider_name, api_key)
     """
+    from .database import SessionLocal
+    from .models import Settings
+    
     print("\n🔍 ==== CHECKING ACTIVE AI PROVIDER ====")
     
-    # Check for Groq first (recommended)
-    groq_key = os.getenv('GROQ_API_KEY')
-    print(f"GROQ_API_KEY present: {bool(groq_key)}")
-    if groq_key:
-        print(f"✅ Using GROQ provider with key: {groq_key[:20]}...")
-        logger.info("Using Groq AI provider")
-        return ('groq', groq_key)
+    # Get active provider from database
+    db = SessionLocal()
+    try:
+        settings = db.query(Settings).first()
+        if settings:
+            active_provider = settings.active_ai_provider
+            print(f"📊 Database says active provider: {active_provider}")
+        else:
+            active_provider = "groq"  # Default fallback
+            print(f"⚠️ No settings in DB, using default: {active_provider}")
+    finally:
+        db.close()
     
-    gemini_key = os.getenv('GEMINI_API_KEY')
-    print(f"GEMINI_API_KEY present: {bool(gemini_key)}")
-    if gemini_key:
-        print(f"⚠️ Falling back to GEMINI provider")
-        logger.info("Using Gemini AI provider")
-        return ('gemini', gemini_key)
+    # Get API key from environment for the active provider
+    if active_provider == "groq":
+        groq_key = os.getenv('GROQ_API_KEY')
+        print(f"GROQ_API_KEY present: {bool(groq_key)}")
+        if groq_key:
+            print(f"✅ Using GROQ provider with key: {groq_key[:20]}...")
+            logger.info("Using Groq AI provider")
+            return ('groq', groq_key)
+        else:
+            print("❌ Groq selected but no API key in .env!")
+            logger.error("Groq selected but GROQ_API_KEY not configured in .env")
+            return ('groq', None)
     
-    hf_token = os.getenv('HF_TOKEN')
-    print(f"HF_TOKEN present: {bool(hf_token)}")
-    if hf_token:
-        print(f"Using HuggingFace provider")
-        return ('huggingface', hf_token)
+    elif active_provider == "gemini":
+        gemini_key = os.getenv('GEMINI_API_KEY')
+        print(f"GEMINI_API_KEY present: {bool(gemini_key)}")
+        if gemini_key:
+            print(f"✅ Using GEMINI provider")
+            logger.info("Using Gemini AI provider")
+            return ('gemini', gemini_key)
+        else:
+            print("❌ Gemini selected but no API key in .env!")
+            logger.error("Gemini selected but GEMINI_API_KEY not configured in .env")
+            return ('gemini', None)
     
-    together_key = os.getenv('TOGETHER_API_KEY')
-    print(f"TOGETHER_API_KEY present: {bool(together_key)}")
-    if together_key:
-        print(f"Using Together AI provider")
-        return ('together', together_key)
+    elif active_provider == "huggingface":
+        hf_token = os.getenv('HF_TOKEN')
+        print(f"HF_TOKEN present: {bool(hf_token)}")
+        if hf_token:
+            print(f"✅ Using HuggingFace provider")
+            return ('huggingface', hf_token)
+        else:
+            print("❌ HuggingFace selected but no API key in .env!")
+            return ('huggingface', None)
     
-    print("❌ NO AI PROVIDER API KEY CONFIGURED!")
-    logger.error("No AI provider API key configured!")
-    return ('gemini', None)  # Fallback
+    elif active_provider == "together":
+        together_key = os.getenv('TOGETHER_API_KEY')
+        print(f"TOGETHER_API_KEY present: {bool(together_key)}")
+        if together_key:
+            print(f"✅ Using Together AI provider")
+            return ('together', together_key)
+        else:
+            print("❌ Together selected but no API key in .env!")
+            return ('together', None)
+    
+    # Unknown provider
+    print(f"❌ Unknown provider in database: {active_provider}")
+    logger.error(f"Unknown provider configured: {active_provider}")
+    return (active_provider, None)
 
 
 async def correct_with_groq(title: str, theme: str, content: str, api_key: str) -> dict:

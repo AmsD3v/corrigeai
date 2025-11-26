@@ -47,22 +47,24 @@ const Configuracoes = () => {
     const [showApiKey, setShowApiKey] = useState(false);
 
     useEffect(() => {
-        // Load settings from localStorage
-        const savedSettings = localStorage.getItem('admin_settings');
-        if (savedSettings) {
-            try {
-                const parsed = JSON.parse(savedSettings);
-                // Preserve packages from API if they are already loaded? No, API is truth.
-                // But we want to load other settings.
-                const { packages, ...otherSettings } = parsed;
-                setSettings(prev => ({ ...prev, ...otherSettings }));
-            } catch (e) {
-                console.error('Error loading settings:', e);
-            }
-        }
-
+        // Load AI provider from API
+        fetchSettings();
         fetchPackages();
     }, []);
+
+    const fetchSettings = async () => {
+        try {
+            const response = await api.get('/api/settings');
+            setSettings(prev => ({
+                ...prev,
+                aiProvider: response.data.active_ai_provider
+            }));
+        } catch (error) {
+            console.error('Error loading settings:', error);
+            // Default to groq if error
+            setSettings(prev => ({ ...prev, aiProvider: 'groq' }));
+        }
+    };
 
     const fetchPackages = async () => {
         try {
@@ -91,11 +93,13 @@ const Configuracoes = () => {
     };
 
     const handleSaveSettings = async () => {
-        // Save local settings
-        localStorage.setItem('admin_settings', JSON.stringify(settings));
-
-        // Save packages to API
         try {
+            // Save AI provider to API
+            await api.post('/api/settings', {
+                active_ai_provider: settings.aiProvider
+            });
+
+            // Save packages to API
             await Promise.all(settings.packages.map(pkg =>
                 api.put(`/api/packages/${pkg.id}`, {
                     name: pkg.name,
@@ -114,10 +118,9 @@ const Configuracoes = () => {
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
         } catch (error: any) {
-            console.error('Error saving packages:', error);
+            console.error('Error saving settings:', error);
             console.error('Error response:', error.response?.data);
-            console.error('Error status:', error.response?.status);
-            alert(`Erro ao salvar pacotes: ${error.response?.data?.detail || error.message}`);
+            alert(`Erro ao salvar configurações: ${error.response?.data?.detail || error.message}`);
         }
     };
 

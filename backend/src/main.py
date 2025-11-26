@@ -727,6 +727,60 @@ async def generate_theme(
             detail=f"Erro ao gerar tema: {str(e)}"
         )
 
+
+# ===== SETTINGS ENDPOINTS =====
+
+class SettingsResponse(BaseModel):
+    active_ai_provider: str
+
+class SettingsUpdate(BaseModel):
+    active_ai_provider: str
+
+@app.get("/api/settings", response_model=SettingsResponse)
+async def get_settings(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get current application settings"""
+    settings = db.query(models.Settings).first()
+    if not settings:
+        # Create default settings if not exist
+        settings = models.Settings(id=1, active_ai_provider="groq")
+        db.add(settings)
+        db.commit()
+        db.refresh(settings)
+    
+    return SettingsResponse(active_ai_provider=settings.active_ai_provider)
+
+@app.post("/api/settings", response_model=SettingsResponse)
+async def update_settings(
+    settings_update: SettingsUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update application settings (admin only would be ideal, but allowing all authenticated users for now)"""
+    # Validate provider
+    valid_providers = ["groq", "gemini", "huggingface", "together"]
+    if settings_update.active_ai_provider not in valid_providers:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid provider. Must be one of: {', '.join(valid_providers)}"
+        )
+    
+    settings = db.query(models.Settings).first()
+    if not settings:
+        settings = models.Settings(id=1, active_ai_provider=settings_update.active_ai_provider)
+        db.add(settings)
+    else:
+        settings.active_ai_provider = settings_update.active_ai_provider
+    
+    db.commit()
+    db.refresh(settings)
+    
+    logging.info(f"Settings updated: active_ai_provider={settings.active_ai_provider}")
+    
+    return SettingsResponse(active_ai_provider=settings.active_ai_provider)
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
