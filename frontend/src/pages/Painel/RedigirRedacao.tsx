@@ -31,8 +31,13 @@ const RedigirRedacao = () => {
     const fetchCredits = async () => {
       try {
         const response = await apiClient.get('/users/me');
-        setUserCredits(response.data.credits || 0);
-        setFreeCredits(response.data.free_credits || 0);
+        const credits = response.data.credits || 0;
+        const freeCredits = response.data.free_credits || 0;
+        console.log('🔍 RedigirRedacao - Credits:', credits);
+        console.log('🔍 RedigirRedacao - Free Credits:', freeCredits);
+        console.log('🔍 RedigirRedacao - Total:', credits + freeCredits);
+        setUserCredits(credits);
+        setFreeCredits(freeCredits);
       } catch (error) {
         console.error('Error fetching credits:', error);
         setUserCredits(0);
