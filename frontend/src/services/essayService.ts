@@ -24,6 +24,14 @@ apiClient.interceptors.request.use((config) => {
     return config;
 });
 
+// Submit data interface
+export interface SubmitEssayData {
+    title?: string;
+    theme?: string;
+    content: string;
+    correction_type?: 'advanced' | 'premium';
+}
+
 // Types
 export interface Essay {
     id: string;
@@ -125,7 +133,8 @@ export const essayService = {
             const submitResponse = await apiClient.post('/submit', {
                 title: data.title || 'Sem título',
                 theme: data.theme || 'Tema livre',
-                content: data.content
+                content: data.content,
+                correction_type: data.correction_type || 'advanced'  // NEW: Send correction type
             });
 
             const submission = submitResponse.data;

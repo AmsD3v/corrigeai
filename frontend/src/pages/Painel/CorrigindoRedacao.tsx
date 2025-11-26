@@ -46,7 +46,7 @@ const CorrigindoRedacao = () => {
           title: essayData.title,
           theme: essayData.theme,
           content: essayData.content,
-          plan_type: essayData.plan_type
+          correction_type: essayData.correction_type  // Changed from plan_type
         });
 
         console.log('✅ Correção concluída!', result);
