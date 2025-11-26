@@ -19,6 +19,7 @@ const RedigirRedacao = () => {
   const [theme, setTheme] = useState('');
   const [themeCategory, setThemeCategory] = useState('geral');
   const [content, setContent] = useState('');
+  const [correctionType, setCorrectionType] = useState<'advanced' | 'premium'>('advanced'); // NEW
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'premium'>('basic');
   const [generatingTheme, setGeneratingTheme] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -136,7 +137,8 @@ const RedigirRedacao = () => {
       title,
       theme,
       content,
-      plan_type: selectedPlan
+      plan_type: selectedPlan,
+      correction_type: correctionType  // NEW
     };
 
     localStorage.setItem(`essay_${essayId}`, JSON.stringify(essayData));
@@ -535,6 +537,86 @@ const RedigirRedacao = () => {
               </div>
             </div>
 
+            {/* Correction Type Selector */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#94a3b8',
+                marginBottom: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                Tipo de Correção
+              </label>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                {/* Advanced Option */}
+                <label style={{
+                  flex: 1,
+                  padding: '20px',
+                  border: correctionType === 'advanced' ? '2px solid #10b981' : '1px solid #334155',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  background: correctionType === 'advanced' ? '#10b98110' : '#0f1419',
+                  transition: 'all 0.2s'
+                }}>
+                  <input
+                    type="radio"
+                    value="advanced"
+                    checked={correctionType === 'advanced'}
+                    onChange={(e) => setCorrectionType(e.target.value as 'advanced')}
+                    style={{ marginRight: '12px' }}
+                  />
+                  <div style={{ display: 'inline-block' }}>
+                    <div>
+                      <strong style={{ color: '#fff', fontSize: '15px' }}>⚡ Correção Avançada</strong>
+                    </div>
+                    <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0 0' }}>
+                      Rápida e precisa • <strong style={{ color: '#10b981' }}>1 crédito</strong>
+                    </p>
+                  </div>
+                </label>
+
+                {/* Premium Option */}
+                <label style={{
+                  flex: 1,
+                  padding: '20px',
+                  border: correctionType === 'premium' ? '2px solid #f59e0b' : '1px solid #334155',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  background: correctionType === 'premium' ? '#f59e0b10' : '#0f1419',
+                  transition: 'all 0.2s',
+                  position: 'relative'
+                }}>
+                  <input
+                    type="radio"
+                    value="premium"
+                    checked={correctionType === 'premium'}
+                    onChange={(e) => setCorrectionType(e.target.value as 'premium')}
+                    style={{ marginRight: '12px' }}
+                  />
+                  <div style={{ display: 'inline-block' }}>
+                    <div>
+                      <strong style={{ color: '#fff', fontSize: '15px' }}>💎 Correção Premium</strong>
+                      <span style={{
+                        background: '#f59e0b',
+                        color: '#0f1419',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        marginLeft: '8px'
+                      }}>RECOMENDADO</span>
+                    </div>
+                    <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0 0' }}>
+                      Análise profunda com insights • <strong style={{ color: '#f59e0b' }}>3 créditos</strong>
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
             {/* Submit Button */}
             <div style={{
               display: 'flex',
@@ -547,16 +629,16 @@ const RedigirRedacao = () => {
                 fontSize: '13px',
                 color: '#94a3b8'
               }}>
-                <span style={{ color: '#fbbf24' }}>⚠️</span> Custo: <strong style={{ color: '#fff' }}>{selectedPlan === 'basic' ? '1' : '2'} CorriCoins</strong>
+                <span style={{ color: '#fbbf24' }}>⚠️</span> Custo: <strong style={{ color: '#fff' }}>{correctionType === 'premium' ? '3' : '1'} CorriCoins</strong>
                 {!loadingCredits && (
-                  <span style={{ marginLeft: '12px', color: userCredits < (selectedPlan === 'basic' ? 1 : 2) ? '#ef4444' : '#10b981' }}>
+                  <span style={{ marginLeft: '12px', color: userCredits < (correctionType === 'premium' ? 3 : 1) ? '#ef4444' : '#10b981' }}>
                     (Você tem: <strong>{userCredits}</strong> {userCredits === 1 ? 'CorriCoin' : 'CorriCoins'})
                   </span>
                 )}
               </div>
               <button
                 type="submit"
-                disabled={!content.trim() || userCredits < (selectedPlan === 'basic' ? 1 : 2)}
+                disabled={!content.trim() || userCredits < (correctionType === 'premium' ? 3 : 1)}
                 style={{
                   padding: '14px 32px',
                   background: (content.trim() && userCredits >= (selectedPlan === 'basic' ? 1 : 2)) ? '#4F46E5' : '#334155',
