@@ -510,7 +510,25 @@ const RedigirRedacao = () => {
               </div>
               <button
                 type="submit"
-                disabled={!content.trim() || (freeCredits + userCredits) < (correctionType === 'premium' ? 3 : 1)}
+                disabled={(() => {
+                  const hasContent = !!content.trim();
+                  const totalCredits = freeCredits + userCredits;
+                  const requiredCredits = correctionType === 'premium' ? 3 : 1;
+                  const hasEnoughCredits = totalCredits >= requiredCredits;
+                  const isDisabled = !hasContent || !hasEnoughCredits;
+
+                  console.log('🔍 Button Check:', {
+                    hasContent,
+                    freeCredits,
+                    userCredits,
+                    totalCredits,
+                    requiredCredits,
+                    hasEnoughCredits,
+                    isDisabled
+                  });
+
+                  return isDisabled;
+                })()}
                 style={{
                   padding: '14px 32px',
                   background: (content.trim() && (freeCredits + userCredits) >= (correctionType === 'premium' ? 3 : 1)) ? '#4F46E5' : '#334155',
