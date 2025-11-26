@@ -53,7 +53,7 @@ async def process_correction(submission_id: int, db: Session):
             )
         else:
             print("⚡ Usando correção AVANÇADA (Groq)")
-            correction_data = await ai_service.correct_essay_with_ai(
+            correction_data = await ai_service.correct_essay_with_gemini(
                 title=submission.title,
                 theme=submission.theme or "Tema livre",
                 content=submission.content
