@@ -1,32 +1,4 @@
 from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, Text
-from sqlalchemy.orm import relationship
-from datetime import datetime
-
-# Importação da Base declarativa centralizada
-from .database import Base
-
-class User(Base):
-    __tablename__ = "user"  # Usando aspas para evitar conflito com a palavra reservada 'user'
-    __table_args__ = {'extend_existing': True}
-
-    id = Column(Integer, primary_key=True, index=True)
-    full_name = Column(String, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    hashed_refresh_token = Column(String, index=True, nullable=True)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    role = Column(String, default="aluno")  # Adiciona o campo de perfil
-    credits = Column(Integer, default=1)      # CorriCoins (comprados)
-    free_credits = Column(Integer, default=0)  # Créditos grátis
-
-    submissions = relationship("Submission", back_populates="owner")
-
-class Submission(Base):
-    __tablename__ = "submission"
-    __table_args__ = {'extend_existing': True}
-
-    id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     theme = Column(String, nullable=True)
     exam_type = Column(String, nullable=True)
