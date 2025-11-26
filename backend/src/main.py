@@ -532,10 +532,12 @@ def create_package(package: schemas.PackageCreate, current_user: models.User = D
     return db_package
 
 @app.put("/api/packages/{package_id}", response_model=schemas.Package)
-def update_package(package_id: str, package: schemas.PackageUpdate, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Not authorized")
-    
+def update_package(
+    package_id: str, 
+    package: schemas.PackageUpdate, 
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
     db_package = db.query(models.Package).filter(models.Package.id == package_id).first()
     if not db_package:
         raise HTTPException(status_code=404, detail="Package not found")
