@@ -59,13 +59,21 @@ const MinhasCompras = () => {
     };
 
     const formatDate = (dateString: string) => {
+        // Parse as UTC and convert to local timezone
         const date = new Date(dateString);
-        return date.toLocaleDateString('pt-BR', {
+
+        // Force interpretation as UTC if string doesn't have timezone info
+        const utcDate = dateString.includes('Z') || dateString.includes('+')
+            ? date
+            : new Date(dateString + 'Z');
+
+        return utcDate.toLocaleString('pt-BR', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            timeZone: 'America/Sao_Paulo'
         });
     };
 
