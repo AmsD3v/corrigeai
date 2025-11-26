@@ -8,6 +8,7 @@ interface User {
   full_name: string;
   role: string;
   credits: number;
+  free_credits?: number;
   is_admin?: boolean;
 }
 
