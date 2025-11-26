@@ -830,6 +830,87 @@ async def update_settings(
     
     return SettingsResponse(active_ai_provider=settings.active_ai_provider)
 
+
+# ===== ADMIN ENDPOINTS =====
+
+def get_current_admin_user(
+    current_user: models.User = Depends(get_current_user)
+):
+    """Dependency to ensure user is admin"""
+    if not getattr(current_user, 'is_admin', False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acesso negado. Apenas administradores."
+        )
+    return current_user
+
+
+@app.get("/admin/users")
+def list_all_users(
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """List all users (admin only)"""
+    try:
+        users = db.query(models.User).all()
+        return [{
+            "id": user.id,
+            "full_name": user.full_name,
+            "email": user.email,
+            "created_at": user.created_at,
+            "credits": user.credits,
+            "free_credits": getattr(user, 'free_credits', 0),
+            "is_admin": getattr(user, 'is_admin', False)
+        } for user in users]
+    except Exception as e:
+        logging.error(f"Error listing users: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class UpdateCreditsRequest(BaseModel):
+    credits: int
+    free_credits: int
+
+
+@app.patch("/admin/users/{user_id}/credits")
+def update_user_credits(
+    user_id: int,
+    request: UpdateCreditsRequest,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """Update user credits (admin only)"""
+    try:
+        user = db.query(models.User).filter(models.User.id == user_id).first()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="Usuário não encontrado")
+        
+        # Update credits
+        user.credits = request.credits
+        
+        # Update free_credits if column exists
+        if hasattr(user, 'free_credits'):
+            user.free_credits = request.free_credits
+        
+        db.commit()
+        db.refresh(user)
+        
+        logging.info(f"Admin {admin_user.email} updated credits for user {user.email}: credits={request.credits}, free_credits={request.free_credits}")
+        
+        return {
+            "id": user.id,
+            "email": user.email,
+            "credits": user.credits,
+            "free_credits": getattr(user, 'free_credits', 0)
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating user credits: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

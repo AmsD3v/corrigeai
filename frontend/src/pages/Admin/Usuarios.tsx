@@ -52,7 +52,10 @@ const Usuarios = () => {
         if (!editingUser) return;
 
         try {
-            await apiClient.patch(`/admin/users/${editingUser.id}/credits?credits=${newCredits}&free_credits=${newFreeCredits}`);
+            await apiClient.patch(`/admin/users/${editingUser.id}/credits`, {
+                credits: newCredits,
+                free_credits: newFreeCredits
+            });
             alert('Créditos atualizados com sucesso!');
             setEditingUser(null);
             loadUsers();
