@@ -43,6 +43,7 @@ class User(UserBase):
     created_at: datetime
     role: str
     credits: int
+    is_admin: bool = False
 
     model_config = ConfigDict(from_attributes=True) # Usa ConfigDict
 
