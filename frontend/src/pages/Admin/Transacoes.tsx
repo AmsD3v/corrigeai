@@ -21,7 +21,16 @@ interface Transaction {
 const Transacoes = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterStatus, setFilterStatus] = useState<'all' | 'completed' | 'pending' | 'failed'>('all');
+    const [filterStatus, setFilterStatus] = useState<'all' | 'approved' | 'pending' | 'rejected' | 'cancelled'>('all');
+
+    // Modal states
+    const [showApproveModal, setShowApproveModal] = useState(false);
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+    const [rejectReason, setRejectReason] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         loadTransactions();
@@ -39,28 +48,65 @@ const Transacoes = () => {
         }
     };
 
-    const handleApprove = async (transactionId: number) => {
-        if (!confirm('Tem certeza que deseja aprovar esta transação?')) return;
+    const handleApprove = (transactionId: number) => {
+        const txn = transactions.find(t => t.id === transactionId);
+        if (!txn) return;
+
+        setSelectedTransaction(txn);
+        setShowApproveModal(true);
+    };
+
+    const confirmApprove = async () => {
+        if (!selectedTransaction) return;
+
+        setLoading(true);
+        setShowApproveModal(false);
 
         try {
-            await apiClient.patch(`/admin/transactions/${transactionId}/approve`);
-            alert('Transação aprovada com sucesso!');
-            loadTransactions(); // Reload list
+            const response = await apiClient.patch(`/admin/transactions/${selectedTransaction.id}/approve`);
+            setModalMessage(response.data.message || 'Transação aprovada com sucesso!');
+            setShowSuccessModal(true);
+            loadTransactions();
         } catch (error: any) {
-            alert(`Erro: ${error.response?.data?.detail || error.message}`);
+            console.error('Approve error:', error);
+            setModalMessage(`Erro: ${error.response?.data?.detail || error.message}`);
+            setShowSuccessModal(true);
+        } finally {
+            setLoading(false);
+            setSelectedTransaction(null);
         }
     };
 
-    const handleReject = async (transactionId: number) => {
-        const reason = prompt('Motivo da rejeição (opcional):');
-        if (reason === null) return; // User cancelled
+    const handleReject = (transactionId: number) => {
+        const txn = transactions.find(t => t.id === transactionId);
+        if (!txn) return;
+
+        setSelectedTransaction(txn);
+        setRejectReason('');
+        setShowRejectModal(true);
+    };
+
+    const confirmReject = async () => {
+        if (!selectedTransaction) return;
+
+        setLoading(true);
+        setShowRejectModal(false);
 
         try {
-            await apiClient.patch(`/admin/transactions/${transactionId}/reject`, { reason });
-            alert('Transação rejeitada.');
-            loadTransactions(); // Reload list
+            await apiClient.patch(`/admin/transactions/${selectedTransaction.id}/reject`,
+                rejectReason ? { reason: rejectReason } : {}
+            );
+            setModalMessage('Transação rejeitada.');
+            setShowSuccessModal(true);
+            loadTransactions();
         } catch (error: any) {
-            alert(`Erro: ${error.response?.data?.detail || error.message}`);
+            console.error('Reject error:', error);
+            setModalMessage(`Erro: ${error.response?.data?.detail || error.message}`);
+            setShowSuccessModal(true);
+        } finally {
+            setLoading(false);
+            setSelectedTransaction(null);
+            setRejectReason('');
         }
     };
 
@@ -405,6 +451,239 @@ const Transacoes = () => {
                     </div>
                 )}
             </div>
+
+            {/* Approve Modal */}
+            {showApproveModal && selectedTransaction && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    background: 'rgba(0, 0, 0, 0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        background: '#1a1f2e',
+                        border: '1px solid #334155',
+                        borderRadius: '16px',
+                        padding: '32px',
+                        maxWidth: '500px',
+                        width: '90%'
+                    }}>
+                        <h2 style={{ color: '#fff', marginBottom: '16px', fontSize: '24px' }}>
+                            ✅ Aprovar Transação
+                        </h2>
+                        <p style={{ color: '#94a3b8', marginBottom: '24px' }}>
+                            Você está prestes a aprovar a transação:
+                        </p>
+                        <div style={{
+                            background: '#0f1419',
+                            padding: '16px',
+                            borderRadius: '8px',
+                            marginBottom: '24px'
+                        }}>
+                            <div style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '8px' }}>
+                                <strong style={{ color: '#fff' }}>Usuário:</strong> {selectedTransaction.user_name}
+                            </div>
+                            <div style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '8px' }}>
+                                <strong style={{ color: '#fff' }}>Pacote:</strong> {selectedTransaction.package_name}
+                            </div>
+                            <div style={{ color: '#94a3b8', fontSize: '13px' }}>
+                                <strong style={{ color: '#fff' }}>Créditos:</strong> {selectedTransaction.coins_amount + selectedTransaction.bonus_coins}
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                                onClick={confirmApprove}
+                                disabled={loading}
+                                style={{
+                                    flex: 1,
+                                    padding: '12px 24px',
+                                    background: loading ? '#64748b' : '#10b981',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    color: '#fff',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    cursor: loading ? 'not-allowed' : 'pointer'
+                                }}
+                            >
+                                {loading ? 'Aprovando...' : 'Confirmar Aprovação'}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setShowApproveModal(false);
+                                    setSelectedTransaction(null);
+                                }}
+                                disabled={loading}
+                                style={{
+                                    flex: 1,
+                                    padding: '12px 24px',
+                                    background: '#334155',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    color: '#94a3b8',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    cursor: loading ? 'not-allowed' : 'pointer'
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Reject Modal */}
+            {showRejectModal && selectedTransaction && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    background: 'rgba(0, 0, 0, 0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        background: '#1a1f2e',
+                        border: '1px solid #334155',
+                        borderRadius: '16px',
+                        padding: '32px',
+                        maxWidth: '500px',
+                        width: '90%'
+                    }}>
+                        <h2 style={{ color: '#fff', marginBottom: '16px', fontSize: '24px' }}>
+                            ❌ Rejeitar Transação
+                        </h2>
+                        <p style={{ color: '#94a3b8', marginBottom: '24px' }}>
+                            Você está prestes a rejeitar a transação de <strong style={{ color: '#fff' }}>{selectedTransaction.user_name}</strong>.
+                        </p>
+                        <textarea
+                            placeholder="Motivo da rejeição (opcional)"
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '12px',
+                                background: '#0f1419',
+                                border: '1px solid #334155',
+                                borderRadius: '8px',
+                                color: '#fff',
+                                fontSize: '14px',
+                                marginBottom: '24px',
+                                minHeight: '100px',
+                                resize: 'vertical',
+                                fontFamily: 'inherit'
+                            }}
+                        />
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                                onClick={confirmReject}
+                                disabled={loading}
+                                style={{
+                                    flex: 1,
+                                    padding: '12px 24px',
+                                    background: loading ? '#64748b' : '#ef4444',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    color: '#fff',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    cursor: loading ? 'not-allowed' : 'pointer'
+                                }}
+                            >
+                                {loading ? 'Rejeitando...' : 'Confirmar Rejeição'}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setShowRejectModal(false);
+                                    setSelectedTransaction(null);
+                                    setRejectReason('');
+                                }}
+                                disabled={loading}
+                                style={{
+                                    flex: 1,
+                                    padding: '12px 24px',
+                                    background: '#334155',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    color: '#94a3b8',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    cursor: loading ? 'not-allowed' : 'pointer'
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Success/Error Modal */}
+            {showSuccessModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    background: 'rgba(0, 0, 0, 0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        background: '#1a1f2e',
+                        border: '1px solid #334155',
+                        borderRadius: '16px',
+                        padding: '32px',
+                        maxWidth: '400px',
+                        width: '90%',
+                        textAlign: 'center'
+                    }}>
+                        <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+                            {modalMessage.includes('Erro') ? '⚠️' : '✅'}
+                        </div>
+                        <p style={{
+                            color: '#fff',
+                            fontSize: '16px',
+                            marginBottom: '24px',
+                            lineHeight: '1.5'
+                        }}>
+                            {modalMessage}
+                        </p>
+                        <button
+                            onClick={() => {
+                                setShowSuccessModal(false);
+                                setModalMessage('');
+                            }}
+                            style={{
+                                padding: '12px 32px',
+                                background: '#10b981',
+                                border: 'none',
+                                borderRadius: '8px',
+                                color: '#fff',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            OK
+                        </button>
+                    </div>
+                </div>
+            )}
         </AdminLayout>
     );
 };
