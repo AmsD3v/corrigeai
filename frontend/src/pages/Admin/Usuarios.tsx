@@ -56,9 +56,8 @@ const Usuarios = () => {
                 credits: newCredits,
                 free_credits: newFreeCredits
             });
-            alert('Créditos atualizados com sucesso!');
             setEditingUser(null);
-            loadUsers();
+            await loadUsers(); // Reload to show updated values
         } catch (error) {
             console.error('Error updating credits:', error);
             alert('Erro ao atualizar créditos');
