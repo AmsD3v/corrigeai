@@ -23,6 +23,7 @@ const RedigirRedacao = () => {
   const [generatingTheme, setGeneratingTheme] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userCredits, setUserCredits] = useState<number>(0);
+  const [freeCredits, setFreeCredits] = useState<number>(0);
   const [loadingCredits, setLoadingCredits] = useState(true);
 
   // Fetch user credits on mount
@@ -31,9 +32,11 @@ const RedigirRedacao = () => {
       try {
         const response = await apiClient.get('/users/me');
         setUserCredits(response.data.credits || 0);
+        setFreeCredits(response.data.free_credits || 0);
       } catch (error) {
         console.error('Error fetching credits:', error);
         setUserCredits(0);
+        setFreeCredits(0);
       } finally {
         setLoadingCredits(false);
       }
@@ -488,25 +491,30 @@ const RedigirRedacao = () => {
                 fontSize: '13px',
                 color: '#94a3b8'
               }}>
-                <span style={{ color: '#fbbf24' }}>⚠️</span> Custo: <strong style={{ color: '#fff' }}>{correctionType === 'premium' ? '3' : '1'} CorriCoins</strong>
+                <span style={{ color: '#fbbf24' }}>⚠️</span> Custo: <strong style={{ color: '#fff' }}>{correctionType === 'premium' ? '3' : '1'} crédito{correctionType === 'premium' ? 's' : ''}</strong>
                 {!loadingCredits && (
-                  <span style={{ marginLeft: '12px', color: userCredits < (correctionType === 'premium' ? 3 : 1) ? '#ef4444' : '#10b981' }}>
-                    (Você tem: <strong>{userCredits}</strong> {userCredits === 1 ? 'CorriCoin' : 'CorriCoins'})
+                  <span style={{ marginLeft: '12px', color: (freeCredits + userCredits) < (correctionType === 'premium' ? 3 : 1) ? '#ef4444' : '#10b981' }}>
+                    (Você tem:
+                    {freeCredits > 0 && <><strong style={{ color: '#10b981' }}>{freeCredits}</strong> <span style={{ color: '#10b981' }}>grátis</span></>}
+                    {freeCredits > 0 && userCredits > 0 && ' + '}
+                    {userCredits > 0 && <><strong style={{ color: '#fbbf24' }}>{userCredits}</strong> <span style={{ color: '#fbbf24' }}>CorriCoin{userCredits === 1 ? '' : 's'}</span></>}
+                    {freeCredits === 0 && userCredits === 0 && <strong>0</strong>}
+                    )
                   </span>
                 )}
               </div>
               <button
                 type="submit"
-                disabled={!content.trim() || userCredits < (correctionType === 'premium' ? 3 : 1)}
+                disabled={!content.trim() || (freeCredits + userCredits) < (correctionType === 'premium' ? 3 : 1)}
                 style={{
                   padding: '14px 32px',
-                  background: (content.trim() && userCredits >= (correctionType === 'premium' ? 3 : 1)) ? '#4F46E5' : '#334155',
-                  color: (content.trim() && userCredits >= (correctionType === 'premium' ? 3 : 1)) ? '#fff' : '#64748b',
+                  background: (content.trim() && (freeCredits + userCredits) >= (correctionType === 'premium' ? 3 : 1)) ? '#4F46E5' : '#334155',
+                  color: (content.trim() && (freeCredits + userCredits) >= (correctionType === 'premium' ? 3 : 1)) ? '#fff' : '#64748b',
                   border: 'none',
                   borderRadius: '12px',
                   fontSize: '15px',
                   fontWeight: '600',
-                  cursor: (content.trim() && userCredits >= (correctionType === 'premium' ? 3 : 1)) ? 'pointer' : 'not-allowed',
+                  cursor: (content.trim() && (freeCredits + userCredits) >= (correctionType === 'premium' ? 3 : 1)) ? 'pointer' : 'not-allowed',
                   transition: 'all 0.2s'
                 }}
                 onMouseEnter={(e) => {
