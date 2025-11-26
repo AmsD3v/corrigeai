@@ -360,6 +360,44 @@ async def submit_essay(
     return db_submission
 
 
+@app.get("/my-submissions")
+def list_my_submissions(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """
+    Lista todas as submissões do usuário atual com suas correções
+    """
+    try:
+        # Buscar todas as submissões do usuário
+        submissions = db.query(models.Submission).filter(
+            models.Submission.owner_id == current_user.id
+        ).order_by(models.Submission.submitted_at.desc()).all()
+        
+        result = []
+        for submission in submissions:
+            # Buscar a correção associada (se existir)
+            correction = db.query(models.Correction).filter(
+                models.Correction.submission_id == submission.id
+            ).first()
+            
+            result.append({
+                "id": submission.id,
+                "title": submission.title,
+                "theme": submission.theme,
+                "submitted_at": submission.submitted_at,
+                "status": submission.status,
+                "correction_type": getattr(submission, 'correction_type', 'advanced'),
+                "score": correction.total_score if correction else None,
+                "has_correction": correction is not None
+            })
+        
+        return result
+    except Exception as e:
+        logging.error(f"Erro ao listar submissões: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/submissions/{submission_id}", response_model=schemas.SubmissionResponse)
 def read_submission(
     submission_id: int,
