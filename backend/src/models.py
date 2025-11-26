@@ -10,6 +10,9 @@ class User(Base):
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
+    full_name = Column(String, index=True)
+
+    id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     theme = Column(String, nullable=True)
     exam_type = Column(String, nullable=True)
