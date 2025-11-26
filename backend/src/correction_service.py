@@ -1,14 +1,3 @@
-import logging
-import traceback
-from sqlalchemy.orm import Session
-from . import models
-from .ai_service import correct_essay_with_gemini  # Multi-provider support
-
-
-logger = logging.getLogger(__name__)
-
-async def process_correction(submission_id: int, db: Session):
-    """
     Processa a correção de uma redação usando Gemini AI
     
     Args:
