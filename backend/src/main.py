@@ -314,7 +314,7 @@ async def submit_essay(
     verificando se ele tem o perfil 'aluno' e créditos suficientes.
     A correção é executada de forma síncrona para garantir que funcione.
     """
-    logging.info(f"🔵 ENDPOINT /submit CHAMADO - User: {current_user.email}, Title: {submission.title}")
+    logging.info(f"🔵 ENDPOINT /submit CHAMADO - User: {current_user.email}, Title: {submission.title}, Type: {submission.correction_type}")
     
     if current_user.role != "aluno":
         raise HTTPException(
@@ -322,10 +322,20 @@ async def submit_essay(
             detail="Apenas usuários com perfil 'aluno' podem enviar redações.",
         )
 
-    if current_user.credits <= 0:
+    # Validate correction_type
+    if submission.correction_type not in ["advanced", "premium"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Tipo de correção inválido. Use 'advanced' ou 'premium'.",
+        )
+    
+    # Calculate required credits
+    required_credits = 3 if submission.correction_type == "premium" else 1
+    
+    if current_user.credits < required_credits:
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
-            detail="Créditos insuficientes para enviar a redação.",
+            detail=f"Créditos insuficientes. Necessário: {required_credits}, Disponível: {current_user.credits}",
         )
 
     db_submission = models.Submission(
@@ -333,13 +343,14 @@ async def submit_essay(
     )
     db.add(db_submission)
     
-    current_user.credits -= 1
+    # Deduct credits based on type
+    current_user.credits -= required_credits
     
     db.commit()
     db.refresh(db_submission)
     
     # Executa a correção de forma síncrona (inline) para garantir que funcione
-    logging.info(f"Iniciando correção síncrona da submissão {db_submission.id}")
+    logging.info(f"Iniciando correção {submission.correction_type} da submissão {db_submission.id}")
     try:
         await trigger_correction(db_submission.id)
         logging.info(f"Correção da submissão {db_submission.id} iniciada com sucesso")

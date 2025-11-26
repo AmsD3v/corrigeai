@@ -1,4 +1,15 @@
-    Processa a correção de uma redação usando Gemini AI
+import logging
+import traceback
+import os
+from sqlalchemy.orm import Session
+from . import models
+from . import ai_service
+
+logger = logging.getLogger(__name__)
+
+async def process_correction(submission_id: int, db: Session):
+    """
+    Processa a correção de uma redação usando AI (Advanced ou Premium)
     
     Args:
         submission_id: ID da submissão a ser corrigida
@@ -16,57 +27,77 @@
             logger.error(f"Submissão {submission_id} não encontrada")
             return
         
-        print(f"✅ Submissão encontrada. Updating status to 'processing'...")
-        logger.info(f"Iniciando correção da submissão {submission_id}")
+        correction_type = getattr(submission, 'correction_type', 'advanced')
+        print(f"✅ Submissão encontrada. Tipo: {correction_type}")
+        logger.info(f"Iniciando correção {correction_type} da submissão {submission_id}")
         
         # Update status to processing
         submission.status = "processing"
         db.commit()
         
-        logger.info(f"Status atualizado para 'processing'. Chamando Gemini AI...")
+        # Call appropriate correction function based on type
+        if correction_type == "premium":
+            print("💎 Usando correção PREMIUM (Groq + Gemini)")
+            groq_key = os.getenv('GROQ_API_KEY')
+            gemini_key = os.getenv('GEMINI_API_KEY')
+            
+            if not groq_key or not gemini_key:
+                raise Exception("Premium requires both GROQ and GEMINI API keys")
+            
+            correction_data = await ai_service.correct_essay_premium(
+                title=submission.title,
+                theme=submission.theme or "Tema livre",
+                content=submission.content,
+                api_key_groq=groq_key,
+                api_key_gemini=gemini_key
+            )
+        else:
+            print("⚡ Usando correção AVANÇADA (Groq)")
+            correction_data = await ai_service.correct_essay_with_ai(
+                title=submission.title,
+                theme=submission.theme or "Tema livre",
+                content=submission.content
+            )
         
-        # Call Gemini AI for correction
-        correction_data = await correct_essay_with_gemini(
-            title=submission.title,
-            theme=submission.theme or "Tema livre",
-            content=submission.content
-        )
+        logger.info(f"AI retornou dados. Salvando no banco...")
         
-        logger.info(f"Gemini retornou dados. Salvando no banco...")
-        logger.debug(f"Correction data keys: {correction_data.keys()}")
-        
-        # Save correction to database
+        # Save correction
         db_correction = models.Correction(
-            submission_id=submission_id,
-            **correction_data
+            submission_id=submission.id,
+            competence_1_score=correction_data['competence_1_score'],
+            competence_2_score=correction_data['competence_2_score'],
+            competence_3_score=correction_data['competence_3_score'],
+            competence_4_score=correction_data['competence_4_score'],
+            competence_5_score=correction_data['competence_5_score'],
+            total_score=correction_data['total_score'],
+            competence_1_feedback=correction_data['competence_1_feedback'],
+            competence_2_feedback=correction_data['competence_2_feedback'],
+            competence_3_feedback=correction_data['competence_3_feedback'],
+            competence_4_feedback=correction_data['competence_4_feedback'],
+            competence_5_feedback=correction_data['competence_5_feedback'],
+            strengths=correction_data['strengths'],
+            improvements=correction_data['improvements'],
+            general_comments=correction_data['general_comments']
         )
-        db.add(db_correction)
         
-        # Update submission status
+        db.add(db_correction)
         submission.status = "completed"
         db.commit()
-        db.refresh(db_correction)
         
-        logger.info(f"✅ Correção da submissão {submission_id} concluída com sucesso. Nota: {correction_data['total_score']}/1000")
+        logger.info(f"✅ Correção concluída para submissão {submission_id}")
+        print(f"✅ ==== CORRECTION COMPLETED ====\n")
         
     except Exception as e:
-        logger.error(f"❌ ERRO ao processar correção da submissão {submission_id}: {e}")
-        logger.error(f"Traceback completo:\n{traceback.format_exc()}")
+        logger.error(f"❌ Erro ao processar correção: {str(e)}")
+        logger.error(traceback.format_exc())
+        print(f"❌ ERROR: {e}")
         
-        # Update status to failed
         try:
-            submission.status = "failed"
-            db.commit()
-            
-            # Refund credit to user  
-            user = db.query(models.User).filter(
-                models.User.id == submission.owner_id
+            submission = db.query(models.Submission).filter(
+                models.Submission.id == submission_id
             ).first()
-            
-            if user:
-                user.credits += 1
+            if submission:
+                submission.status = "error"
                 db.commit()
-                logger.info(f"Crédito estornado para o usuário {user.id} devido à falha na correção")
-        except Exception as rollback_error:
-            logger.error(f"Erro ao fazer rollback: {rollback_error}")
-
+        except Exception as db_error:
+            logger.error(f"Erro ao atualizar status: {str(db_error)}")

@@ -58,6 +58,7 @@ class SubmissionBase(BaseModel):
     theme: Optional[str] = None
     exam_type: Optional[str] = None
     content: str
+    correction_type: str = "advanced"  # "advanced" or "premium"
 
     @field_validator('title')
     @classmethod
