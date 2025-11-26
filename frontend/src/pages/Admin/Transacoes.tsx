@@ -78,14 +78,15 @@ const Transacoes = () => {
 
     const handleExportCSV = () => {
         const csv = [
-            ['ID', 'Usuário', 'Data', 'Valor', 'Pacote', 'Método', 'Status'].join(','),
+            ['ID', 'Usuário', 'Email', 'Data', 'Valor', 'Pacote', 'Método', 'Status'].join(','),
             ...filteredTransactions.map(txn => [
                 txn.id,
-                txn.userName,
-                new Date(txn.date).toLocaleDateString('pt-BR'),
-                `R$ ${txn.amount.toFixed(2)}`,
-                txn.package,
-                txn.paymentMethod,
+                txn.user_name,
+                txn.user_email,
+                new Date(txn.created_at + 'Z').toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+                `R$ ${(txn.price / 100).toFixed(2)}`,
+                txn.package_name,
+                txn.payment_method || 'N/A',
                 txn.status
             ].join(','))
         ].join('\n');
