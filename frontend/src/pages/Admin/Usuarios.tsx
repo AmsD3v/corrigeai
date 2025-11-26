@@ -149,19 +149,20 @@ const Usuarios = () => {
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Email</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Cadastro</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>CorriCoins</th>
+                                <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Grátis</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan={5} style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
+                                    <td colSpan={6} style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
                                         Carregando...
                                     </td>
                                 </tr>
                             ) : filteredUsers.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
+                                    <td colSpan={6} style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
                                         Nenhum usuário encontrado
                                     </td>
                                 </tr>
@@ -175,6 +176,9 @@ const Usuarios = () => {
                                         </td>
                                         <td style={{ padding: '16px', color: '#fbbf24', fontSize: '14px', fontWeight: '600' }}>
                                             🪙 {user.credits || 0}
+                                        </td>
+                                        <td style={{ padding: '16px', color: '#10b981', fontSize: '14px', fontWeight: '600' }}>
+                                            ⚡ {user.free_credits || 0}
                                         </td>
                                         <td style={{ padding: '16px' }}>
                                             <button
