@@ -837,7 +837,10 @@ def get_current_admin_user(
     current_user: models.User = Depends(get_current_user)
 ):
     """Dependency to ensure user is admin"""
-    if not getattr(current_user, 'is_admin', False):
+    is_admin = getattr(current_user, 'is_admin', False)
+    logging.info(f"Admin check for user {current_user.email}: is_admin={is_admin}")
+    
+    if not is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Acesso negado. Apenas administradores."
