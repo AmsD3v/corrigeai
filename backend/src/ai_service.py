@@ -35,32 +35,74 @@ AI_PROVIDERS = {
 }
 
 # Prompt universal para avaliação
-CORRECTION_PROMPT = """Você é um corretor especialista do ENEM. Analise a redação abaixo com extremo rigor.
+# Prompt detalhado com critérios ENEM
+CORRECTION_PROMPT = """Você é um corretor OFICIAL do ENEM. Analise esta redação seguindo RIGOROSAMENTE os critérios oficiais.
 
-Para CADA UMA das 5 competências, você DEVE fornecer:
-1. Nota (0, 40, 80, 120, 160 ou 200)
-2. Feedback detalhado contendo:
-   - Análise crítica
-   - Pontos Fortes (destaque o que foi bom)
-   - O que melhorar (sugestões práticas)
+**CRITÉRIOS DE PONTUAÇÃO (0, 40, 80, 120, 160, 200 por competência):**
 
-Retorne APENAS JSON neste formato exato:
+**COMPETÊNCIA 1 - Domínio da Norma Culta:**
+- 200: Excelente domínio, desvios raríssimos
+- 160: Bom domínio, poucos desvios leves
+- 120: Domínio adequado, alguns desvios
+- 80: Domínio mediano, desvios frequentes
+- 40: Domínio insuficiente, muitos desvios
+- 0: Domínio precário, graves problemas
+
+**COMPETÊNCIA 2 - Compreensão do Tema:**
+- 200: Desenvolvimento EXCELENTE do tema
+- 160: Desenvolvimento BOM, tangenciando levemente
+- 120: Desenvolvimento ADEQUADO do tema
+- 80: Desenvolvimento mediano, tangencia em partes
+- 40: Desenvolvimento insuficiente
+- 0: Fuga total ao tema
+
+**COMPETÊNCIA 3 - Argumentação:**
+- 200: Argumentação EXCELENTE (autoral, consistente, repertório legitimado)
+- 160: Argumentação BOA (consistente, bom repertório)
+- 120: Argumentação ADEQUADA (previsível, repertório superficial)
+- 80: Argumentação mediana (frágil, repertório limitado)
+- 40: Argumentação insuficiente
+- 0: Sem argumentação
+
+**COMPETÊNCIA 4 - Coesão e Coerência:**
+- 200: Articulação EXCELENTE de ideias
+- 160: Articulação BOA
+- 120: Articulação ADEQUADA
+- 80: Articulação mediana, alguns problemas
+- 40: Articulação insuficiente
+- 0: Sem articulação
+
+**COMPETÊNCIA 5 - Proposta de Intervenção:**
+- 200: Proposta COMPLETA (5 elementos: ação, agente, modo, efeito, detalhamento)
+- 160: Proposta com 4 elementos bem desenvolvidos
+- 120: Proposta com 3 elementos ou 4 superficiais
+- 80: Proposta com 2 elementos ou genérica
+- 40: Proposta vaga/incompleta
+- 0: Sem proposta
+
+**IMPORTANTE:** 
+- Seja CRITERIOSO: notas intermediárias (40, 80, 120, 160) são COMUNS
+- Nota 200 é RARA (somente para textos excepcionais)
+- Nota 0 é RARA (somente para problemas gravíssimos)
+- A MAIORIA das redações fica entre 80-160 por competência
+
+Retorne APENAS JSON neste formato:
 
 {{
   "competence_1_score": 120,
-  "competence_1_feedback": "Análise: ...\\n\\n✅ Pontos Fortes: ...\\n\\n⚠️ O que melhorar: ...",
-  "competence_2_score": 120,
-  "competence_2_feedback": "Análise: ...\\n\\n✅ Pontos Fortes: ...\\n\\n⚠️ O que melhorar: ...",
+  "competence_1_feedback": "Análise: [análise detalhada]\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
+  "competence_2_score": 160,
+  "competence_2_feedback": "Análise: [análise detalhada]\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
   "competence_3_score": 120,
-  "competence_3_feedback": "Análise: ...\\n\\n✅ Pontos Fortes: ...\\n\\n⚠️ O que melhorar: ...",
-  "competence_4_score": 120,
-  "competence_4_feedback": "Análise: ...\\n\\n✅ Pontos Fortes: ...\\n\\n⚠️ O que melhorar: ...",
+  "competence_3_feedback": "Análise: [análise detalhada]\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
+  "competence_4_score": 80,
+  "competence_4_feedback": "Análise: [análise detalhada]\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
   "competence_5_score": 120,
-  "competence_5_feedback": "Análise: ...\\n\\n✅ Pontos Fortes: ...\\n\\n⚠️ O que melhorar: ...",
+  "competence_5_feedback": "Análise: [análise detalhada]\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
   "total_score": 600,
-  "strengths": ["Resumo do ponto forte 1", "Resumo do ponto forte 2"],
-  "improvements": ["Resumo da melhoria 1", "Resumo da melhoria 2"],
-  "general_comments": "Comentário geral sobre a redação e dicas finais."
+  "strengths": ["Ponto forte específico 1", "Ponto forte específico 2"],
+  "improvements": ["Melhoria específica 1", "Melhoria específica 2"],
+  "general_comments": "Comentário geral construtivo."
 }}
 
 Texto:
@@ -123,9 +165,9 @@ async def correct_with_groq(title: str, theme: str, content: str, api_key: str) 
         logger.info(f"Sending to Groq: {title}")
         
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",  # Updated model (llama-3.1 decommissioned)
+            model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
+            temperature=0.7,  # Increased for more varied scoring
             max_tokens=2048
         )
         
@@ -234,25 +276,10 @@ async def correct_essay_with_gemini(title: str, theme: str, content: str) -> dic
             raise Exception(f"Unknown provider: {provider}")
             
     except Exception as e:
-        # Fallback: return default correction
+        # Log error and re-raise (no silent fallback)
         print(f"❌ AI correction failed: {e}")
         logger.error(f"AI correction failed: {e}")
-        return {
-            'competence_1_score': 120,
-            'competence_1_feedback': f'Erro ao processar com {provider}. Tente novamente.',
-            'competence_2_score': 120,
-            'competence_2_feedback': 'Erro ao processar.',
-            'competence_3_score': 120,
-            'competence_3_feedback': 'Erro ao processar.',
-            'competence_4_score': 120,
-            'competence_4_feedback': 'Erro ao processar.',
-            'competence_5_score': 120,
-            'competence_5_feedback': 'Erro ao processar.',
-            'total_score': 600,
-            'strengths': json.dumps(['Erro ao processar'], ensure_ascii=False),
-            'improvements': json.dumps(['Tente novamente'], ensure_ascii=False),
-            'general_comments': f'Erro ao processar com {provider}. Verifique a configuração da API key.'
-        }
+        raise Exception(f"Falha na correção com {provider}: {str(e)}. Verifique se a API key está configurada corretamente.")
 
 
 async def generate_theme_with_gemini(category: str) -> str:
