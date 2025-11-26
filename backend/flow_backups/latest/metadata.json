@@ -1,0 +1,11 @@
+{
+  "timestamp": "20251125_174019",
+  "files": [
+    "src/ai_service.py",
+    "src/correction_service.py",
+    "src/main.py",
+    "src/models.py",
+    ".env"
+  ],
+  "description": "Backup autom\u00e1tico do fluxo de corre\u00e7\u00e3o"
+}
