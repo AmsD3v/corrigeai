@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
+import apiClient from '../../services/api';
 
 interface Transaction {
-    id: string;
-    userId: string;
-    userName: string;
-    date: string;
-    amount: number;
-    package: string;
-    credits: number;
-    paymentMethod: string;
-    status: 'completed' | 'pending' | 'failed';
+    id: number;
+    user_id: number;
+    user_name: string;
+    user_email: string;
+    created_at: string;
+    price: number;
+    package_name: string;
+    coins_amount: number;
+    bonus_coins: number;
+    payment_method: string | null;
+    payment_id: string | null;
+    status: string;
+    approved_at: string | null;
 }
 
 const Transacoes = () => {
@@ -20,45 +25,56 @@ const Transacoes = () => {
 
     useEffect(() => {
         loadTransactions();
-    }, []);
+    }, [filterStatus]);
 
-    const loadTransactions = () => {
-        // Generate mock transactions from localStorage data
-        const allKeys = Object.keys(localStorage);
-        const essayKeys = allKeys.filter(key => key.startsWith('essay_'));
+    const loadTransactions = async () => {
+        try {
+            const params = filterStatus !== 'all' ? `?status_filter=${filterStatus}` : '';
+            const response = await apiClient.get(`/admin/transactions${params}`);
+            console.log('Admin transactions loaded:', response.data);
+            setTransactions(response.data);
+        } catch (error) {
+            console.error('Error loading transactions:', error);
+            setTransactions([]);
+        }
+    };
 
-        const mockTransactions: Transaction[] = essayKeys.map((key, index) => {
-            const essayId = key.replace('essay_', '');
-            const essayData = JSON.parse(localStorage.getItem(key) || '{}');
+    const handleApprove = async (transactionId: number) => {
+        if (!confirm('Tem certeza que deseja aprovar esta transação?')) return;
 
-            return {
-                id: `txn_${essayId}`,
-                userId: essayData.userId || 'unknown',
-                userName: `Usuário ${index + 1}`,
-                date: essayData.submitted_at || new Date().toISOString(),
-                amount: 15.00,
-                package: 'Correção Individual',
-                credits: 1,
-                paymentMethod: ['Cartão de Crédito', 'PIX', 'Boleto'][Math.floor(Math.random() * 3)],
-                status: 'completed'
-            };
-        });
+        try {
+            await apiClient.patch(`/admin/transactions/${transactionId}/approve`);
+            alert('Transação aprovada com sucesso!');
+            loadTransactions(); // Reload list
+        } catch (error: any) {
+            alert(`Erro: ${error.response?.data?.detail || error.message}`);
+        }
+    };
 
-        mockTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        setTransactions(mockTransactions);
+    const handleReject = async (transactionId: number) => {
+        const reason = prompt('Motivo da rejeição (opcional):');
+        if (reason === null) return; // User cancelled
+
+        try {
+            await apiClient.patch(`/admin/transactions/${transactionId}/reject`, { reason });
+            alert('Transação rejeitada.');
+            loadTransactions(); // Reload list
+        } catch (error: any) {
+            alert(`Erro: ${error.response?.data?.detail || error.message}`);
+        }
     };
 
     const filteredTransactions = transactions.filter(txn => {
-        const matchesSearch = txn.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            txn.id.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = filterStatus === 'all' || txn.status === filterStatus;
-        return matchesSearch && matchesStatus;
+        const matchesSearch = txn.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            txn.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            txn.id.toString().includes(searchTerm);
+        return matchesSearch;
     });
 
-    const totalRevenue = transactions.reduce((sum, txn) => sum + (txn.status === 'completed' ? txn.amount : 0), 0);
-    const completedCount = transactions.filter(t => t.status === 'completed').length;
+    const totalRevenue = transactions.reduce((sum, txn) => sum + (txn.status === 'approved' ? txn.price / 100 : 0), 0);
+    const completedCount = transactions.filter(t => t.status === 'approved').length;
     const pendingCount = transactions.filter(t => t.status === 'pending').length;
-    const failedCount = transactions.filter(t => t.status === 'failed').length;
+    const failedCount = transactions.filter(t => t.status === 'rejected').length;
 
     const handleExportCSV = () => {
         const csv = [
@@ -84,18 +100,20 @@ const Transacoes = () => {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'completed': return '#10b981';
+            case 'approved': return '#10b981';
             case 'pending': return '#f59e0b';
-            case 'failed': return '#ef4444';
+            case 'rejected': return '#ef4444';
+            case 'cancelled': return '#64748b';
             default: return '#64748b';
         }
     };
 
     const getStatusLabel = (status: string) => {
         switch (status) {
-            case 'completed': return 'Concluída';
+            case 'approved': return 'Aprovado';
             case 'pending': return 'Pendente';
-            case 'failed': return 'Falhou';
+            case 'rejected': return 'Rejeitado';
+            case 'cancelled': return 'Cancelado';
             default: return status;
         }
     };
@@ -222,9 +240,10 @@ const Transacoes = () => {
                     }}
                 >
                     <option value="all">Todos os status</option>
-                    <option value="completed">Concluídas</option>
+                    <option value="approved">Aprovados</option>
                     <option value="pending">Pendentes</option>
-                    <option value="failed">Falhadas</option>
+                    <option value="rejected">Rejeitados</option>
+                    <option value="cancelled">Cancelados</option>
                 </select>
                 <button
                     onClick={handleExportCSV}
@@ -271,28 +290,44 @@ const Transacoes = () => {
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Pacote</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Método</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Status</th>
+                                <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredTransactions.map((txn) => (
                                 <tr key={txn.id} style={{ borderTop: '1px solid #334155' }}>
                                     <td style={{ padding: '16px', color: '#94a3b8', fontSize: '13px', fontFamily: 'monospace' }}>
-                                        {txn.id}
+                                        #{txn.id}
                                     </td>
-                                    <td style={{ padding: '16px', color: '#fff', fontSize: '14px' }}>
-                                        {txn.userName}
+                                    <td style={{ padding: '16px' }}>
+                                        <div style={{ color: '#fff', fontSize: '14px', fontWeight: '600', marginBottom: '2px' }}>
+                                            {txn.user_name}
+                                        </div>
+                                        <div style={{ color: '#94a3b8', fontSize: '12px' }}>
+                                            {txn.user_email}
+                                        </div>
                                     </td>
                                     <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
-                                        {new Date(txn.date).toLocaleDateString('pt-BR')}
+                                        {new Date(txn.created_at + 'Z').toLocaleString('pt-BR', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            timeZone: 'America/Sao_Paulo'
+                                        })}
                                     </td>
                                     <td style={{ padding: '16px', color: '#10b981', fontSize: '14px', fontWeight: '600' }}>
-                                        R$ {txn.amount.toFixed(2)}
+                                        R$ {(txn.price / 100).toFixed(2)}
                                     </td>
                                     <td style={{ padding: '16px', color: '#fff', fontSize: '14px' }}>
-                                        {txn.package}
+                                        <div>{txn.package_name}</div>
+                                        <div style={{ fontSize: '12px', color: '#94a3b8' }}>
+                                            {txn.coins_amount + txn.bonus_coins} créditos
+                                        </div>
                                     </td>
                                     <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
-                                        {txn.paymentMethod}
+                                        {txn.payment_method || 'N/A'}
                                     </td>
                                     <td style={{ padding: '16px' }}>
                                         <span style={{
@@ -305,6 +340,53 @@ const Transacoes = () => {
                                         }}>
                                             {getStatusLabel(txn.status)}
                                         </span>
+                                    </td>
+                                    <td style={{ padding: '16px' }}>
+                                        {txn.status === 'pending' && (
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button
+                                                    onClick={() => handleApprove(txn.id)}
+                                                    style={{
+                                                        padding: '6px 12px',
+                                                        background: '#10b981',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        color: '#fff',
+                                                        fontSize: '12px',
+                                                        fontWeight: '600',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.2s'
+                                                    }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = '#059669'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = '#10b981'}
+                                                    title="Aprovar transação"
+                                                >
+                                                    ✅ Aprovar
+                                                </button>
+                                                <button
+                                                    onClick={() => handleReject(txn.id)}
+                                                    style={{
+                                                        padding: '6px 12px',
+                                                        background: '#ef4444',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        color: '#fff',
+                                                        fontSize: '12px',
+                                                        fontWeight: '600',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.2s'
+                                                    }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.background = '#dc2626'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.background = '#ef4444'}
+                                                    title="Rejeitar transação"
+                                                >
+                                                    ❌ Rejeitar
+                                                </button>
+                                            </div>
+                                        )}
+                                        {txn.status !== 'pending' && (
+                                            <span style={{ color: '#64748b', fontSize: '13px' }}>-</span>
+                                        )}
                                     </td>
                                 </tr>
                             ))}

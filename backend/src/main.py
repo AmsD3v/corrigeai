@@ -780,6 +780,135 @@ async def get_transaction(
     
     return transaction
 
+# ===== ADMIN TRANSACTION MANAGEMENT =====
+
+@app.get("/admin/transactions")
+async def get_all_transactions(
+    status_filter: Optional[str] = None,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """
+    Get all transactions (admin only)
+    """
+    query = db.query(models.Transaction).join(models.User)
+    
+    # Filter by status if provided
+    if status_filter and status_filter != "all":
+        query = query.filter(models.Transaction.status == status_filter)
+    
+    transactions = query.order_by(models.Transaction.created_at.desc()).all()
+    
+    # Build response with user info
+    result = []
+    for txn in transactions:
+        result.append({
+            "id": txn.id,
+            "user_id": txn.user_id,
+            "user_name": txn.user.full_name,
+            "user_email": txn.user.email,
+            "package_name": txn.package_name,
+            "coins_amount": txn.coins_amount,
+            "bonus_coins": txn.bonus_coins,
+            "price": txn.price,
+            "status": txn.status,
+            "payment_method": txn.payment_method,
+            "payment_id": txn.payment_id,
+            "created_at": txn.created_at,
+            "approved_at": txn.approved_at
+        })
+    
+    return result
+
+@app.patch("/admin/transactions/{transaction_id}/approve")
+async def approve_transaction(
+    transaction_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """
+    Approve a pending transaction and add credits to user (admin only)
+    """
+    transaction = db.query(models.Transaction).filter(
+        models.Transaction.id == transaction_id
+    ).first()
+    
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    
+    if transaction.status != "pending":
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Cannot approve transaction with status: {transaction.status}"
+        )
+    
+    # Update transaction status
+    transaction.status = "approved"
+    transaction.approved_at = datetime.utcnow()
+    
+    # Add credits to user
+    user = db.query(models.User).filter(models.User.id == transaction.user_id).first()
+    if user:
+        total_coins = transaction.coins_amount + transaction.bonus_coins
+        user.credits += total_coins
+        logging.info(f"Admin {admin_user.email} approved transaction {transaction_id}. Added {total_coins} credits to user {user.email}")
+    
+    db.commit()
+    db.refresh(transaction)
+    
+    return {
+        "success": True,
+        "message": f"Transaction approved. Added {total_coins} credits to user.",
+        "transaction": {
+            "id": transaction.id,
+            "status": transaction.status,
+            "user_email": user.email if user else None
+        }
+    }
+
+@app.patch("/admin/transactions/{transaction_id}/reject")
+async def reject_transaction(
+    transaction_id: int,
+    reason: Optional[str] = None,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """
+    Reject a pending transaction (admin only)
+    """
+    transaction = db.query(models.Transaction).filter(
+        models.Transaction.id == transaction_id
+    ).first()
+    
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    
+    if transaction.status != "pending":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot reject transaction with status: {transaction.status}"
+        )
+    
+    # Update transaction status
+    transaction.status = "rejected"
+    if reason:
+        transaction.status_detail = reason
+    
+    logging.info(f"Admin {admin_user.email} rejected transaction {transaction_id}. Reason: {reason}")
+    
+    db.commit()
+    db.refresh(transaction)
+    
+    return {
+        "success": True,
+        "message": "Transaction rejected",
+        "transaction": {
+            "id": transaction.id,
+            "status": transaction.status,
+            "reason": reason
+        }
+    }
+
 # ===== GEMINI AI ENDPOINTS =====
 
 from .gemini_service import generate_theme_with_gemini
