@@ -162,6 +162,17 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise credentials_exception
     return user
 
+# Dependência para verificar se usuário é admin
+def get_current_admin_user(current_user: models.User = Depends(get_current_user)) -> models.User:
+    logging.info(f"🔐 Admin check for user {current_user.email}: is_admin={getattr(current_user, 'is_admin', None)}")
+    
+    if not getattr(current_user, 'is_admin', False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acesso negado. Apenas administradores."
+        )
+    return current_user
+
 @app.get("/users/me", response_model=schemas.User)
 async def read_users_me(current_user: models.User = Depends(get_current_user)):
     return current_user
