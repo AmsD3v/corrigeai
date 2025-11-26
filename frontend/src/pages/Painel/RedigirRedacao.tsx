@@ -20,7 +20,6 @@ const RedigirRedacao = () => {
   const [themeCategory, setThemeCategory] = useState('geral');
   const [content, setContent] = useState('');
   const [correctionType, setCorrectionType] = useState<'advanced' | 'premium'>('advanced'); // NEW
-  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'premium'>('basic');
   const [generatingTheme, setGeneratingTheme] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userCredits, setUserCredits] = useState<number>(0);
@@ -137,8 +136,7 @@ const RedigirRedacao = () => {
       title,
       theme,
       content,
-      plan_type: selectedPlan,
-      correction_type: correctionType  // NEW
+      correction_type: correctionType
     };
 
     localStorage.setItem(`essay_${essayId}`, JSON.stringify(essayData));
@@ -173,145 +171,6 @@ const RedigirRedacao = () => {
           }}>
             Escolha seu plano, escreva sua redação e envie para correção com IA.
           </p>
-        </div>
-
-        {/* Plan Selection */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '16px',
-          marginBottom: '32px'
-        }}>
-          {/* Basic Plan */}
-          <div
-            onClick={() => setSelectedPlan('basic')}
-            style={{
-              background: selectedPlan === 'basic' ? '#4F46E520' : '#1a1f2e',
-              border: selectedPlan === 'basic' ? '2px solid #4F46E5' : '1px solid #334155',
-              borderRadius: '16px',
-              padding: '24px',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              position: 'relative'
-            }}
-          >
-            {selectedPlan === 'basic' && (
-              <div style={{
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                width: '24px',
-                height: '24px',
-                background: '#4F46E5',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#fff',
-                fontSize: '14px'
-              }}>
-                ✓
-              </div>
-            )}
-            <div style={{
-              fontSize: '32px',
-              marginBottom: '12px'
-            }}>
-              📝
-            </div>
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: '700',
-              color: '#fff',
-              marginBottom: '8px'
-            }}>
-              Correção Avançada
-            </h3>
-            <p style={{
-              fontSize: '13px',
-              color: '#94a3b8',
-              marginBottom: '16px'
-            }}>
-              Correção por competência com notas e feedbacks detalhados.
-            </p>
-            <div style={{
-              display: 'inline-block',
-              padding: '6px 12px',
-              background: '#4F46E520',
-              color: '#4F46E5',
-              borderRadius: '8px',
-              fontSize: '12px',
-              fontWeight: '700'
-            }}>
-              1 RedaCoin
-            </div>
-          </div>
-
-          {/* Premium Plan */}
-          <div
-            onClick={() => setSelectedPlan('premium')}
-            style={{
-              background: selectedPlan === 'premium' ? '#fbbf2420' : '#1a1f2e',
-              border: selectedPlan === 'premium' ? '2px solid #fbbf24' : '1px solid #334155',
-              borderRadius: '16px',
-              padding: '24px',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              position: 'relative'
-            }}
-          >
-            {selectedPlan === 'premium' && (
-              <div style={{
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                width: '24px',
-                height: '24px',
-                background: '#fbbf24',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#0f1419',
-                fontSize: '14px',
-                fontWeight: '700'
-              }}>
-                ✓
-              </div>
-            )}
-            <div style={{
-              fontSize: '32px',
-              marginBottom: '12px'
-            }}>
-              👑
-            </div>
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: '700',
-              color: '#fff',
-              marginBottom: '8px'
-            }}>
-              Correção Premium
-            </h3>
-            <p style={{
-              fontSize: '13px',
-              color: '#94a3b8',
-              marginBottom: '16px'
-            }}>
-              Análise profunda com sugestões de melhoria e exemplos práticos.
-            </p>
-            <div style={{
-              display: 'inline-block',
-              padding: '6px 12px',
-              background: '#fbbf2420',
-              color: '#fbbf24',
-              borderRadius: '8px',
-              fontSize: '12px',
-              fontWeight: '700'
-            }}>
-              2 CorriCoins
-            </div>
-          </div>
         </div>
 
         {/* Form */}
@@ -641,22 +500,22 @@ const RedigirRedacao = () => {
                 disabled={!content.trim() || userCredits < (correctionType === 'premium' ? 3 : 1)}
                 style={{
                   padding: '14px 32px',
-                  background: (content.trim() && userCredits >= (selectedPlan === 'basic' ? 1 : 2)) ? '#4F46E5' : '#334155',
-                  color: (content.trim() && userCredits >= (selectedPlan === 'basic' ? 1 : 2)) ? '#fff' : '#64748b',
+                  background: (content.trim() && userCredits >= (correctionType === 'premium' ? 3 : 1)) ? '#4F46E5' : '#334155',
+                  color: (content.trim() && userCredits >= (correctionType === 'premium' ? 3 : 1)) ? '#fff' : '#64748b',
                   border: 'none',
                   borderRadius: '12px',
                   fontSize: '15px',
                   fontWeight: '600',
-                  cursor: (content.trim() && userCredits >= (selectedPlan === 'basic' ? 1 : 2)) ? 'pointer' : 'not-allowed',
+                  cursor: (content.trim() && userCredits >= (correctionType === 'premium' ? 3 : 1)) ? 'pointer' : 'not-allowed',
                   transition: 'all 0.2s'
                 }}
                 onMouseEnter={(e) => {
-                  if (content.trim() && userCredits >= (selectedPlan === 'basic' ? 1 : 2)) {
+                  if (content.trim() && userCredits >= (correctionType === 'premium' ? 3 : 1)) {
                     e.currentTarget.style.background = '#4338ca';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (content.trim() && userCredits >= (selectedPlan === 'basic' ? 1 : 2)) {
+                  if (content.trim() && userCredits >= (correctionType === 'premium' ? 3 : 1)) {
                     e.currentTarget.style.background = '#4F46E5';
                   }
                 }}
