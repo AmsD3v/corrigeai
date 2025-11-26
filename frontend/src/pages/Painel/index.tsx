@@ -1,6 +1,9 @@
 import PanelLayout from '../../components/PanelLayout';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Painel = () => {
+  const { user } = useAuth();
+
   return (
     <PanelLayout activePage="/painel">
       {/* Welcome Card */}
@@ -45,7 +48,7 @@ const Painel = () => {
           marginBottom: '12px',
           letterSpacing: '-0.5px'
         }}>
-          Olá, Estudante! 👋
+          Olá, {user?.full_name || 'Estudante'}! 👋
         </h1>
 
         <p style={{

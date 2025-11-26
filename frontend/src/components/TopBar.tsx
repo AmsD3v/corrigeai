@@ -12,6 +12,7 @@ const TopBar = ({ userCredits = 0, userCoins = 0 }: TopBarProps) => {
     const navigate = useNavigate();
     const { logout } = useAuth();
     const [credits, setCredits] = useState(userCoins);
+    const [freeCredits, setFreeCredits] = useState(userCredits);
 
     // Fetch user credits on mount and update every 10 seconds
     useEffect(() => {
@@ -19,6 +20,7 @@ const TopBar = ({ userCredits = 0, userCoins = 0 }: TopBarProps) => {
             try {
                 const response = await apiClient.get('/users/me');
                 setCredits(response.data.credits || 0);
+                setFreeCredits(response.data.free_credits || 0);
             } catch (error) {
                 console.error('Error fetching credits:', error);
             }
@@ -125,9 +127,9 @@ const TopBar = ({ userCredits = 0, userCoins = 0 }: TopBarProps) => {
                         <span style={{
                             fontSize: '14px',
                             fontWeight: '600',
-                            color: '#94a3b8'
+                            color: '#10b981'
                         }}>
-                            grátis: {userCredits}
+                            Grátis: {freeCredits}
                         </span>
                     </div>
                 </div>
