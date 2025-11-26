@@ -318,7 +318,7 @@ const RedacaoDetalhes = () => {
                                         display: 'grid',
                                         gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1fr)',
                                         gap: '24px',
-                                        alignItems: 'start'
+                                        alignItems: 'stretch'
                                     }}>
                                         {/* Left Column: Análise */}
                                         <div>
@@ -327,7 +327,8 @@ const RedacaoDetalhes = () => {
                                                     background: 'rgba(51, 65, 85, 0.3)', // Slate-700 with opacity
                                                     border: '1px solid rgba(51, 65, 85, 0.5)',
                                                     borderRadius: '12px',
-                                                    padding: '20px'
+                                                    padding: '20px',
+                                                    height: '100%'
                                                 }}>
                                                     <h4 style={{
                                                         fontSize: '14px',
