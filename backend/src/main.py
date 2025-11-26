@@ -867,39 +867,55 @@ def list_all_users(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-class UpdateCreditsRequest(BaseModel):
-    credits: int
-    free_credits: int
+class UpdateUserRequest(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[str] = None
+    credits: Optional[int] = None
+    free_credits: Optional[int] = None
 
 
-@app.patch("/admin/users/{user_id}/credits")
-def update_user_credits(
+@app.patch("/admin/users/{user_id}")
+def update_user(
     user_id: int,
-    request: UpdateCreditsRequest,
+    request: UpdateUserRequest,
     db: Session = Depends(get_db),
     admin_user: models.User = Depends(get_current_admin_user)
 ):
-    """Update user credits (admin only)"""
+    """Update user (admin only) - can update name, email, and credits"""
     try:
         user = db.query(models.User).filter(models.User.id == user_id).first()
         
         if not user:
             raise HTTPException(status_code=404, detail="Usuário não encontrado")
         
-        # Update credits
-        user.credits = request.credits
+        # Update fields if provided
+        if request.full_name is not None:
+            user.full_name = request.full_name
         
-        # Update free_credits if column exists
-        if hasattr(user, 'free_credits'):
+        if request.email is not None:
+            # Check if email already exists for another user
+            existing = db.query(models.User).filter(
+                models.User.email == request.email,
+                models.User.id != user_id
+            ).first()
+            if existing:
+                raise HTTPException(status_code=400, detail="Email já está em uso")
+            user.email = request.email
+        
+        if request.credits is not None:
+            user.credits = request.credits
+        
+        if request.free_credits is not None and hasattr(user, 'free_credits'):
             user.free_credits = request.free_credits
         
         db.commit()
         db.refresh(user)
         
-        logging.info(f"Admin {admin_user.email} updated credits for user {user.email}: credits={request.credits}, free_credits={request.free_credits}")
+        logging.info(f"Admin {admin_user.email} updated user {user.email}: {request.dict(exclude_none=True)}")
         
         return {
             "id": user.id,
+            "full_name": user.full_name,
             "email": user.email,
             "credits": user.credits,
             "free_credits": getattr(user, 'free_credits', 0)
@@ -907,7 +923,8 @@ def update_user_credits(
     except HTTPException:
         raise
     except Exception as e:
-        logging.error(f"Error updating user credits: {e}")
+        logging.error(f"Error updating user: {e}")
+        db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
 

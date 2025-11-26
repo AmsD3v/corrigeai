@@ -17,8 +17,12 @@ const Usuarios = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [editingUser, setEditingUser] = useState<User | null>(null);
-    const [newCredits, setNewCredits] = useState(0);
-    const [newFreeCredits, setNewFreeCredits] = useState(0);
+    const [editForm, setEditForm] = useState({
+        full_name: '',
+        email: '',
+        credits: 0,
+        free_credits: 0
+    });
 
     useEffect(() => {
         loadUsers();
@@ -42,25 +46,27 @@ const Usuarios = () => {
         user.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleEditCredits = (user: User) => {
+    const handleEditUser = (user: User) => {
         setEditingUser(user);
-        setNewCredits(user.credits || 0);
-        setNewFreeCredits(user.free_credits || 0);
+        setEditForm({
+            full_name: user.full_name || '',
+            email: user.email || '',
+            credits: user.credits || 0,
+            free_credits: user.free_credits || 0
+        });
     };
 
-    const handleSaveCredits = async () => {
+    const handleSaveUser = async () => {
         if (!editingUser) return;
 
         try {
-            await apiClient.patch(`/admin/users/${editingUser.id}/credits`, {
-                credits: newCredits,
-                free_credits: newFreeCredits
-            });
+            await apiClient.patch(`/admin/users/${editingUser.id}`, editForm);
             setEditingUser(null);
-            await loadUsers(); // Reload to show updated values
-        } catch (error) {
-            console.error('Error updating credits:', error);
-            alert('Erro ao atualizar créditos');
+            await loadUsers();
+        } catch (error: any) {
+            console.error('Error updating user:', error);
+            const errorMsg = error.response?.data?.detail || 'Erro ao atualizar usuário';
+            alert(errorMsg);
         }
     };
 
@@ -181,7 +187,7 @@ const Usuarios = () => {
                                         </td>
                                         <td style={{ padding: '16px' }}>
                                             <button
-                                                onClick={() => handleEditCredits(user)}
+                                                onClick={() => handleEditUser(user)}
                                                 style={{
                                                     padding: '8px 16px',
                                                     background: '#4F46E5',
@@ -193,7 +199,7 @@ const Usuarios = () => {
                                                     cursor: 'pointer'
                                                 }}
                                             >
-                                                Editar Créditos
+                                                Editar
                                             </button>
                                         </td>
                                     </tr>
@@ -204,7 +210,7 @@ const Usuarios = () => {
                 </div>
             </div>
 
-            {/* Edit Credits Modal */}
+            {/* Edit User Modal */}
             {editingUser && (
                 <div style={{
                     position: 'fixed',
@@ -232,17 +238,71 @@ const Usuarios = () => {
                             color: '#fff',
                             marginBottom: '8px'
                         }}>
-                            Editar Créditos
+                            Editar Usuário
                         </h2>
                         <p style={{
                             fontSize: '14px',
                             color: '#94a3b8',
                             marginBottom: '24px'
                         }}>
-                            Usuário: {editingUser.email}
+                            ID: {editingUser.id}
                         </p>
 
-                        {/* CorriCoins Input */}
+                        {/* Name */}
+                        <div style={{ marginBottom: '16px' }}>
+                            <label style={{
+                                display: 'block',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                color: '#94a3b8',
+                                marginBottom: '8px'
+                            }}>
+                                👤 Nome Completo
+                            </label>
+                            <input
+                                type="text"
+                                value={editForm.full_name}
+                                onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    background: '#0f1419',
+                                    border: '1px solid #334155',
+                                    borderRadius: '8px',
+                                    color: '#fff',
+                                    fontSize: '16px'
+                                }}
+                            />
+                        </div>
+
+                        {/* Email */}
+                        <div style={{ marginBottom: '16px' }}>
+                            <label style={{
+                                display: 'block',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                color: '#94a3b8',
+                                marginBottom: '8px'
+                            }}>
+                                📧 Email
+                            </label>
+                            <input
+                                type="email"
+                                value={editForm.email}
+                                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    background: '#0f1419',
+                                    border: '1px solid #334155',
+                                    borderRadius: '8px',
+                                    color: '#fff',
+                                    fontSize: '16px'
+                                }}
+                            />
+                        </div>
+
+                        {/* CorriCoins */}
                         <div style={{ marginBottom: '16px' }}>
                             <label style={{
                                 display: 'block',
@@ -255,8 +315,8 @@ const Usuarios = () => {
                             </label>
                             <input
                                 type="number"
-                                value={newCredits}
-                                onChange={(e) => setNewCredits(parseInt(e.target.value) || 0)}
+                                value={editForm.credits}
+                                onChange={(e) => setEditForm({ ...editForm, credits: parseInt(e.target.value) || 0 })}
                                 style={{
                                     width: '100%',
                                     padding: '12px 16px',
@@ -270,7 +330,7 @@ const Usuarios = () => {
                             />
                         </div>
 
-                        {/* Free Credits Input */}
+                        {/* Free Credits */}
                         <div style={{ marginBottom: '24px' }}>
                             <label style={{
                                 display: 'block',
@@ -283,8 +343,8 @@ const Usuarios = () => {
                             </label>
                             <input
                                 type="number"
-                                value={newFreeCredits}
-                                onChange={(e) => setNewFreeCredits(parseInt(e.target.value) || 0)}
+                                value={editForm.free_credits}
+                                onChange={(e) => setEditForm({ ...editForm, free_credits: parseInt(e.target.value) || 0 })}
                                 style={{
                                     width: '100%',
                                     padding: '12px 16px',
@@ -315,7 +375,7 @@ const Usuarios = () => {
                                 Cancelar
                             </button>
                             <button
-                                onClick={handleSaveCredits}
+                                onClick={handleSaveUser}
                                 style={{
                                     padding: '12px 24px',
                                     background: '#10b981',
