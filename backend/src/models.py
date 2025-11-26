@@ -1,4 +1,15 @@
 from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy.orm import relationship
+from datetime import datetime
+
+# Importação da Base declarativa centralizada
+from .database import Base
+
+class User(Base):
+    __tablename__ = "user"  # Usando aspas para evitar conflito com a palavra reservada 'user'
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     theme = Column(String, nullable=True)
     exam_type = Column(String, nullable=True)
