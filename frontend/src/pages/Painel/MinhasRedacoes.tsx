@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PanelLayout from '../../components/PanelLayout';
+import api from '../../services/api';
 
 interface Essay {
-    id: string; // UUID
+    id: number;
     title: string;
     submitted_at: string;
     status: string;
@@ -14,49 +15,65 @@ interface Essay {
 const MinhasRedacoes = () => {
     const navigate = useNavigate();
     const [essays, setEssays] = useState<Essay[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [skip, setSkip] = useState(0);
+    const LIMIT = 10;
 
-    useEffect(() => {
-        // Load essays from localStorage
-        const loadEssays = () => {
-            const allKeys = Object.keys(localStorage);
-            const essayKeys = allKeys.filter(key => key.startsWith('essay_'));
+    // Ref para o elemento observer
+    const observerTarget = useRef<HTMLDivElement>(null);
 
-            const loadedEssays: Essay[] = [];
+    // Função para carregar redações
+    const loadEssays = useCallback(async (currentSkip: number, append = false) => {
+        if (loading) return;
 
-            essayKeys.forEach(key => {
-                try {
-                    const essayId = key.replace('essay_', '');
-                    const essayDataStr = localStorage.getItem(key);
-                    const correctionDataStr = localStorage.getItem(`correction_${essayId}`);
+        setLoading(true);
+        try {
+            const response = await api.get(`/my-submissions?skip=${currentSkip}&limit=${LIMIT}`);
+            const data = response.data;
 
-                    if (essayDataStr) {
-                        const essayData = JSON.parse(essayDataStr);
-                        const correctionData = correctionDataStr ? JSON.parse(correctionDataStr) : null;
+            if (append) {
+                setEssays(prev => [...prev, ...data.items]);
+            } else {
+                setEssays(data.items);
+            }
 
-                        loadedEssays.push({
-                            id: essayId,
-                            title: essayData.title || essayData.theme || 'Sem título',
-                            theme: essayData.theme,
-                            submitted_at: new Date().toISOString(), // You can add timestamp to essayData later
-                            status: correctionData ? 'completed' : 'pending',
-                            score: correctionData?.total_score
-                        });
-                    }
-                } catch (error) {
-                    console.error('Erro ao carregar redação:', error);
-                }
-            });
-
-            // Sort by most recent first (by ID which contains timestamp)
-            loadedEssays.sort((a, b) => b.id.localeCompare(a.id));
-
-            setEssays(loadedEssays);
+            setHasMore(data.has_more);
+            setSkip(currentSkip + LIMIT);
+        } catch (error) {
+            console.error('Erro ao carregar redações:', error);
+        } finally {
             setLoading(false);
-        };
+        }
+    }, [loading]);
 
-        loadEssays();
+    // Carregar primeira página
+    useEffect(() => {
+        loadEssays(0, false);
     }, []);
+
+    // Intersection Observer para infinite scroll
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && hasMore && !loading) {
+                    loadEssays(skip, true);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        const currentTarget = observerTarget.current;
+        if (currentTarget) {
+            observer.observe(currentTarget);
+        }
+
+        return () => {
+            if (currentTarget) {
+                observer.unobserve(currentTarget);
+            }
+        };
+    }, [hasMore, loading, skip, loadEssays]);
 
     const getStatusBadge = (status: string) => {
         const statusConfig = {
@@ -146,15 +163,7 @@ const MinhasRedacoes = () => {
                 </div>
 
                 {/* Table Body */}
-                {loading ? (
-                    <div style={{
-                        padding: '60px',
-                        textAlign: 'center',
-                        color: '#64748b'
-                    }}>
-                        Carregando...
-                    </div>
-                ) : essays.length === 0 ? (
+                {essays.length === 0 && !loading ? (
                     <div style={{
                         padding: '60px',
                         textAlign: 'center',
@@ -163,97 +172,147 @@ const MinhasRedacoes = () => {
                         Nenhuma redação encontrada.
                     </div>
                 ) : (
-                    essays.map((essay) => (
-                        <div
-                            key={essay.id}
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr',
-                                padding: '20px 24px',
-                                borderBottom: '1px solid #334155',
-                                alignItems: 'center',
-                                transition: 'background 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = '#0f1419'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                        >
-                            <div>
-                                <div style={{ fontSize: '14px', fontWeight: '600', color: '#fff', marginBottom: '4px' }}>
-                                    {essay.title}
-                                </div>
-                                {essay.theme && (
-                                    <div style={{ fontSize: '12px', color: '#64748b' }}>
-                                        {essay.theme}
+                    <>
+                        {essays.map((essay) => (
+                            <div
+                                key={essay.id}
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr',
+                                    padding: '20px 24px',
+                                    borderBottom: '1px solid #334155',
+                                    alignItems: 'center',
+                                    transition: 'background 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = '#0f1419'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                            >
+                                <div>
+                                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#fff', marginBottom: '4px' }}>
+                                        {essay.title}
                                     </div>
-                                )}
-                            </div>
-                            <div style={{ fontSize: '14px', color: '#94a3b8' }}>
-                                {formatDate(essay.submitted_at)}
-                            </div>
-                            <div>
-                                {getStatusBadge(essay.status)}
-                            </div>
-                            <div>
-                                {essay.status === 'completed' && essay.score ? (
-                                    <span style={{
-                                        padding: '4px 12px',
-                                        borderRadius: '12px',
-                                        fontSize: '12px',
-                                        fontWeight: '700',
-                                        background: '#10b98120',
-                                        color: '#10b981'
-                                    }}>
-                                        {essay.score}
-                                    </span>
-                                ) : (
-                                    <span style={{ fontSize: '14px', color: '#64748b' }}>-</span>
-                                )}
-                            </div>
-                            <div>
-                                {essay.status === 'completed' ? (
-                                    <button
-                                        onClick={() => navigate(`/painel/redacao/${essay.id}`)}
-                                        style={{
+                                    {essay.theme && (
+                                        <div style={{ fontSize: '12px', color: '#64748b' }}>
+                                            {essay.theme}
+                                        </div>
+                                    )}
+                                </div>
+                                <div style={{ fontSize: '14px', color: '#94a3b8' }}>
+                                    {formatDate(essay.submitted_at)}
+                                </div>
+                                <div>
+                                    {getStatusBadge(essay.status)}
+                                </div>
+                                <div>
+                                    {essay.status === 'completed' && essay.score ? (
+                                        <span style={{
+                                            padding: '4px 12px',
+                                            borderRadius: '12px',
+                                            fontSize: '12px',
+                                            fontWeight: '700',
+                                            background: '#10b98120',
+                                            color: '#10b981'
+                                        }}>
+                                            {essay.score}
+                                        </span>
+                                    ) : (
+                                        <span style={{ fontSize: '14px', color: '#64748b' }}>-</span>
+                                    )}
+                                </div>
+                                <div>
+                                    {essay.status === 'completed' ? (
+                                        <button
+                                            onClick={() => navigate(`/painel/redacao/${essay.id}`)}
+                                            style={{
+                                                padding: '8px 20px',
+                                                background: '#4F46E5',
+                                                color: '#fff',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                fontSize: '13px',
+                                                fontWeight: '600',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.background = '#4338ca';
+                                                e.currentTarget.style.transform = 'translateY(-1px)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.background = '#4F46E5';
+                                                e.currentTarget.style.transform = 'translateY(0)';
+                                            }}
+                                        >
+                                            Abrir
+                                        </button>
+                                    ) : (
+                                        <span style={{
                                             padding: '8px 20px',
-                                            background: '#4F46E5',
-                                            color: '#fff',
+                                            background: '#33415520',
+                                            color: '#64748b',
                                             border: 'none',
                                             borderRadius: '8px',
                                             fontSize: '13px',
                                             fontWeight: '600',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.background = '#4338ca';
-                                            e.currentTarget.style.transform = 'translateY(-1px)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.background = '#4F46E5';
-                                            e.currentTarget.style.transform = 'translateY(0)';
-                                        }}
-                                    >
-                                        Abrir
-                                    </button>
+                                            display: 'inline-block'
+                                        }}>
+                                            Aguardando
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+
+                        {/* Loading indicator + Observer target */}
+                        {hasMore && (
+                            <div
+                                ref={observerTarget}
+                                style={{
+                                    padding: '24px',
+                                    textAlign: 'center',
+                                    color: '#64748b',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                {loading ? (
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                        <div style={{
+                                            width: '16px',
+                                            height: '16px',
+                                            border: '2px solid #334155',
+                                            borderTop: '2px solid #4F46E5',
+                                            borderRadius: '50%',
+                                            animation: 'spin 0.8s linear infinite'
+                                        }} />
+                                        <span>Carregando mais redações...</span>
+                                    </div>
                                 ) : (
-                                    <span style={{
-                                        padding: '8px 20px',
-                                        background: '#33415520',
-                                        color: '#64748b',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
-                                        display: 'inline-block'
-                                    }}>
-                                        Aguardando
-                                    </span>
+                                    <span>Role para carregar mais</span>
                                 )}
                             </div>
-                        </div>
-                    ))
+                        )}
+
+                        {!hasMore && essays.length > 0 && (
+                            <div style={{
+                                padding: '24px',
+                                textAlign: 'center',
+                                color: '#64748b',
+                                fontSize: '14px'
+                            }}>
+                                ✅ Todas as redações carregadas ({essays.length} no total)
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
+
+            {/* CSS for spin animation */}
+            <style>{`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `}</style>
         </PanelLayout>
     );
 };

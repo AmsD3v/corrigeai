@@ -122,17 +122,24 @@ async def submit_essay(
 
 @router.get("/my-submissions")
 def list_my_submissions(
+    skip: int = 0,
+    limit: int = 10,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
     """
-    Lista todas as submissões do usuário atual com suas correções
+    Lista submissões do usuário com paginação (infinite scroll)
     """
     try:
-        # Buscar todas as submissões do usuário
+        # Total de submissões do usuário
+        total = db.query(models.Submission).filter(
+            models.Submission.owner_id == current_user.id
+        ).count()
+        
+        # Buscar submissões paginadas
         submissions = db.query(models.Submission).filter(
             models.Submission.owner_id == current_user.id
-        ).order_by(models.Submission.submitted_at.desc()).all()
+        ).order_by(models.Submission.submitted_at.desc()).offset(skip).limit(limit).all()
         
         result = []
         for submission in submissions:
@@ -152,7 +159,13 @@ def list_my_submissions(
                 "has_correction": correction is not None
             })
         
-        return result
+        return {
+            "total": total,
+            "skip": skip,
+            "limit": limit,
+            "has_more": (skip + limit) < total,
+            "items": result
+        }
     except Exception as e:
         logging.error(f"Erro ao listar submissões: {e}")
         raise HTTPException(status_code=500, detail=str(e))
