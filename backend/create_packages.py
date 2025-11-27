@@ -2,15 +2,17 @@
 Script para criar pacotes de créditos no banco de dados
 Execute no servidor: python create_packages.py
 """
-from src.database import SessionLocal, init_db_engine
+from src.database import engine, Base
 from src.models import Package
+from sqlalchemy.orm import sessionmaker
 import sys
 
 def create_packages():
     """Cria pacotes de créditos para compra"""
     print("🚀 Iniciando criação de pacotes...")
     
-    init_db_engine()
+    # Criar sessão diretamente
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db = SessionLocal()
     
     try:
