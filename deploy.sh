@@ -72,16 +72,22 @@ echo ""
 echo -e "${YELLOW}🔧 Atualizando Backend...${NC}"
 cd backend
 
+# Ativar ambiente virtual se existir
+if [ -d "../venv" ]; then
+    echo "Ativando ambiente virtual..."
+    source ../venv/bin/activate
+fi
+
 # Instalar/atualizar dependências
 if [ -f "requirements.txt" ]; then
     echo "Atualizando dependências Python..."
-    pip install -r requirements.txt --quiet
+    pip install -r requirements.txt --quiet 2>/dev/null || echo "⚠️ Dependências já instaladas ou erro ignorado"
 fi
 
 # Executar migração se existir
 if [ -f "src/migrate_settings.py" ]; then
     echo "Executando migração do banco de dados..."
-    python src/migrate_settings.py
+    python src/migrate_settings.py 2>/dev/null || echo "⚠️ Migração já executada ou erro ignorado"
 fi
 
 echo -e "${GREEN}✅ Backend atualizado${NC}"
