@@ -203,7 +203,7 @@ const LandingPage = () => {
                 🦉
               </div>
               <span style={{ fontSize: '20px', fontWeight: '700', color: '#fff' }}>
-                RedaAI
+                CorrigeAI
               </span>
             </div>
 
@@ -1235,7 +1235,7 @@ const LandingPage = () => {
               }}>
                 🦉
               </div>
-              <span style={{ fontSize: '18px', fontWeight: '700', color: '#fff' }}>RedaAI</span>
+              <span style={{ fontSize: '18px', fontWeight: '700', color: '#fff' }}>CorrigeAI</span>
             </div>
 
             <div style={{ display: 'flex', gap: '32px', fontSize: '14px', color: '#94a3b8' }}>
@@ -1243,7 +1243,7 @@ const LandingPage = () => {
               <a href="#" style={{ color: '#94a3b8', textDecoration: 'none' }}>Termos</a>
             </div>
 
-            <p style={{ fontSize: '14px', color: '#64748b' }}>© 2025 RedaAI. Todos os direitos reservados.</p>
+            <p style={{ fontSize: '14px', color: '#64748b' }}>© 2025 CorrigeAI. Todos os direitos reservados.</p>
           </div>
         </footer>
 

@@ -125,7 +125,7 @@ const Sidebar = ({ activePage }: SidebarProps) => {
                     color: '#64748b',
                     textAlign: 'center'
                 }}>
-                    © 2025 RedaAI
+                    © 2025 CorrigeAI
                 </div>
             </div>
 

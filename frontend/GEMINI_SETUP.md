@@ -1,4 +1,4 @@
-# 📝 RedaAI - Guia de Configuração da API do Google Gemini
+# 📝 CorrigeAI - Guia de Configuração da API do Google Gemini
 
 Este guia explica como configurar a integração com o Google Gemini API para geração de temas de redação.
 
