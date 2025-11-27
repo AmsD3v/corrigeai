@@ -97,8 +97,9 @@ def create_packages():
                     id, name, credits, bonus, price,
                     discount_percentage, discount_text,
                     is_popular, is_active,
-                    feature1, feature2, feature3, feature4
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    feature1, feature2, feature3, feature4,
+                    created_at
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
             """, pkg)
         
         conn.commit()
