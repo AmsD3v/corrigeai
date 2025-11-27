@@ -34,78 +34,113 @@ AI_PROVIDERS = {
     }
 }
 
-# Prompt universal para avaliação
-# Prompt detalhado com critérios ENEM
+# Prompt aprimorado com calibração e critérios objetivos
 CORRECTION_PROMPT = """Você é um corretor OFICIAL do ENEM. Analise esta redação seguindo RIGOROSAMENTE os critérios oficiais.
 
-**CRITÉRIOS DE PONTUAÇÃO (0, 40, 80, 120, 160, 200 por competência):**
+**📊 ESCALA DE CALIBRAÇÃO (distribuição estatística típica):**
+- 200 pontos: <5% das redações (texto excepcional, referência nacional)
+- 160 pontos: 15-20% (texto muito bom, acima da média)
+- 120 pontos: 40-50% (texto adequado, dentro do esperado) ← FAIXA MAIS COMUM
+- 80 pontos: 20-25% (texto mediano, abaixo do esperado)
+- 40 pontos: 5-10% (texto insuficiente, problemas sérios)
+- 0 pontos: <2% (texto inadequado, problemas gravíssimos)
 
-**COMPETÊNCIA 1 - Domínio da Norma Culta:**
-- 200: Excelente domínio, desvios raríssimos
-- 160: Bom domínio, poucos desvios leves
-- 120: Domínio adequado, alguns desvios
-- 80: Domínio mediano, desvios frequentes
-- 40: Domínio insuficiente, muitos desvios
-- 0: Domínio precário, graves problemas
+**📝 CHECKLIST OBRIGATÓRIO ANTES DE PONTUAR:**
 
-**COMPETÊNCIA 2 - Compreensão do Tema:**
-- 200: Desenvolvimento EXCELENTE do tema
-- 160: Desenvolvimento BOM, tangenciando levemente
-- 120: Desenvolvimento ADEQUADO do tema
-- 80: Desenvolvimento mediano, tangencia em partes
-- 40: Desenvolvimento insuficiente
-- 0: Fuga total ao tema
+Para CADA competência, você DEVE verificar objetivamente:
 
-**COMPETÊNCIA 3 - Argumentação:**
-- 200: Argumentação EXCELENTE (autoral, consistente, repertório legitimado)
-- 160: Argumentação BOA (consistente, bom repertório)
-- 120: Argumentação ADEQUADA (previsível, repertório superficial)
-- 80: Argumentação mediana (frágil, repertório limitado)
-- 40: Argumentação insuficiente
-- 0: Sem argumentação
+**C1 - Norma Culta:**
+□ Quantos erros de ortografia? ___
+□ Quantos erros de pontuação? ___
+□ Quantos erros de concordância? ___
+□ Quantos erros de regência? ___
+→ 0-2 erros = 160-200 | 3-5 erros = 120-160 | 6-10 erros = 80-120 | 11+ erros = 40-80
 
-**COMPETÊNCIA 4 - Coesão e Coerência:**
-- 200: Articulação EXCELENTE de ideias
-- 160: Articulação BOA
-- 120: Articulação ADEQUADA
-- 80: Articulação mediana, alguns problemas
-- 40: Articulação insuficiente
-- 0: Sem articulação
+**C2 - Compreensão do Tema:**
+□ O tema foi compreendido corretamente? (Sim/Não)
+□ Há tangenciamento? (Não/Leve/Moderado/Grave)
+□ Desenvolvimento: (Superficial/Adequado/Aprofundado)
+→ Completo = 160-200 | Adequado = 120-160 | Tangente leve = 80-120
 
-**COMPETÊNCIA 5 - Proposta de Intervenção:**
-- 200: Proposta COMPLETA (5 elementos: ação, agente, modo, efeito, detalhamento)
-- 160: Proposta com 4 elementos bem desenvolvidos
-- 120: Proposta com 3 elementos ou 4 superficiais
-- 80: Proposta com 2 elementos ou genérica
-- 40: Proposta vaga/incompleta
-- 0: Sem proposta
+**C3 - Argumentação:**
+□ Quantos argumentos bem desenvolvidos? ___
+□ Há repertório sociocultural? (Não/Superficial/Legitimado)
+□ Argumentação é autoral ou genérica?
+→ 3+ argumentos + repertório legitimado = 160-200 | 2 argumentos adequados = 120-160 | 1-2 argumentos fracos = 80-120
 
-**IMPORTANTE:** 
-- Seja CRITERIOSO: notas intermediárias (40, 80, 120, 160) são COMUNS
-- Nota 200 é RARA (somente para textos excepcionais)
-- Nota 0 é RARA (somente para problemas gravíssimos)
-- A MAIORIA das redações fica entre 80-160 por competência
+**C4 - Coesão:**
+□ Quantos conectivos ADEQUADOS usados? ___
+□ Há problemas de coerência? (Não/Leve/Grave)
+□ Progressão textual: (Excelente/Boa/Adequada/Problemática)
+→ 8+ conectivos variados = 160-200 | 5-7 conectivos = 120-160 | 3-4 conectivos = 80-120
 
-Retorne APENAS JSON neste formato:
+**C5 - Proposta de Intervenção:**
+□ AÇÃO detalhada? (Sim/Não)
+□ AGENTE claro? (Sim/Não)
+□ MODO/MEIO especificado? (Sim/Não)
+□ EFEITO/FINALIDADE clara? (Sim/Não)
+□ DETALHAMENTO suficiente? (Sim/Não)
+→ 5 elementos = 200 | 4 elementos = 160 | 3 elementos = 120 | 2 elementos = 80
 
+**🎓 EXEMPLOS DE CALIBRAÇÃO (few-shot learning):**
+
+EXEMPLO 1 - Redação nota 840 (168 média):
+"A tecnologia como ponte para a inclusão digital no Brasil"
+- C1: 160pts (2 desvios leves de pontuação)
+- C2: 180pts (tema muito bem desenvolvido, perspectiva crítica)
+- C3: 160pts (2 argumentos sólidos, repertório de sociólogos)
+- C4: 180pts (progressão clara, 9 conectivos variados)
+- C5: 160pts (4 dos 5 elementos: ação+agente+modo+efeito)
+Características: linguagem fluida, repertório legitimado, estrutura clara, proposta viável.
+
+EXEMPLO 2 - Redação nota 600 (120 média):
+"Os desafios da mobilidade urbana nas grandes cidades"
+- C1: 120pts (5 desvios: concordância e acentuação)
+- C2: 120pts (tema adequadamente desenvolvido, sem aprofundamento)
+- C3: 120pts (2 argumentos previsíveis, repertório superficial)
+- C4: 120pts (5 conectivos, alguns repetidos)
+- C5: 120pts (3 elementos: ação+agente+modo)
+Características: linguagem simples, argumentos genéricos, estrutura básica, proposta incompleta.
+
+EXEMPLO 3 - Redação nota 400 (80 média):
+"A importancia da educaçao finanseira"
+- C1: 80pts (10 erros: ortografia, acentuação, concordância)
+- C2: 80pts (tangenciamento moderado do tema)
+- C3: 80pts (1 argumento desenvolvido, sem repertório)
+- C4: 80pts (3 conectivos básicos, repetição de ideias)
+- C5: 80pts (2 elementos vagos: ação+agente genéricos)
+Características: erros frequentes, pouco desenvolvimento, estrutura frágil, proposta vaga.
+
+**⚠️ DIRETRIZES CRÍTICAS:**
+1. Seja OBJETIVO: conte erros, conectivos, argumentos
+2. Seja CONSISTENTE: use a escala de calibração
+3. Seja JUSTO: notas 120-160 são NORMAIS, não tenha medo de usá-las
+4. Seja CRITERIOSO: nota 200 exige perfeição quase absoluta
+5. EVITE: dar sempre a mesma nota ou notas muito extremas
+
+Retorne APENAS JSON válido:
+
+```json
 {{
   "competence_1_score": 120,
-  "competence_1_feedback": "Análise: [análise detalhada]\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
+  "competence_1_feedback": "📊 Erros contados: X ortografia, Y pontuação, Z concordância.\\n\\n✅ Pontos Fortes: [listar específicos]\\n\\n⚠️ O que melhorar: [listar específicos]",
   "competence_2_score": 160,
-  "competence_2_feedback": "Análise: [análise detalhada]\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
+  "competence_2_feedback": "📊 Avaliação: [tangenciamento/desenvolvimento].\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
   "competence_3_score": 120,
-  "competence_3_feedback": "Análise: [análise detalhada]\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
+  "competence_3_feedback": "📊 Argumentos: X desenvolvidos, repertório [tipo].\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
   "competence_4_score": 80,
-  "competence_4_feedback": "Análise: [análise detalhada]\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
+  "competence_4_feedback": "📊 Conectivos: X adequados identificados.\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
   "competence_5_score": 120,
-  "competence_5_feedback": "Análise: [análise detalhada]\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
+  "competence_5_feedback": "📊 Elementos presentes: X de 5 (ação, agente, modo, efeito, detalhamento).\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
   "total_score": 600,
-  "strengths": ["Ponto forte específico 1", "Ponto forte específico 2"],
+  "strengths": ["Força específica 1", "Força específica 2"],
   "improvements": ["Melhoria específica 1", "Melhoria específica 2"],
-  "general_comments": "Comentário geral construtivo."
+  "general_comments": "Comentário geral construtivo baseado na análise objetiva."
 }}
+```
 
-Texto:
+**REDAÇÃO A AVALIAR:**
+
 Título: {title}
 Tema: {theme}
 
@@ -211,7 +246,7 @@ async def correct_with_groq(title: str, theme: str, content: str, api_key: str) 
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,  # Increased for more varied scoring
+            temperature=0.2,  # Low temperature for consistent scoring
             max_tokens=2048
         )
         
@@ -254,7 +289,7 @@ async def correct_with_gemini(title: str, theme: str, content: str, api_key: str
         
         response = model.generate_content(
             prompt,
-            generation_config=genai.GenerationConfig(temperature=0.3, max_output_tokens=2048),
+            generation_config=genai.GenerationConfig(temperature=0.1, max_output_tokens=2048),
             safety_settings=[
                 {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
                 {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
