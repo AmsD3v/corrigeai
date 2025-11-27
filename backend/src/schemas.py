@@ -48,6 +48,13 @@ class User(UserBase):
 
     model_config = ConfigDict(from_attributes=True) # Usa ConfigDict
 
+class UserUpdate(BaseModel):
+    """Schema for admin to update user details"""
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    credits: Optional[int] = None
+    free_credits: Optional[int] = None
+
 class Token(BaseModel):
     access_token: str
     token_type: str

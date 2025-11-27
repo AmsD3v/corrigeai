@@ -57,7 +57,11 @@ const Configuracoes = () => {
             const response = await api.get('/api/settings');
             setSettings(prev => ({
                 ...prev,
-                aiProvider: response.data.active_ai_provider
+                aiProvider: response.data.active_ai_provider,
+                geminiApiKey: response.data.gemini_api_key || prev.geminiApiKey,
+                groqApiKey: response.data.groq_api_key || prev.groqApiKey,
+                hfToken: response.data.hf_token || prev.hfToken,
+                togetherApiKey: response.data.together_api_key || prev.togetherApiKey
             }));
         } catch (error) {
             console.error('Error loading settings:', error);
@@ -94,9 +98,13 @@ const Configuracoes = () => {
 
     const handleSaveSettings = async () => {
         try {
-            // Save AI provider to API
+            // Save AI provider and keys to API
             await api.post('/api/settings', {
-                active_ai_provider: settings.aiProvider
+                active_ai_provider: settings.aiProvider,
+                gemini_api_key: settings.geminiApiKey,
+                groq_api_key: settings.groqApiKey,
+                hf_token: settings.hfToken,
+                together_api_key: settings.togetherApiKey
             });
 
             // Save packages to API

@@ -134,4 +134,11 @@ class Settings(Base):
     
     id = Column(Integer, primary_key=True, index=True, default=1)
     active_ai_provider = Column(String, default="groq")  # groq, gemini, huggingface, together
+    
+    # API Keys (stored in DB to allow admin update)
+    gemini_api_key = Column(String, nullable=True)
+    groq_api_key = Column(String, nullable=True)
+    hf_token = Column(String, nullable=True)
+    together_api_key = Column(String, nullable=True)
+    
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

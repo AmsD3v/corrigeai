@@ -61,6 +61,15 @@ async def process_correction(submission_id: int, db: Session):
         
         logger.info(f"AI retornou dados. Salvando no banco...")
         
+        print(f"\n🔍 === DADOS RECEBIDOS DA IA ===")
+        print(f"Total Score: {correction_data.get('total_score')}")
+        print(f"Comp 1: {correction_data.get('competence_1_score')}")
+        print(f"Comp 2: {correction_data.get('competence_2_score')}")
+        print(f"Comp 3: {correction_data.get('competence_3_score')}")
+        print(f"Comp 4: {correction_data.get('competence_4_score')}")
+        print(f"Comp 5: {correction_data.get('competence_5_score')}")
+        print(f"===================================\n")
+        
         # Save correction
         db_correction = models.Correction(
             submission_id=submission.id,
@@ -81,6 +90,10 @@ async def process_correction(submission_id: int, db: Session):
         )
         
         db.add(db_correction)
+        
+        print(f"💾 Salvando correção no banco de dados...")
+        print(f"   - ID da submissão: {submission.id}")
+        print(f"   - Total score sendo salvo: {db_correction.total_score}")
         submission.status = "completed"
         db.commit()
         

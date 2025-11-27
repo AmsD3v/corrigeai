@@ -118,13 +118,22 @@ def get_active_provider() -> tuple[str, Optional[str]]:
     Get active AI provider from database + environment.
     Returns: (provider_name, api_key)
     """
-    from .database import SessionLocal
+    from .database import SessionLocal, init_db_engine
     from .models import Settings
     
     print("\n🔍 ==== CHECKING ACTIVE AI PROVIDER ====")
     
+    # Ensure SessionLocal is initialized
+    if SessionLocal is None:
+        print("⚠️ SessionLocal not initialized, initializing now...")
+        init_db_engine()
+        # Re-import after initialization
+        from .database import SessionLocal as SL
+    else:
+        SL = SessionLocal
+    
     # Get active provider from database
-    db = SessionLocal()
+    db = SL()
     try:
         settings = db.query(Settings).first()
         if settings:
