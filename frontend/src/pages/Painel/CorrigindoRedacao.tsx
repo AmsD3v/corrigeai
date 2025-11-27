@@ -35,170 +35,190 @@ const CorrigindoRedacao = () => {
       });
     }, 500);
 
-    // Complete progress
-    setProgress(100);
+    // Call AI correction service
+    const correctEssay = async () => {
+      try {
+        const { essayService } = await import('../../services/essayService');
 
-    // Navigate to result page after a short delay
-    setTimeout(() => {
+        console.log('🚀 Iniciando correção com IA...');
+
+        const result = await essayService.submitAndCorrect({
+          title: essayData.title,
+          theme: essayData.theme,
+          content: essayData.content,
+          plan_type: essayData.correction_type as 'basic' | 'premium',
+          correction_type: essayData.correction_type
+        });
+
+        console.log('✅ Correção concluída!', result);
+
+        // Save correction result to localStorage
+        localStorage.setItem(`correction_${id}`, JSON.stringify(result.correction));
+
+        // Complete progress
+        setProgress(100);
+
+        // Navigate to result page after a short delay
+        setTimeout(() => {
+          clearInterval(interval);
+          navigate(`/painel/redacao/${id}/resultado`);
+        }, 1000);
+
+      } catch (error) {
+        console.error('❌ Erro ao corrigir redação:', error);
+        // Still navigate to result page (will show mock data)
+        setTimeout(() => {
+          clearInterval(interval);
+          navigate(`/painel/redacao/${id}/resultado`);
+        }, 2000);
+      }
+    };
+
+    correctEssay();
+
+    return () => {
       clearInterval(interval);
-      navigate(`/painel/redacao/${id}/resultado`);
-    }, 1000);
-
-  } catch (error) {
-    console.error('❌ Erro ao corrigir redação:', error);
-    // Still navigate to result page (will show mock data)
-    setTimeout(() => {
-      clearInterval(interval);
-      navigate(`/painel/redacao/${id}/resultado`);
-    }, 2000);
-  }
-};
-
-correctEssay();
-
-return () => {
-  clearInterval(interval);
-};
+    };
   }, [id, navigate]);
 
-return (
-  <PanelLayout activePage="/painel/minhas-redacoes">
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: 'calc(100vh - 164px)'
-    }}>
+  return (
+    <PanelLayout activePage="/painel/minhas-redacoes">
       <div style={{
-        maxWidth: '500px',
-        width: '100%',
-        textAlign: 'center'
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 'calc(100vh - 164px)'
       }}>
-        {/* Loading Card */}
         <div style={{
-          background: '#1a1f2e',
-          border: '1px solid #334155',
-          borderRadius: '16px',
-          padding: '48px 32px',
-          position: 'relative',
-          overflow: 'hidden'
+          maxWidth: '500px',
+          width: '100%',
+          textAlign: 'center'
         }}>
-          {/* Animated gradient background */}
+          {/* Loading Card */}
           <div style={{
-            position: 'absolute',
-            top: '-50%',
-            left: '-50%',
-            width: '200%',
-            height: '200%',
-            background: 'radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, transparent 70%)',
-            animation: 'pulse 3s ease-in-out infinite'
-          }} />
-
-          {/* Spinner */}
-          <div style={{
-            width: '80px',
-            height: '80px',
-            margin: '0 auto 24px',
-            border: '4px solid #334155',
-            borderTop: '4px solid #4F46E5',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
+            background: '#1a1f2e',
+            border: '1px solid #334155',
+            borderRadius: '16px',
+            padding: '48px 32px',
             position: 'relative',
-            zIndex: 1
-          }} />
-
-          <h1 style={{
-            fontSize: '24px',
-            fontWeight: '800',
-            color: '#fff',
-            marginBottom: '12px',
-            position: 'relative',
-            zIndex: 1
+            overflow: 'hidden'
           }}>
-            Estamos corrigindo sua redação...
-          </h1>
-
-          <p style={{
-            fontSize: '14px',
-            color: '#94a3b8',
-            marginBottom: '32px',
-            position: 'relative',
-            zIndex: 1
-          }}>
-            Calculando notas por competência
-          </p>
-
-          {/* Progress Bar */}
-          <div style={{
-            width: '100%',
-            height: '8px',
-            background: '#0f1419',
-            borderRadius: '4px',
-            overflow: 'hidden',
-            marginBottom: '12px',
-            position: 'relative',
-            zIndex: 1
-          }}>
+            {/* Animated gradient background */}
             <div style={{
-              width: `${progress}%`,
-              height: '100%',
-              background: 'linear-gradient(90deg, #4F46E5 0%, #7C3AED 100%)',
-              borderRadius: '4px',
-              transition: 'width 0.5s ease'
+              position: 'absolute',
+              top: '-50%',
+              left: '-50%',
+              width: '200%',
+              height: '200%',
+              background: 'radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, transparent 70%)',
+              animation: 'pulse 3s ease-in-out infinite'
             }} />
+
+            {/* Spinner */}
+            <div style={{
+              width: '80px',
+              height: '80px',
+              margin: '0 auto 24px',
+              border: '4px solid #334155',
+              borderTop: '4px solid #4F46E5',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              position: 'relative',
+              zIndex: 1
+            }} />
+
+            <h1 style={{
+              fontSize: '24px',
+              fontWeight: '800',
+              color: '#fff',
+              marginBottom: '12px',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              Estamos corrigindo sua redação...
+            </h1>
+
+            <p style={{
+              fontSize: '14px',
+              color: '#94a3b8',
+              marginBottom: '32px',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              Calculando notas por competência
+            </p>
+
+            {/* Progress Bar */}
+            <div style={{
+              width: '100%',
+              height: '8px',
+              background: '#0f1419',
+              borderRadius: '4px',
+              overflow: 'hidden',
+              marginBottom: '12px',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              <div style={{
+                width: `${progress}%`,
+                height: '100%',
+                background: 'linear-gradient(90deg, #4F46E5 0%, #7C3AED 100%)',
+                borderRadius: '4px',
+                transition: 'width 0.5s ease'
+              }} />
+            </div>
+
+            <p style={{
+              fontSize: '12px',
+              color: '#64748b',
+              position: 'relative',
+              zIndex: 1
+            }}>
+              Isso pode levar menos de 1 minuto. Você será avisado automaticamente quando terminar.
+            </p>
           </div>
 
-          <p style={{
-            fontSize: '12px',
-            color: '#64748b',
-            position: 'relative',
-            zIndex: 1
-          }}>
-            Isso pode levar menos de 1 minuto. Você será avisado automaticamente quando terminar.
-          </p>
-        </div>
-
-        {/* Info */}
-        <div style={{
-          marginTop: '24px',
-          padding: '16px',
-          background: '#1a1f2e',
-          border: '1px solid #334155',
-          borderRadius: '12px',
-          textAlign: 'left'
-        }}>
+          {/* Info */}
           <div style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '12px'
+            marginTop: '24px',
+            padding: '16px',
+            background: '#1a1f2e',
+            border: '1px solid #334155',
+            borderRadius: '12px',
+            textAlign: 'left'
           }}>
-            <span style={{ fontSize: '20px' }}>💡</span>
-            <div>
-              <h3 style={{
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#fff',
-                marginBottom: '8px'
-              }}>
-                Enquanto isso...
-              </h3>
-              <p style={{
-                fontSize: '13px',
-                color: '#94a3b8',
-                lineHeight: '1.6',
-                margin: 0
-              }}>
-                Nossa IA está analisando sua redação em todas as 5 competências do ENEM.
-                Você pode fechar esta página e voltar depois - te avisaremos quando estiver pronto!
-              </p>
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px'
+            }}>
+              <span style={{ fontSize: '20px' }}>💡</span>
+              <div>
+                <h3 style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#fff',
+                  marginBottom: '8px'
+                }}>
+                  Enquanto isso...
+                </h3>
+                <p style={{
+                  fontSize: '13px',
+                  color: '#94a3b8',
+                  lineHeight: '1.6',
+                  margin: 0
+                }}>
+                  Nossa IA está analisando sua redação em todas as 5 competências do ENEM.
+                  Você pode fechar esta página e voltar depois - te avisaremos quando estiver pronto!
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    {/* Animations */}
-    <style>{`
+      {/* Animations */}
+      <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
@@ -209,8 +229,8 @@ return (
           50% { opacity: 1; transform: scale(1.1); }
         }
       `}</style>
-  </PanelLayout>
-);
+    </PanelLayout>
+  );
 };
 
 export default CorrigindoRedacao;
