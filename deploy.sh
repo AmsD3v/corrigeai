@@ -32,6 +32,23 @@ fi
 
 echo -e "${GREEN}✅ Pull concluído${NC}"
 
+# 1.5. Verificar/criar ambiente virtual
+echo ""
+echo -e "${YELLOW}🐍 Verificando ambiente virtual Python...${NC}"
+
+if [ ! -d "venv" ]; then
+    echo "Ambiente virtual não encontrado. Criando..."
+    python3 -m venv venv
+    echo -e "${GREEN}✅ Ambiente virtual criado${NC}"
+else
+    echo -e "${GREEN}✅ Ambiente virtual já existe${NC}"
+fi
+
+# Ativar ambiente virtual
+echo "Ativando ambiente virtual..."
+source venv/bin/activate
+echo -e "${GREEN}✅ Ambiente virtual ativado${NC}"
+
 # 2. Parar Backend
 echo ""
 echo -e "${YELLOW}🛑 Parando Backend...${NC}"
@@ -72,16 +89,10 @@ echo ""
 echo -e "${YELLOW}🔧 Atualizando Backend...${NC}"
 cd backend
 
-# Ativar ambiente virtual se existir
-if [ -d "../venv" ]; then
-    echo "Ativando ambiente virtual..."
-    source ../venv/bin/activate
-fi
-
-# Instalar/atualizar dependências
+# Instalar/atualizar dependências (venv já está ativo)
 if [ -f "requirements.txt" ]; then
     echo "Atualizando dependências Python..."
-    pip install -r requirements.txt --quiet 2>/dev/null || echo "⚠️ Dependências já instaladas ou erro ignorado"
+    pip install -r requirements.txt --quiet 2>/dev/null || echo "⚠️ Dependências já instaladas"
 fi
 
 # Executar migração se existir
@@ -128,14 +139,16 @@ if systemctl list-unit-files | grep -q "corrigeai-backend.service"; then
     echo -e "${GREEN}✅ Backend iniciado (systemd)${NC}"
 elif command -v pm2 &> /dev/null; then
     cd backend
-    pm2 start run.py --name corrigeai-backend --interpreter python3
+    # Usar Python do venv
+    pm2 delete corrigeai-backend 2>/dev/null || true
+    pm2 start run.py --name corrigeai-backend --interpreter "$PROJECT_DIR/venv/bin/python3"
     pm2 save
     cd ..
-    echo -e "${GREEN}✅ Backend iniciado (PM2)${NC}"
+    echo -e "${GREEN}✅ Backend iniciado (PM2 com venv)${NC}"
 else
     echo -e "${YELLOW}⚠️  Iniciando backend manualmente...${NC}"
     cd backend
-    nohup python run.py > ../logs/backend.log 2>&1 &
+    nohup ../venv/bin/python3 run.py > ../logs/backend.log 2>&1 &
     echo $! > ../backend.pid
     cd ..
     echo -e "${GREEN}✅ Backend iniciado (PID: $(cat backend.pid))${NC}"
