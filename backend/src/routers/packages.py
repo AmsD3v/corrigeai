@@ -9,7 +9,9 @@ router = APIRouter()
 
 @router.get("/api/packages", response_model=List[schemas.Package])
 def read_packages(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    packages = db.query(models.Package).filter(models.Package.is_active == True).offset(skip).limit(limit).all()
+    packages = db.query(models.Package).filter(
+        models.Package.is_active == True
+    ).order_by(models.Package.price.asc()).offset(skip).limit(limit).all()
     return packages
 
 @router.post("/api/packages", response_model=schemas.Package)
