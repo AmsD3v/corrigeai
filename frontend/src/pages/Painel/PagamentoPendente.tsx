@@ -18,7 +18,7 @@ const PagamentoPendente = () => {
             return;
         }
 
-        let intervalId: NodeJS.Timeout;
+        let intervalId: number;
         let attempts = 0;
         const MAX_ATTEMPTS = 40; // 2 minutes maximum
 
