@@ -56,7 +56,7 @@ Exemplos de bons temas:
         
         # Tentar Groq primeiro (mais rápido)
         groq_key = os.getenv("GROQ_API_KEY")
-       if groq_key:
+        if groq_key:
             try:
                 from groq import Groq
                 
