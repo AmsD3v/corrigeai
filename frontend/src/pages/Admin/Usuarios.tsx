@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import apiClient from '../../services/api';
+import ConfirmModal from '../../components/ConfirmModal';
 
 interface User {
     id: number;
@@ -56,6 +57,16 @@ const Usuarios = () => {
         free_credits: 0
     });
 
+    // Delete modal state
+    const [deleteModal, setDeleteModal] = useState<{
+        isOpen: boolean;
+        user: User | null;
+    }>({
+        isOpen: false,
+        user: null
+    });
+    const [deleting, setDeleting] = useState(false);
+
     useEffect(() => {
         loadUsers();
     }, []);
@@ -99,6 +110,32 @@ const Usuarios = () => {
             console.error('Error updating user:', error);
             const errorMsg = error.response?.data?.detail || 'Erro ao atualizar usuário';
             alert(errorMsg);
+        }
+    };
+
+    const handleDeleteUser = (user: User) => {
+        setDeleteModal({
+            isOpen: true,
+            user: user
+        });
+    };
+
+    const confirmDeleteUser = async () => {
+        if (!deleteModal.user) return;
+
+        try {
+            setDeleting(true);
+            await apiClient.delete(`/admin/users/${deleteModal.user.id}`);
+
+            // Close modal and reload users
+            setDeleteModal({ isOpen: false, user: null });
+            await loadUsers();
+        } catch (error: any) {
+            console.error('Error deleting user:', error);
+            const errorMsg = error.response?.data?.detail || 'Erro ao excluir usuário';
+            alert(errorMsg);
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -225,7 +262,7 @@ const Usuarios = () => {
                                         <td style={{ padding: '16px', color: '#10b981', fontSize: '14px', fontWeight: '600' }}>
                                             ⚡ {user.free_credits || 0}
                                         </td>
-                                        <td style={{ padding: '16px' }}>
+                                        <td style={{ padding: '16px', display: 'flex', gap: '8px' }}>
                                             <button
                                                 onClick={() => handleEditUser(user)}
                                                 style={{
@@ -240,6 +277,24 @@ const Usuarios = () => {
                                                 }}
                                             >
                                                 Editar
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteUser(user)}
+                                                style={{
+                                                    padding: '8px 12px',
+                                                    background: '#ef4444',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    color: '#fff',
+                                                    fontSize: '16px',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                                title="Excluir usuário"
+                                            >
+                                                🗑️
                                             </button>
                                         </td>
                                     </tr>
@@ -433,8 +488,21 @@ const Usuarios = () => {
                     </div>
                 </div>
             )}
+
+            {/* Delete User Confirmation Modal */}
+            <ConfirmModal
+                isOpen={deleteModal.isOpen}
+                title="Excluir Usuário"
+                message={`Tem certeza que deseja excluir o usuário ${deleteModal.user?.full_name || deleteModal.user?.email}? Todas as redações e dados deste usuário serão perdidos. Esta ação não pode ser desfeita.`}
+                confirmText={deleting ? "Excluindo..." : "Sim, Excluir"}
+                cancelText="Cancelar"
+                variant="danger"
+                onConfirm={confirmDeleteUser}
+                onCancel={() => setDeleteModal({ isOpen: false, user: null })}
+            />
         </AdminLayout>
     );
 };
 
 export default Usuarios;
+

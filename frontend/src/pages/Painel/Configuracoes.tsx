@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import PanelLayout from '../../components/PanelLayout';
 import { useAuth } from '../../contexts/AuthContext';
 import apiClient from '../../services/api';
+import ConfirmModal from '../../components/ConfirmModal';
 
 // Phone mask helper
 const formatPhone = (value: string) => {
@@ -35,6 +36,10 @@ const Configuracoes = () => {
     const [personalSuccess, setPersonalSuccess] = useState(false);
     const [complementarySuccess, setComplementarySuccess] = useState(false);
     const [error, setError] = useState('');
+
+    // Delete account modal state
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     // Load user data on mount
     useEffect(() => {
@@ -106,9 +111,23 @@ const Configuracoes = () => {
     };
 
     const handleDeleteAccount = () => {
-        if (window.confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')) {
-            // TODO: Implement account deletion
-            console.log('Delete account');
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeleteAccount = async () => {
+        try {
+            setDeleting(true);
+            await apiClient.delete('/users/me');
+
+            // Logout and redirect to login
+            logout();
+            navigate('/login');
+        } catch (err: any) {
+            console.error('Error deleting account:', err);
+            setError(err.response?.data?.detail || 'Erro ao excluir conta');
+            setShowDeleteModal(false);
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -512,8 +531,21 @@ const Configuracoes = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Delete Account Confirmation Modal */}
+            <ConfirmModal
+                isOpen={showDeleteModal}
+                title="Excluir Conta"
+                message="Tem certeza que deseja excluir sua conta permanentemente? Todas as suas redações e dados serão perdidos. Esta ação não pode ser desfeita."
+                confirmText={deleting ? "Excluindo..." : "Sim, Excluir"}
+                cancelText="Cancelar"
+                variant="danger"
+                onConfirm={confirmDeleteAccount}
+                onCancel={() => setShowDeleteModal(false)}
+            />
         </PanelLayout>
     );
 };
 
 export default Configuracoes;
+

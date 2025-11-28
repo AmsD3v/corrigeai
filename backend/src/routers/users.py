@@ -41,3 +41,47 @@ async def update_profile(
     db.refresh(current_user)
     
     return current_user
+
+@router.delete("/users/me")
+async def delete_my_account(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Delete current user's account permanently.
+    This will delete all submissions and corrections associated with the user.
+    """
+    try:
+        # Delete all corrections first (foreign key constraint)
+        corrections_to_delete = db.query(models.Correction).join(
+            models.Submission
+        ).filter(
+            models.Submission.owner_id == current_user.id
+        ).all()
+        
+        for correction in corrections_to_delete:
+            db.delete(correction)
+        
+        # Delete all submissions
+        submissions_to_delete = db.query(models.Submission).filter(
+            models.Submission.owner_id == current_user.id
+        ).all()
+        
+        for submission in submissions_to_delete:
+            db.delete(submission)
+        
+        # Delete the user
+        db.delete(current_user)
+        db.commit()
+        
+        return {
+            "message": "Conta excluída com sucesso",
+            "deleted_user_id": current_user.id
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao excluir conta: {str(e)}"
+        )
+

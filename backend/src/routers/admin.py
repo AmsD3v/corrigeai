@@ -235,3 +235,62 @@ async def delete_submission(
     print(f"[DELETE API] ✅ Submission {submission_id} deletada e verificada com sucesso!")
     
     return {"message": "Redação excluída com sucesso", "id": submission_id}
+
+@router.delete("/admin/users/{user_id}")
+async def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """
+    Delete a user account (admin only).
+    This will delete all submissions and corrections associated with the user.
+    Admin cannot delete their own account via this endpoint.
+    """
+    # Prevent admin from deleting themselves
+    if user_id == admin_user.id:
+        raise HTTPException(
+            status_code=400,
+            detail="Você não pode excluir sua própria conta por aqui. Use /users/me"
+        )
+    
+    # Find target user
+    target_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    
+    try:
+        # Delete all corrections first (foreign key constraint)
+        corrections_to_delete = db.query(models.Correction).join(
+            models.Submission
+        ).filter(
+            models.Submission.owner_id == user_id
+        ).all()
+        
+        for correction in corrections_to_delete:
+            db.delete(correction)
+        
+        # Delete all submissions
+        submissions_to_delete = db.query(models.Submission).filter(
+            models.Submission.owner_id == user_id
+        ).all()
+        
+        for submission in submissions_to_delete:
+            db.delete(submission)
+        
+        # Delete the user
+        user_email = target_user.email
+        db.delete(target_user)
+        db.commit()
+        
+        return {
+            "message": f"Usuário {user_email} excluído com sucesso",
+            "deleted_user_id": user_id
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao excluir usuário: {str(e)}"
+        )
+
