@@ -137,6 +137,8 @@ async def get_all_submissions(
     Get all submissions with corrections and user data (admin only)
     Supports pagination with skip and limit
     """
+    print(f"[GET SUBMISSIONS] Buscando submissions com skip={skip}, limit={limit}")
+    
     # Query all submissions with user and correction data
     submissions = db.query(models.Submission)\
         .join(models.User)\
@@ -144,6 +146,11 @@ async def get_all_submissions(
         .offset(skip)\
         .limit(limit)\
         .all()
+    
+    print(f"[GET SUBMISSIONS] Encontradas {len(submissions)} submissions no banco")
+    if submissions:
+        ids = [s.id for s in submissions]
+        print(f"[GET SUBMISSIONS] IDs retornados: {ids}")
     
     result = []
     for sub in submissions:
@@ -179,7 +186,20 @@ async def get_all_submissions(
         
         result.append(submission_data)
     
-    return result
+    print(f"[GET SUBMISSIONS] Retornando {len(result)} submissions ao frontend")
+    
+    # Retorna com headers anti-cache
+    from fastapi import Response
+    from fastapi.responses import JSONResponse
+    
+    return JSONResponse(
+        content=result,
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )
 
 @router.delete("/admin/submissions/{submission_id}")
 async def delete_submission(
