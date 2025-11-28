@@ -189,6 +189,36 @@ const RedacoesAdmin = () => {
             alert('Erro ao deletar redação');
         } finally {
             setDeleting(false);
+        }
+    };
+
+    // Deletar múltiplas redações
+    const handleDeleteSelected = async () => {
+        if (selectedIds.size === 0) return;
+
+        if (!confirm(`Tem certeza que deseja excluir ${selectedIds.size} redação(ões)?`)) return;
+
+        try {
+            setDeleting(true);
+            const idsToDelete = Array.from(selectedIds);
+
+            // Deleta todas as selecionadas
+            await Promise.all(
+                idsToDelete.map(id => api.delete(`/admin/submissions/${id}`))
+            );
+
+            // Força atualização removendo todas da lista
+            setSubmissions(currentSubmissions => {
+                const filtered = currentSubmissions.filter(s => !selectedIds.has(s.id));
+                return [...filtered]; // Cria novo array para forçar re-render
+            });
+
+            // Limpa seleção
+            setSelectedIds(new Set());
+        } catch (error) {
+            console.error('Erro ao deletar:', error);
+            alert('Erro ao deletar redações');
+        } finally {
             setDeleting(false);
         }
     };
