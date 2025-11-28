@@ -42,8 +42,7 @@ class MercadoPagoService:
                     "failure": f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/painel/pagamento/falha",
                     "pending": f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/painel/pagamento/pendente"
                 },
-                "auto_return": "approved",  # Auto-redirect when payment is approved
-                "binary_mode": True,  # Skip MP result page, redirect immediately
+                "auto_return": "approved",  # Auto-redirect when payment is approved via PIX
                 "external_reference": f"user_{user_data['id']}_package_{package_data['id']}_{int(datetime.now().timestamp())}",
                 "notification_url": f"{os.getenv('BACKEND_URL', 'http://localhost:3000')}/api/payment/webhook",
                 "statement_descriptor": "CORRIGEAI",
