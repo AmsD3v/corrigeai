@@ -136,10 +136,7 @@ const ConfirmModal = ({
                             fontSize: '15px',
                             fontWeight: '600',
                             cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            ':hover': {
-                                background: '#475569'
-                            }
+                            transition: 'all 0.2s'
                         }}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.background = '#475569';
