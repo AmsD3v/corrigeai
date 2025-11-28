@@ -217,9 +217,21 @@ async def delete_submission(
     print(f"[DELETE API] Deletando submission {submission_id}")
     db.delete(submission)
     
+    print(f"[DELETE API] Fazendo FLUSH")
+    db.flush()  # Força SQL a ser executado
+    
     print(f"[DELETE API] Fazendo COMMIT")
     db.commit()
     
-    print(f"[DELETE API] Submission {submission_id} deletada com sucesso!")
+    # Verifica se realmente foi deletado
+    verification = db.query(models.Submission).filter(
+        models.Submission.id == submission_id
+    ).first()
+    
+    if verification:
+        print(f"[DELETE API] ❌ ERRO: Submission {submission_id} AINDA EXISTE após commit!")
+        raise HTTPException(status_code=500, detail="Erro ao deletar redação do banco")
+    
+    print(f"[DELETE API] ✅ Submission {submission_id} deletada e verificada com sucesso!")
     
     return {"message": "Redação excluída com sucesso", "id": submission_id}
