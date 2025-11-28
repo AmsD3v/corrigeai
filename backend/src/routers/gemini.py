@@ -64,7 +64,7 @@ Exemplos de bons temas:
                 client = Groq(api_key=groq_key)
                 
                 response = client.chat.completions.create(
-                    model="mixtral-8x7b-32768",
+                    model="llama-3.1-8b-instant",
                     messages=[
                         {"role": "system", "content": "Você é um especialista em educação e redação do ENEM. Responda APENAS com JSON válido."},
                         {"role": "user", "content": prompt}
@@ -106,7 +106,7 @@ Exemplos de bons temas:
         import google.generativeai as genai
         
         genai.configure(api_key=gemini_key)
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-pro')
         
         response = model.generate_content(prompt)
         text = response.text.strip()
