@@ -55,7 +55,12 @@ const RedacoesAdmin = () => {
             const data = response.data;
 
             if (append) {
-                setSubmissions(prev => [...prev, ...(data.items || data)]);
+                setSubmissions(prev => {
+                    // Evita duplicatas usando Set de IDs
+                    const existingIds = new Set(prev.map(s => s.id));
+                    const newItems = (data.items || data).filter((item: Submission) => !existingIds.has(item.id));
+                    return [...prev, ...newItems];
+                });
             } else {
                 setSubmissions(data.items || data);
             }
