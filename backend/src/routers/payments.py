@@ -113,76 +113,100 @@ async def create_payment_preference(
 
 @router.post("/api/payment/webhook")
 async def payment_webhook(
-    notification: schemas.WebhookNotification,
+    id: Optional[str] = None,
+    topic: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     """
     Receive and process Mercado Pago webhook notifications
+    MP sends data via query params: ?id=PAYMENT_ID&topic=payment
     """
     try:
-        logging.info(f"Received webhook notification: {notification.dict()}")
+        logging.info(f"Webhook received: id={id}, topic={topic}")
         
-        # Process webhook using payment service
-        result = payment_service.process_webhook(notification.dict())
+        # Mercado Pago sends topic=payment or topic=merchant_order
+        if not id or not topic:
+            logging.warning(f"Webhook missing data: id={id}, topic={topic}")
+            return {"status": "ok"}  # Return 200 to prevent retries
         
-        if result["success"] and result.get("should_process"):
-            payment_info = result["payment_info"]
-            payment_id = payment_info["payment_id"]
+        # Only process payment notifications
+        if topic != "payment":
+            logging.info(f"Ignoring non-payment topic: {topic}")
+            return {"status": "ok"}
+        
+        # Get payment info from Mercado Pago
+        payment_info_result = payment_service.get_payment_info(id)
+        
+        if not payment_info_result.get("success"):
+            logging.error(f"Failed to get payment info for ID {id}")
+            return {"status": "error"}
+        
+        payment_info = payment_info_result
+        payment_status = payment_info.get("status")
+        external_ref = payment_info.get("external_reference", "")
+        
+        logging.info(f"Payment {id} status: {payment_status}, ref: {external_ref}")
+        
+        if not external_ref:
+            logging.warning(f"Payment {id} has no external_reference")
+            return {"status": "ok"}
+        
+        # Parse external_reference: user_{user_id}_package_{package_id}_{timestamp}
+        parts = external_ref.split("_")
+        if len(parts) < 4:
+            logging.error(f"Invalid external_reference format: {external_ref}")
+            return {"status": "ok"}
+        
+        user_id = int(parts[1])
+        package_id = parts[3]
+        
+        # Find or create transaction
+        transaction = db.query(models.Transaction).filter(
+            models.Transaction.user_id == user_id,
+            models.Transaction.external_reference == external_ref
+        ).first()
+        
+        if not transaction:
+            # Try to find by user_id and pending status (most recent)
+            transaction = db.query(models.Transaction).filter(
+                models.Transaction.user_id == user_id,
+                models.Transaction.status == "pending"
+            ).order_by(models.Transaction.created_at.desc()).first()
+        
+        if transaction:
+            # Update transaction
+            transaction.payment_id = str(id)
+            transaction.external_reference = external_ref
+            transaction.status = payment_status
+            transaction.status_detail = payment_info.get("status_detail")
+            transaction.payment_method = payment_info.get("payment_method_id")
+            transaction.payment_type = payment_info.get("payment_type_id")
+            transaction.updated_at = dt.utcnow()
             
-            # Find transaction by external_reference or preference_id
-            external_ref = payment_info.get("external_reference", "")
+            if payment_status == "approved":
+                transaction.approved_at = dt.utcnow()
+                
+                # Add coins to user account
+                user = db.query(models.User).filter(
+                    models.User.id == user_id
+                ).first()
+                
+                if user:
+                    total_coins = transaction.coins_amount + transaction.bonus_coins
+                    user.credits += total_coins
+                    logging.info(f"✅ Added {total_coins} coins to user {user_id}")
             
-            # Extract user_id and package_id from external_reference
-            # Format: user_{user_id}_package_{package_id}_{timestamp}
-            if external_ref:
-                parts = external_ref.split("_")
-                if len(parts) >= 4:
-                    user_id = int(parts[1])
-                    package_id = parts[3]
-                    
-                    # Find or create transaction
-                    transaction = db.query(models.Transaction).filter(
-                        models.Transaction.user_id == user_id,
-                        models.Transaction.external_reference == external_ref
-                    ).first()
-                    
-                    if not transaction:
-                        # Try to find by preference_id
-                        transaction = db.query(models.Transaction).filter(
-                            models.Transaction.user_id == user_id,
-                            models.Transaction.status == "pending"
-                        ).order_by(models.Transaction.created_at.desc()).first()
-                    
-                    if transaction:
-                        # Update transaction
-                        transaction.payment_id = str(payment_id)
-                        transaction.external_reference = external_ref
-                        transaction.status = payment_info["status"]
-                        transaction.status_detail = payment_info.get("status_detail")
-                        transaction.payment_method = payment_info.get("payment_method_id")
-                        transaction.payment_type = payment_info.get("payment_type_id")
-                        transaction.updated_at = dt.utcnow()
-                        
-                        if payment_info["status"] == "approved":
-                            transaction.approved_at = dt.utcnow()
-                            
-                            # Add coins to user account
-                            user = db.query(models.User).filter(
-                                models.User.id == user_id
-                            ).first()
-                            
-                            if user:
-                                total_coins = transaction.coins_amount + transaction.bonus_coins
-                                user.credits += total_coins
-                                logging.info(f"Added {total_coins} coins to user {user_id}")
-                        
-                        db.commit()
-                        logging.info(f"Transaction updated successfully: {transaction.id}")
+            db.commit()
+            logging.info(f"✅ Transaction updated: {transaction.id}")
+        else:
+            logging.warning(f"Transaction not found for external_ref: {external_ref}")
         
         return {"status": "ok"}
     
     except Exception as e:
         logging.error(f"Error processing webhook: {str(e)}")
+        import traceback
+        traceback.print_exc()
         # Return 200 to prevent Mercado Pago from retrying
         return {"status": "error", "message": str(e)}
 
