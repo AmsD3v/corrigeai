@@ -42,6 +42,9 @@ const RedacoesAdmin = () => {
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
     const [deleting, setDeleting] = useState(false);
 
+    // Ref para tracking de deleting (evita closure do observer)
+    const deletingRef = useRef(false);
+
     // Função para carregar submissões com paginação
     const loadSubmissions = useCallback(async (currentSkip: number, append = false) => {
         if (loading) return;
@@ -79,8 +82,8 @@ const RedacoesAdmin = () => {
     useEffect(() => {
         const observer = new IntersectionObserver(
             entries => {
-                // PROTEÇÃO: não carrega mais se estiver deletando
-                if (entries[0].isIntersecting && hasMore && !loading && !deleting) {
+                // PROTEÇÃO: verifica ref que sempre tem valor atual
+                if (entries[0].isIntersecting && hasMore && !loading && !deletingRef.current) {
                     loadSubmissions(skip, true);
                 }
             },
@@ -97,7 +100,7 @@ const RedacoesAdmin = () => {
                 observer.unobserve(currentTarget);
             }
         };
-    }, [hasMore, loading, skip, loadSubmissions, deleting]);
+    }, [hasMore, loading, skip, loadSubmissions]);
 
     const filteredSubmissions = submissions.filter(sub =>
         sub.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -208,6 +211,7 @@ const RedacoesAdmin = () => {
             alert('Erro ao deletar redação. Tente novamente.');
         } finally {
             setDeleting(false);
+            deletingRef.current = false; // Reset ref
             console.log('[DELETE] Estado deleting resetado para false');
         }
     };
