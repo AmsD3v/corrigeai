@@ -45,6 +45,8 @@ class User(UserBase):
     credits: int
     free_credits: int = 0
     is_admin: bool = False
+    phone: Optional[str] = None
+    birth_date: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True) # Usa ConfigDict
 
@@ -54,6 +56,39 @@ class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     credits: Optional[int] = None
     free_credits: Optional[int] = None
+
+class UserProfileUpdate(BaseModel):
+    """Schema for user to update their own profile"""
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    birth_date: Optional[str] = None
+    
+    @field_validator('phone')
+    @classmethod
+    def validate_phone(cls, v):
+        if v is not None and v.strip():
+            # Remove non-digits
+            digits = ''.join(filter(str.isdigit, v))
+            if len(digits) not in [10, 11]:
+                raise ValueError('Telefone deve ter 10 ou 11 dígitos')
+        return v
+    
+    @field_validator('birth_date')
+    @classmethod
+    def validate_birth_date(cls, v):
+        if v is not None and v.strip():
+            try:
+                from datetime import datetime
+                birth = datetime.frptime(v, '%Y-%m-%d')
+                age = (datetime.now() - birth).days // 365
+                if age < 13:
+                    raise ValueError('Você deve ter pelo menos 13 anos')
+            except ValueError as e:
+                if 'does not match format' in str(e):
+                    raise ValueError('Data deve estar no formato YYYY-MM-DD')
+                raise
+        return v
 
 class Token(BaseModel):
     access_token: str
