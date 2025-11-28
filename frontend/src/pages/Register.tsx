@@ -156,6 +156,21 @@ const Register: React.FC = () => {
                     required
                     className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
                   />
+                  {confirmPassword && (
+                    <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {password === confirmPassword ? (
+                        <>
+                          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
+                          <span style={{ fontSize: '13px', color: '#10b981' }}>✓ As senhas coincidem</span>
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ef4444' }} />
+                          <span style={{ fontSize: '13px', color: '#ef4444' }}>✗ As senhas não coincidem</span>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {error && (
