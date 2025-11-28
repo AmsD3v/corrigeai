@@ -1,6 +1,6 @@
 import bleach
 from pydantic import BaseModel, EmailStr, ConfigDict, field_validator
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 import re
 
@@ -80,7 +80,7 @@ class UserProfileUpdate(BaseModel):
         if v is not None and v.strip():
             try:
                 from datetime import datetime
-                birth = datetime.frptime(v, '%Y-%m-%d')
+                birth = datetime.strptime(v, '%Y-%m-%d')
                 age = (datetime.now() - birth).days // 365
                 if age < 13:
                     raise ValueError('Você deve ter pelo menos 13 anos')

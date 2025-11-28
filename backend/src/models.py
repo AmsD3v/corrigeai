@@ -3,25 +3,6 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 
 # Importação da Base declarativa centralizada
-
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    theme = Column(String, nullable=True)
-    exam_type = Column(String, nullable=True)
-    content = Column(Text)
-    submitted_at = Column(DateTime, default=datetime.utcnow)
-    status = Column(String, default="pending")
-    correction_type = Column(String, default="advanced")  # "advanced" or "premium"
-    owner_id = Column(Integer, ForeignKey("user.id"))
-
-    owner = relationship("User", back_populates="submissions")
-    correction = relationship("Correction", back_populates="submission", uselist=False)
-
-class Correction(Base):
-    __tablename__ = "correction"
-    __table_args__ = {'extend_existing': True}
-    
-    id = Column(Integer, primary_key=True, index=True)
     submission_id = Column(Integer, ForeignKey("submission.id"), unique=True, nullable=False)
     
     # ENEM Competencies (0-200 points each)
