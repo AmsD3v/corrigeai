@@ -190,23 +190,36 @@ async def delete_submission(
     """
     Delete a submission and its correction (admin only)
     """
+    print(f"[DELETE API] Recebido pedido para deletar submission_id={submission_id}")
+    
     # Find submission
     submission = db.query(models.Submission).filter(
         models.Submission.id == submission_id
     ).first()
     
     if not submission:
+        print(f"[DELETE API] Submission {submission_id} NÃO encontrada")
         raise HTTPException(status_code=404, detail="Redação não encontrada")
+    
+    print(f"[DELETE API] Submission {submission_id} encontrada, título: {submission.title}")
     
     # Delete associated correction if exists
     correction = db.query(models.Correction).filter(
         models.Correction.submission_id == submission_id
     ).first()
     if correction:
+        print(f"[DELETE API] Deletando correção associada")
         db.delete(correction)
+    else:
+        print(f"[DELETE API] Nenhuma correção associada")
     
     # Delete submission
+    print(f"[DELETE API] Deletando submission {submission_id}")
     db.delete(submission)
+    
+    print(f"[DELETE API] Fazendo COMMIT")
     db.commit()
+    
+    print(f"[DELETE API] Submission {submission_id} deletada com sucesso!")
     
     return {"message": "Redação excluída com sucesso", "id": submission_id}
