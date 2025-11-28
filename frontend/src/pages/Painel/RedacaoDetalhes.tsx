@@ -64,10 +64,37 @@ const RedacaoDetalhes = () => {
         const fetchEssay = async () => {
             try {
                 setLoading(true);
-                const response = await api.get(`/my-submissions/${id}`);
-                setEssay(response.data);
+
+                // Try API first (for new integer IDs)
+                try {
+                    const response = await api.get(`/my-submissions/${id}`);
+                    setEssay(response.data);
+                    return; // Success, exit early
+                } catch (apiError: any) {
+                    // If API fails (e.g., UUID not found), try localStorage
+                    console.warn('⚠️ API failed, trying localStorage:', apiError.response?.data?.detail || apiError.message);
+                }
+
+                // Fallback to localStorage (for old UUID-based submissions)
+                const essayDataStr = localStorage.getItem(`essay_${id}`);
+                const correctionDataStr = localStorage.getItem(`correction_${id}`);
+
+                if (!essayDataStr || !correctionDataStr) {
+                    console.warn('⚠️ Dados não encontrados nem na API nem no localStorage');
+                    setEssay(null);
+                    return;
+                }
+
+                const essayData = JSON.parse(essayDataStr);
+                const correctionData = JSON.parse(correctionDataStr);
+
+                setEssay({
+                    ...essayData,
+                    correction: correctionData
+                });
             } catch (error) {
                 console.error('❌ Erro ao buscar redação:', error);
+                setEssay(null);
             } finally {
                 setLoading(false);
             }

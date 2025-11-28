@@ -173,19 +173,29 @@ def list_my_submissions(
 
 @router.get("/my-submissions/{submission_id}")
 def get_my_submission_details(
-    submission_id: int,
+    submission_id: str,  # Accept as string to handle both UUID and INT
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
     """
     Get detailed submission data including correction.
     Returns submission with nested correction object.
+    Accepts both integer IDs (from database) and UUID strings (from old localStorage).
     """
-    # Verify submission belongs to current user
-    submission = db.query(models.Submission).filter(
-        models.Submission.id == submission_id,
-        models.Submission.owner_id == current_user.id
-    ).first()
+    # Try to convert to int (database ID)
+    try:
+        numeric_id = int(submission_id)
+        submission = db.query(models.Submission).filter(
+            models.Submission.id == numeric_id,
+            models.Submission.owner_id == current_user.id
+        ).first()
+    except ValueError:
+        # Not a valid integer, might be UUID - not supported in current schema
+        # Return 404 as we don't store UUIDs in database
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Submissão não encontrada. IDs antigos (UUID) não são mais suportados."
+        )
     
     if not submission:
         raise HTTPException(
@@ -195,7 +205,7 @@ def get_my_submission_details(
     
     # Get correction data
     correction = db.query(models.Correction).filter(
-        models.Correction.submission_id == submission_id
+        models.Correction.submission_id == submission.id
     ).first()
     
     result = {
@@ -226,6 +236,7 @@ def get_my_submission_details(
         }
     
     return result
+
 
 
 
