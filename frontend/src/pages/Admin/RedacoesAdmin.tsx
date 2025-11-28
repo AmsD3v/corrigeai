@@ -1,86 +1,111 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
+import apiClient from '../../services/apiClient';
 
-interface Essay {
-    id: string;
-    userId: string;
+interface Submission {
+    id: number;
     title: string;
     theme: string;
-    submittedAt: string;
-    score: number;
-    status: 'corrected' | 'pending';
+    content: string;
+    created_at: string;
+    status: 'pending' | 'processing' | 'completed' | 'error';
+    correction_type: 'advanced' | 'premium';
+    owner: {
+        id: number;
+        full_name: string;
+        email: string;
+    };
+    correction?: {
+        total_score: number;
+        competence_1_score: number;
+        competence_2_score: number;
+        competence_3_score: number;
+        competence_4_score: number;
+        competence_5_score: number;
+    };
 }
 
 const RedacoesAdmin = () => {
     const navigate = useNavigate();
-    const [essays, setEssays] = useState<Essay[]>([]);
+    const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
     useEffect(() => {
-        loadEssays();
+        loadSubmissions();
     }, []);
 
-    const loadEssays = () => {
-        const allKeys = Object.keys(localStorage);
-        const essayKeys = allKeys.filter(key => key.startsWith('essay_'));
-
-        const loadedEssays: Essay[] = essayKeys.map(key => {
-            try {
-                const essayData = JSON.parse(localStorage.getItem(key) || '{}');
-                const essayId = key.replace('essay_', '');
-                const correctionKey = `correction_${essayId}`;
-                const correction = localStorage.getItem(correctionKey);
-
-                let score = 0;
-                if (correction) {
-                    try {
-                        const correctionData = JSON.parse(correction);
-                        score = correctionData.total_score || 0;
-                    } catch (e) {
-                        // ignore
-                    }
-                }
-
-                return {
-                    id: essayId,
-                    userId: essayData.userId || 'unknown',
-                    title: essayData.title || 'Sem título',
-                    theme: essayData.theme || 'Tema não especificado',
-                    submittedAt: essayData.submitted_at || new Date().toISOString(),
-                    score,
-                    status: correction ? 'corrected' : 'pending'
-                };
-            } catch (e) {
-                return null;
-            }
-        }).filter(Boolean) as Essay[];
-
-        // Sort by date (newest first)
-        loadedEssays.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
-        setEssays(loadedEssays);
-    };
-
-    const filteredEssays = essays.filter(essay =>
-        essay.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        essay.theme.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const handleDelete = (essayId: string) => {
-        if (confirm('Tem certeza que deseja deletar esta redação?')) {
-            localStorage.removeItem(`essay_${essayId}`);
-            localStorage.removeItem(`correction_${essayId}`);
-            loadEssays();
+    const loadSubmissions = async () => {
+        try {
+            setLoading(true);
+            const response = await apiClient.get('/admin/submissions');
+            setSubmissions(response.data);
+            setError('');
+        } catch (err: any) {
+            console.error('Erro ao carregar redações:', err);
+            setError('Erro ao carregar redações');
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleView = (essayId: string) => {
-        navigate(`/painel/redacao/${essayId}`);
+    const filteredSubmissions = submissions.filter(sub =>
+        sub.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        sub.theme?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        sub.owner.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        sub.owner.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const stats = {
+        total: submissions.length,
+        corrected: submissions.filter(s => s.status === 'completed').length,
+        pending: submissions.filter(s => s.status === 'pending').length,
+        processing: submissions.filter(s => s.status === 'processing').length,
+        avgScore: submissions.filter(s => s.correction?.total_score).length > 0
+            ? Math.round(
+                submissions
+                    .filter(s => s.correction?.total_score)
+                    .reduce((sum, s) => sum + (s.correction?.total_score || 0), 0) /
+                submissions.filter(s => s.correction?.total_score).length
+            )
+            : 0
     };
 
-    const avgScore = essays.length > 0
-        ? Math.round(essays.reduce((sum, e) => sum + e.score, 0) / essays.filter(e => e.score > 0).length)
-        : 0;
+    const getStatusLabel = (status: string) => {
+        const labels: Record<string, string> = {
+            'pending': 'Pendente',
+            'processing': 'Processando',
+            'completed': 'Concluída',
+            'error': 'Erro'
+        };
+        return labels[status] || status;
+    };
+
+    const getStatusColor = (status: string) => {
+        const colors: Record<string, { bg: string; text: string }> = {
+            'pending': { bg: '#f59e0b20', text: '#f59e0b' },
+            'processing': { bg: '#3b82f620', text: '#3b82f6' },
+            'completed': { bg: '#10b98120', text: '#10b981' },
+            'error': { bg: '#ef444420', text: '#ef4444' }
+        };
+        return colors[status] || colors['pending'];
+    };
+
+    const handleView = (submissionId: number) => {
+        navigate(`/painel/redacao/${submissionId}`);
+    };
+
+    if (loading) {
+        return (
+            <AdminLayout activePage="/admin/redacoes">
+                <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+                    Carregando redações...
+                </div>
+            </AdminLayout>
+        );
+    }
 
     return (
         <AdminLayout activePage="/admin/redacoes">
@@ -101,10 +126,23 @@ const RedacoesAdmin = () => {
                 </p>
             </div>
 
+            {error && (
+                <div style={{
+                    background: '#ef444420',
+                    border: '1px solid #ef4444',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    marginBottom: '24px',
+                    color: '#ef4444'
+                }}>
+                    {error}
+                </div>
+            )}
+
             {/* Stats */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
                 gap: '16px',
                 marginBottom: '24px'
             }}>
@@ -115,10 +153,10 @@ const RedacoesAdmin = () => {
                     padding: '20px'
                 }}>
                     <div style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '8px' }}>
-                        Total de Redações
+                        Total
                     </div>
                     <div style={{ fontSize: '28px', fontWeight: '800', color: '#10b981' }}>
-                        {essays.length}
+                        {stats.total}
                     </div>
                 </div>
                 <div style={{
@@ -128,10 +166,10 @@ const RedacoesAdmin = () => {
                     padding: '20px'
                 }}>
                     <div style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '8px' }}>
-                        Corrigidas
+                        Concluídas
                     </div>
                     <div style={{ fontSize: '28px', fontWeight: '800', color: '#3b82f6' }}>
-                        {essays.filter(e => e.status === 'corrected').length}
+                        {stats.corrected}
                     </div>
                 </div>
                 <div style={{
@@ -141,10 +179,23 @@ const RedacoesAdmin = () => {
                     padding: '20px'
                 }}>
                     <div style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '8px' }}>
-                        Pontuação Média
+                        Processando
                     </div>
                     <div style={{ fontSize: '28px', fontWeight: '800', color: '#f59e0b' }}>
-                        {avgScore}
+                        {stats.processing}
+                    </div>
+                </div>
+                <div style={{
+                    background: '#1a1f2e',
+                    border: '1px solid #334155',
+                    borderRadius: '12px',
+                    padding: '20px'
+                }}>
+                    <div style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '8px' }}>
+                        Nota Média
+                    </div>
+                    <div style={{ fontSize: '28px', fontWeight: '800', color: '#a855f7' }}>
+                        {stats.avgScore}
                     </div>
                 </div>
             </div>
@@ -159,7 +210,7 @@ const RedacoesAdmin = () => {
             }}>
                 <input
                     type="text"
-                    placeholder="Buscar por título ou tema..."
+                    placeholder="Buscar por título, tema, nome ou email do aluno..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     style={{
@@ -174,7 +225,7 @@ const RedacoesAdmin = () => {
                 />
             </div>
 
-            {/* Essays Table */}
+            {/* Submissions Table */}
             <div style={{
                 background: '#1a1f2e',
                 border: '1px solid #334155',
@@ -188,33 +239,71 @@ const RedacoesAdmin = () => {
                     }}>
                         <thead>
                             <tr style={{ background: '#0f1419' }}>
+                                <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>ID</th>
+                                <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Aluno</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Título</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Tema</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Data</th>
-                                <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Pontuação</th>
+                                <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Nota</th>
+                                <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Tipo</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Status</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredEssays.map((essay) => (
-                                <tr key={essay.id} style={{ borderTop: '1px solid #334155' }}>
-                                    <td style={{ padding: '16px', color: '#fff', fontSize: '14px', maxWidth: '300px' }}>
-                                        {essay.title.length > 50 ? `${essay.title.substring(0, 50)}...` : essay.title}
+                            {filteredSubmissions.map((submission) => (
+                                <tr key={submission.id} style={{ borderTop: '1px solid #334155' }}>
+                                    <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
+                                        #{submission.id}
                                     </td>
-                                    <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px', maxWidth: '250px' }}>
-                                        {essay.theme.length > 40 ? `${essay.theme.substring(0, 40)}...` : essay.theme}
+                                    <td style={{ padding: '16px', color: '#fff', fontSize: '14px' }}>
+                                        <div>{submission.owner.full_name}</div>
+                                        <div style={{ fontSize: '12px', color: '#64748b' }}>{submission.owner.email}</div>
+                                    </td>
+                                    <td style={{ padding: '16px', color: '#fff', fontSize: '14px', maxWidth: '250px' }}>
+                                        {submission.title.length > 40 ? `${submission.title.substring(0, 40)}...` : submission.title}
+                                    </td>
+                                    <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px', maxWidth: '200px' }}>
+                                        {submission.theme && submission.theme.length > 30
+                                            ? `${submission.theme.substring(0, 30)}...`
+                                            : (submission.theme || '-')}
                                     </td>
                                     <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
-                                        {new Date(essay.submittedAt).toLocaleDateString('pt-BR')}
+                                        {new Date(submission.created_at).toLocaleString('pt-BR', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </td>
+                                    <td style={{ padding: '16px' }}>
+                                        {submission.correction?.total_score ? (
+                                            <span style={{
+                                                fontSize: '16px',
+                                                fontWeight: '700',
+                                                color: submission.correction.total_score >= 800
+                                                    ? '#10b981'
+                                                    : submission.correction.total_score >= 600
+                                                        ? '#f59e0b'
+                                                        : '#ef4444'
+                                            }}>
+                                                {submission.correction.total_score}
+                                            </span>
+                                        ) : (
+                                            <span style={{ color: '#64748b' }}>-</span>
+                                        )}
                                     </td>
                                     <td style={{ padding: '16px' }}>
                                         <span style={{
-                                            fontSize: '16px',
-                                            fontWeight: '700',
-                                            color: essay.score >= 800 ? '#10b981' : essay.score >= 600 ? '#f59e0b' : '#ef4444'
+                                            padding: '4px 8px',
+                                            borderRadius: '6px',
+                                            fontSize: '11px',
+                                            fontWeight: '600',
+                                            background: submission.correction_type === 'premium' ? '#a855f720' : '#3b82f620',
+                                            color: submission.correction_type === 'premium' ? '#a855f7' : '#3b82f6'
                                         }}>
-                                            {essay.score > 0 ? essay.score : '-'}
+                                            {submission.correction_type === 'premium' ? '💎 Premium' : '⚡ Advanced'}
                                         </span>
                                     </td>
                                     <td style={{ padding: '16px' }}>
@@ -223,43 +312,28 @@ const RedacoesAdmin = () => {
                                             borderRadius: '12px',
                                             fontSize: '12px',
                                             fontWeight: '600',
-                                            background: essay.status === 'corrected' ? '#10b98120' : '#f59e0b20',
-                                            color: essay.status === 'corrected' ? '#10b981' : '#f59e0b'
+                                            background: getStatusColor(submission.status).bg,
+                                            color: getStatusColor(submission.status).text
                                         }}>
-                                            {essay.status === 'corrected' ? 'Corrigida' : 'Pendente'}
+                                            {getStatusLabel(submission.status)}
                                         </span>
                                     </td>
                                     <td style={{ padding: '16px' }}>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <button
-                                                onClick={() => handleView(essay.id)}
-                                                style={{
-                                                    padding: '6px 12px',
-                                                    background: '#3b82f6',
-                                                    border: 'none',
-                                                    borderRadius: '6px',
-                                                    color: '#fff',
-                                                    fontSize: '12px',
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                Visualizar
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(essay.id)}
-                                                style={{
-                                                    padding: '6px 12px',
-                                                    background: '#ef4444',
-                                                    border: 'none',
-                                                    borderRadius: '6px',
-                                                    color: '#fff',
-                                                    fontSize: '12px',
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                Deletar
-                                            </button>
-                                        </div>
+                                        <button
+                                            onClick={() => handleView(submission.id)}
+                                            style={{
+                                                padding: '6px 12px',
+                                                background: '#3b82f6',
+                                                border: 'none',
+                                                borderRadius: '6px',
+                                                color: '#fff',
+                                                fontSize: '12px',
+                                                cursor: 'pointer',
+                                                fontWeight: '600'
+                                            }}
+                                        >
+                                            👁️ Ver
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -267,13 +341,13 @@ const RedacoesAdmin = () => {
                     </table>
                 </div>
 
-                {filteredEssays.length === 0 && (
+                {filteredSubmissions.length === 0 && (
                     <div style={{
                         padding: '60px',
                         textAlign: 'center',
                         color: '#64748b'
                     }}>
-                        Nenhuma redação encontrada
+                        {searchTerm ? 'Nenhuma redação encontrada com esse filtro' : 'Nenhuma redação cadastrada ainda'}
                     </div>
                 )}
             </div>

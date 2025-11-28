@@ -124,5 +124,54 @@ async def get_all_transactions(
             "status": txn.status,
             "approved_at": txn.approved_at
         })
+    return result
+
+@router.get("/admin/submissions")
+async def get_all_submissions(
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """
+    Get all submissions with corrections and user data (admin only)
+    """
+    # Query all submissions with user and correction data
+    submissions = db.query(models.Submission)\
+        .join(models.User)\
+        .order_by(models.Submission.created_at.desc())\
+        .all()
+    
+    result = []
+    for sub in submissions:
+        # Get correction if exists
+        correction = db.query(models.Correction).filter(
+            models.Correction.submission_id == sub.id
+        ).first()
         
+        submission_data = {
+            "id": sub.id,
+            "title": sub.title,
+            "theme": sub.theme,
+            "content": sub.content,
+            "created_at": sub.created_at,
+            "status": sub.status,
+            "correction_type": sub.correction_type if hasattr(sub, 'correction_type') else 'advanced',
+            "owner": {
+                "id": sub.owner.id,
+                "full_name": sub.owner.full_name,
+                "email": sub.owner.email
+            }
+        }
+        
+        if correction:
+            submission_data["correction"] = {
+                "total_score": correction.total_score,
+                "competence_1_score": correction.competence_1_score,
+                "competence_2_score": correction.competence_2_score,
+                "competence_3_score": correction.competence_3_score,
+                "competence_4_score": correction.competence_4_score,
+                "competence_5_score": correction.competence_5_score
+            }
+        
+        result.append(submission_data)
+    
     return result
