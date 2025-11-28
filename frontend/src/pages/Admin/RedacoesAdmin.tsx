@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
-import apiClient from '../../services/apiClient';
+import api from '../../services/api';
 
 interface Submission {
     id: number;
@@ -40,7 +40,7 @@ const RedacoesAdmin = () => {
     const loadSubmissions = async () => {
         try {
             setLoading(true);
-            const response = await apiClient.get('/admin/submissions');
+            const response = await api.get('/admin/submissions');
             setSubmissions(response.data);
             setError('');
         } catch (err: any) {
