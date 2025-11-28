@@ -79,7 +79,8 @@ const RedacoesAdmin = () => {
     useEffect(() => {
         const observer = new IntersectionObserver(
             entries => {
-                if (entries[0].isIntersecting && hasMore && !loading) {
+                // PROTEÇÃO: não carrega mais se estiver deletando
+                if (entries[0].isIntersecting && hasMore && !loading && !deleting) {
                     loadSubmissions(skip, true);
                 }
             },
@@ -96,7 +97,7 @@ const RedacoesAdmin = () => {
                 observer.unobserve(currentTarget);
             }
         };
-    }, [hasMore, loading, skip, loadSubmissions]);
+    }, [hasMore, loading, skip, loadSubmissions, deleting]);
 
     const filteredSubmissions = submissions.filter(sub =>
         sub.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
