@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PanelLayout from '../../components/PanelLayout';
+import api from '../../services/api';
 
 interface Correction {
     competence_1_score: number;
@@ -51,29 +52,19 @@ const RedacaoDetalhes = () => {
     };
 
     useEffect(() => {
-        // Get essay and correction data from localStorage
-        const essayDataStr = localStorage.getItem(`essay_${id}`);
-        const correctionDataStr = localStorage.getItem(`correction_${id}`);
+        const fetchEssay = async () => {
+            try {
+                setLoading(true);
+                const response = await api.get(`/my-submissions/${id}`);
+                setEssay(response.data);
+            } catch (error) {
+                console.error('❌ Erro ao buscar redação:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        if (!essayDataStr || !correctionDataStr) {
-            console.warn('⚠️ Dados não encontrados no localStorage');
-            setLoading(false);
-            return;
-        }
-
-        try {
-            const essayData = JSON.parse(essayDataStr);
-            const correctionData = JSON.parse(correctionDataStr);
-
-            setEssay({
-                ...essayData,
-                correction: correctionData
-            });
-        } catch (error) {
-            console.error('❌ Erro ao parsear dados:', error);
-        } finally {
-            setLoading(false);
-        }
+        fetchEssay();
     }, [id]);
 
     if (loading) {

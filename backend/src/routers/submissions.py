@@ -171,6 +171,64 @@ def list_my_submissions(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/my-submissions/{submission_id}")
+def get_my_submission_details(
+    submission_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """
+    Get detailed submission data including correction.
+    Returns submission with nested correction object.
+    """
+    # Verify submission belongs to current user
+    submission = db.query(models.Submission).filter(
+        models.Submission.id == submission_id,
+        models.Submission.owner_id == current_user.id
+    ).first()
+    
+    if not submission:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Submissão não encontrada ou acesso não permitido."
+        )
+    
+    # Get correction data
+    correction = db.query(models.Correction).filter(
+        models.Correction.submission_id == submission_id
+    ).first()
+    
+    result = {
+        "id": str(submission.id),
+        "title": submission.title,
+        "theme": submission.theme,
+        "content": submission.content,
+        "submitted_at": str(submission.submitted_at),
+        "status": submission.status
+    }
+    
+    if correction:
+        result["correction"] = {
+            "total_score": correction.total_score,
+            "competence_1_score": correction.competence_1_score,
+            "competence_2_score": correction.competence_2_score,
+            "competence_3_score": correction.competence_3_score,
+            "competence_4_score": correction.competence_4_score,
+            "competence_5_score": correction.competence_5_score,
+            "competence_1_feedback": correction.competence_1_feedback or "",
+            "competence_2_feedback": correction.competence_2_feedback or "",
+            "competence_3_feedback": correction.competence_3_feedback or "",
+            "competence_4_feedback": correction.competence_4_feedback or "",
+            "competence_5_feedback": correction.competence_5_feedback or "",
+            "strengths": correction.strengths or [],
+            "improvements": correction.improvements or [],
+            "general_comments": correction.general_comments or ""
+        }
+    
+    return result
+
+
+
 @router.get("/submissions/{submission_id}", response_model=schemas.SubmissionResponse)
 def read_submission(
     submission_id: int,
