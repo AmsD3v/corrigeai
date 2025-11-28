@@ -106,7 +106,7 @@ Exemplos de bons temas:
         import google.generativeai as genai
         
         genai.configure(api_key=gemini_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-pro')
         
         response = model.generate_content(prompt)
         text = response.text.strip()
