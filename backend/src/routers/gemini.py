@@ -55,7 +55,8 @@ Exemplos de bons temas:
         logger.info(f"🤖 Gerando tema com IA para usuário {current_user.email}")
         
         # Tentar Groq primeiro (mais rápido)
-        groq_key = os.getenv("GROQ_API_KEY")
+        # Usa GROQ_THEME_API_KEY se disponível, caso contrário usa GROQ_API_KEY
+        groq_key = os.getenv("GROQ_THEME_API_KEY") or os.getenv("GROQ_API_KEY")
         if groq_key:
             try:
                 from groq import Groq
