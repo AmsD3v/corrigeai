@@ -31,7 +31,9 @@ interface Essay {
 }
 
 const RedacaoDetalhes = () => {
-    const { id } = useParams<{ id: string }>();
+    const { id: rawId } = useParams<{ id: string }>();
+    // Remove "M" prefix if it exists (from old localStorage data)
+    const id = rawId?.startsWith('M') ? rawId.substring(1) : rawId;
     const navigate = useNavigate();
     const [essay, setEssay] = useState<Essay | null>(null);
     const [loading, setLoading] = useState(true);

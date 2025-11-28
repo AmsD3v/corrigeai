@@ -3,7 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PanelLayout from '../../components/PanelLayout';
 
 const ResultadoCorrecao = () => {
-    const { id } = useParams<{ id: string }>();
+    const { id: rawId } = useParams<{ id: string }>();
+    // Remove "M" prefix if it exists (from old localStorage data)
+    const id = rawId?.startsWith('M') ? rawId.substring(1) : rawId;
     const navigate = useNavigate();
     const [score, setScore] = useState(0);
     const [showConfetti, setShowConfetti] = useState(false);
