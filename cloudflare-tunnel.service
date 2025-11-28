@@ -1,0 +1,17 @@
+[Unit]
+Description=Cloudflare Tunnel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=auronex-server-2
+WorkingDirectory=/home/auronex-server-2
+ExecStart=/usr/local/bin/cloudflared tunnel run corrigeai-tunnel
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
