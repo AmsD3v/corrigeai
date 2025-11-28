@@ -34,7 +34,7 @@ const RedacoesAdmin = () => {
     const [error, setError] = useState('');
     const [hasMore, setHasMore] = useState(true);
     const [skip, setSkip] = useState(0);
-    const LIMIT = 20;
+    const LIMIT = 10;
 
     const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -171,9 +171,16 @@ const RedacoesAdmin = () => {
         try {
             setDeleting(true);
             await api.delete(`/admin/submissions/${id}`);
-            setSubmissions(prev => prev.filter(s => s.id !== id));
-            setSelectedIds(prev => {
-                const newSet = new Set(prev);
+
+            // Força atualização removendo da lista
+            setSubmissions(currentSubmissions => {
+                const filtered = currentSubmissions.filter(s => s.id !== id);
+                return [...filtered]; // Cria novo array para forçar re-render
+            });
+
+            // Remove da seleção
+            setSelectedIds(currentSelected => {
+                const newSet = new Set(currentSelected);
                 newSet.delete(id);
                 return newSet;
             });
@@ -182,26 +189,6 @@ const RedacoesAdmin = () => {
             alert('Erro ao deletar redação');
         } finally {
             setDeleting(false);
-        }
-    };
-
-    // Deletar múltiplas redações
-    const handleDeleteSelected = async () => {
-        if (selectedIds.size === 0) return;
-
-        if (!confirm(`Tem certeza que deseja excluir ${selectedIds.size} redação(ões)?`)) return;
-
-        try {
-            setDeleting(true);
-            await Promise.all(
-                Array.from(selectedIds).map(id => api.delete(`/admin/submissions/${id}`))
-            );
-            setSubmissions(prev => prev.filter(s => !selectedIds.has(s.id)));
-            setSelectedIds(new Set());
-        } catch (error) {
-            console.error('Erro ao deletar:', error);
-            alert('Erro ao deletar redações');
-        } finally {
             setDeleting(false);
         }
     };
