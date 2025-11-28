@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -119,107 +119,92 @@ const Register: React.FC = () => {
                   <label htmlFor="email" className="block text-white font-semibold mb-2">E-mail</label>
                   <input
                     type="email"
-                    id="email"
-                    placeholder="seu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
+                  />
+                  <PasswordStrengthIndicator password={password} />
+                </div>
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-white font-semibold mb-2">Confirmar</label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
                   />
                 </div>
-
-                {/* Senha e Confirmação */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="password" className="block text-white font-semibold mb-2">Senha</label>
-                    <input
-                      type="password"
-                      id="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="confirmPassword" className="block text-white font-semibold mb-2">Confirmar</label>
-                    <input
-                      type="password"
-                      id="confirmPassword"
-                      placeholder="••••••••"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
-                    />
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-3.5 rounded-lg font-bold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Criando conta...
-                    </span>
-                  ) : (
-                    'Criar conta'
-                  )}
-                </button>
-
-                <div className="text-center text-[#94A3B8] text-sm">
-                  Já tem conta?{' '}
-                  <a href="/login" className="text-[#3B82F6] font-semibold hover:underline">
-                    Entrar
-                  </a>
-                </div>
-              </form>
             </div>
-          </div>
 
-          {/* RIGHT: CHARACTER - in front of form with higher z-index */}
-          <div className="order-1 lg:order-2 flex justify-start lg:justify-start relative z-20 lg:ml-[-70px]">
-            <div className="relative">
-              <img
-                src="/owl-thumbs-up.png"
-                alt="CorrigeAI Mascot"
-                className="w-[250px] lg:w-[400px] drop-shadow-2xl"
-                style={{ animation: 'pulse 10s ease-in-out infinite' }}
-              />
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-3.5 rounded-lg font-bold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Criando conta...
+                </span>
+              ) : (
+                'Criar conta'
+              )}
+            </button>
+
+            <div className="text-center text-[#94A3B8] text-sm">
+              Já tem conta?{' '}
+              <a href="/login" className="text-[#3B82F6] font-semibold hover:underline">
+                Entrar
+              </a>
             </div>
-          </div>
+          </form>
         </div>
       </div>
 
-      {/* FOOTER */}
-      <footer className="py-6 px-6 border-t border-[#334155] text-center">
-        <p className="text-[#64748B] text-sm">
-          © 2025 CorrigeAI. Todos os direitos reservados.{' '}
-          <a href="#" className="hover:text-white transition-colors">Privacidade</a> ·{' '}
-          <a href="#" className="hover:text-white transition-colors">Termos</a>
-        </p>
-      </footer>
+      {/* RIGHT: CHARACTER - in front of form with higher z-index */}
+      <div className="order-1 lg:order-2 flex justify-start lg:justify-start relative z-20 lg:ml-[-70px]">
+        <div className="relative">
+          <img
+            src="/owl-thumbs-up.png"
+            alt="CorrigeAI Mascot"
+            className="w-[250px] lg:w-[400px] drop-shadow-2xl"
+            style={{ animation: 'pulse 10s ease-in-out infinite' }}
+          />
+        </div>
+      </div>
+    </div>
+      </div >
 
-      <style>{`
+  {/* FOOTER */ }
+  < footer className = "py-6 px-6 border-t border-[#334155] text-center" >
+    <p className="text-[#64748B] text-sm">
+      © 2025 CorrigeAI. Todos os direitos reservados.{' '}
+      <a href="#" className="hover:text-white transition-colors">Privacidade</a> ·{' '}
+      <a href="#" className="hover:text-white transition-colors">Termos</a>
+    </p>
+      </footer >
+
+  <style>{`
         @keyframes pulse {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.05); }
         }
       `}</style>
-    </div>
+    </div >
   );
 };
 
