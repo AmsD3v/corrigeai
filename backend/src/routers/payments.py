@@ -173,9 +173,13 @@ async def payment_webhook(
                 models.Transaction.user_id == user_id,
                 models.Transaction.status == "pending"
             ).order_by(models.Transaction.created_at.desc()).first()
+            
+            if transaction:
+                logging.info(f"Found pending transaction {transaction.id} for user {user_id}")
         
         if transaction:
             # Update transaction
+            old_status = transaction.status
             transaction.payment_id = str(id)
             transaction.external_reference = external_ref
             transaction.status = payment_status
@@ -184,7 +188,11 @@ async def payment_webhook(
             transaction.payment_type = payment_info.get("payment_type_id")
             transaction.updated_at = dt.utcnow()
             
-            if payment_status == "approved":
+            logging.info(f"Transaction {transaction.id}: {old_status} → {payment_status}")
+            
+            # Only add coins if status changed from pending/other to approved
+            # This prevents duplicate credits if webhook is called multiple times
+            if payment_status == "approved" and old_status != "approved":
                 transaction.approved_at = dt.utcnow()
                 
                 # Add coins to user account
@@ -194,13 +202,19 @@ async def payment_webhook(
                 
                 if user:
                     total_coins = transaction.coins_amount + transaction.bonus_coins
+                    old_balance = user.credits
                     user.credits += total_coins
-                    logging.info(f"✅ Added {total_coins} coins to user {user_id}")
+                    logging.info(f"✅ Added {total_coins} coins to user {user_id} (balance: {old_balance} → {user.credits})")
+                else:
+                    logging.error(f"❌ User {user_id} not found!")
+            elif payment_status == "approved" and old_status == "approved":
+                logging.info(f"⚠️  Transaction {transaction.id} already approved, skipping credit addition")
             
             db.commit()
-            logging.info(f"✅ Transaction updated: {transaction.id}")
+            logging.info(f"✅ Transaction {transaction.id} updated successfully")
         else:
-            logging.warning(f"Transaction not found for external_ref: {external_ref}")
+            logging.warning(f"❌ Transaction not found for external_ref: {external_ref}")
+        
         
         return {"status": "ok"}
     
