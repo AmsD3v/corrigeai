@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 import api from '../../services/api';
@@ -30,18 +30,33 @@ const RedacoesAdmin = () => {
     const navigate = useNavigate();
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [hasMore, setHasMore] = useState(true);
+    const [skip, setSkip] = useState(0);
+    const LIMIT = 20;
 
-    useEffect(() => {
-        loadSubmissions();
-    }, []);
+    const observerTarget = useRef<HTMLDivElement>(null);
 
-    const loadSubmissions = async () => {
+    // Função para carregar submissões com paginação
+    const loadSubmissions = useCallback(async (currentSkip: number, append = false) => {
+        if (loading) return;
+
+        setLoading(true);
         try {
-            setLoading(true);
-            const response = await api.get('/admin/submissions');
-            setSubmissions(response.data);
+            const response = await api.get(`/admin/submissions?skip=${currentSkip}&limit=${LIMIT}`);
+            const data = response.data;
+
+            if (append) {
+                setSubmissions(prev => [...prev, ...(data.items || data)]);
+            } else {
+                setSubmissions(data.items || data);
+            }
+
+            // Check if has more
+            const items = data.items || data;
+            setHasMore(items.length === LIMIT);
+            setSkip(currentSkip + LIMIT);
             setError('');
         } catch (err: any) {
             console.error('Erro ao carregar redações:', err);
@@ -49,7 +64,35 @@ const RedacoesAdmin = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [loading, LIMIT]);
+
+    // Carregar primeira página
+    useEffect(() => {
+        loadSubmissions(0, false);
+    }, []);
+
+    // Intersection Observer para infinite scroll
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && hasMore && !loading) {
+                    loadSubmissions(skip, true);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        const currentTarget = observerTarget.current;
+        if (currentTarget) {
+            observer.observe(currentTarget);
+        }
+
+        return () => {
+            if (currentTarget) {
+                observer.unobserve(currentTarget);
+            }
+        };
+    }, [hasMore, loading, skip, loadSubmissions]);
 
     const filteredSubmissions = submissions.filter(sub =>
         sub.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -341,7 +384,7 @@ const RedacoesAdmin = () => {
                     </table>
                 </div>
 
-                {filteredSubmissions.length === 0 && (
+                {filteredSubmissions.length === 0 && !loading && (
                     <div style={{
                         padding: '60px',
                         textAlign: 'center',
@@ -349,6 +392,22 @@ const RedacoesAdmin = () => {
                     }}>
                         {searchTerm ? 'Nenhuma redação encontrada com esse filtro' : 'Nenhuma redação cadastrada ainda'}
                     </div>
+                )}
+
+                {/* Loading indicator */}
+                {loading && filteredSubmissions.length > 0 && (
+                    <div style={{
+                        padding: '20px',
+                        textAlign: 'center',
+                        color: '#94a3b8'
+                    }}>
+                        Carregando mais redações...
+                    </div>
+                )}
+
+                {/* Intersection Observer target */}
+                {hasMore && !searchTerm && (
+                    <div ref={observerTarget} style={{ height: '20px' }} />
                 )}
             </div>
         </AdminLayout>

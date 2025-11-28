@@ -128,16 +128,21 @@ async def get_all_transactions(
 
 @router.get("/admin/submissions")
 async def get_all_submissions(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
     admin_user: models.User = Depends(get_current_admin_user)
 ):
     """
     Get all submissions with corrections and user data (admin only)
+    Supports pagination with skip and limit
     """
     # Query all submissions with user and correction data
     submissions = db.query(models.Submission)\
         .join(models.User)\
         .order_by(models.Submission.submitted_at.desc())\
+        .offset(skip)\
+        .limit(limit)\
         .all()
     
     result = []
