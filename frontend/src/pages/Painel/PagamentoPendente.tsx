@@ -1,12 +1,69 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import PanelLayout from '../../components/PanelLayout';
+import apiClient from '../../services/api';
 
 const PagamentoPendente = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const [checkingStatus, setCheckingStatus] = useState(true);
 
     const paymentId = searchParams.get('payment_id');
     const status = searchParams.get('status');
+
+    // Poll payment status every 3 seconds
+    useEffect(() => {
+        if (!paymentId) {
+            setCheckingStatus(false);
+            return;
+        }
+
+        let intervalId: NodeJS.Timeout;
+        let attempts = 0;
+        const MAX_ATTEMPTS = 40; // 2 minutes maximum
+
+        const checkPaymentStatus = async () => {
+            try {
+                const response = await apiClient.get('/api/payment/transactions');
+                const transactions = response.data;
+
+                // Find transaction by payment_id
+                const transaction = transactions.find((t: any) =>
+                    t.payment_id === paymentId
+                );
+
+                if (transaction) {
+                    if (transaction.status === 'approved') {
+                        // Redirect to success page
+                        clearInterval(intervalId);
+                        navigate('/painel/pagamento/sucesso?payment_id=' + paymentId);
+                    } else if (transaction.status === 'rejected' || transaction.status === 'cancelled') {
+                        // Redirect to failure page
+                        clearInterval(intervalId);
+                        navigate('/painel/pagamento/falha?payment_id=' + paymentId);
+                    }
+                }
+
+                attempts++;
+                if (attempts >= MAX_ATTEMPTS) {
+                    clearInterval(intervalId);
+                    setCheckingStatus(false);
+                }
+            } catch (error) {
+                console.error('Error checking payment status:', error);
+            }
+        };
+
+        // Check immediately
+        checkPaymentStatus();
+
+        // Then check every 3 seconds
+        intervalId = setInterval(checkPaymentStatus, 3000);
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
+    }, [paymentId, navigate]);
 
     return (
         <PanelLayout activePage="/painel/comprar-creditos">
