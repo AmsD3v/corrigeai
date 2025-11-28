@@ -1,14 +1,104 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PanelLayout from '../../components/PanelLayout';
 import { useAuth } from '../../contexts/AuthContext';
+import apiClient from '../../services/api';
+
+// Phone mask helper
+const formatPhone = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 10) {
+        return numbers.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+    }
+    return numbers.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+};
 
 const Configuracoes = () => {
     const navigate = useNavigate();
     const { logout } = useAuth();
-    const [personalInfoOpen, setPersonalInfoOpen] = useState(false);
+
+    // UI State
+    const [personalInfoOpen, setPersonalInfoOpen] = useState(true);
     const [complementaryInfoOpen, setComplementaryInfoOpen] = useState(false);
     const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+    // Form State
+    const [fullName, setFullName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [birthDate, setBirthDate] = useState('');
+
+    // Loading & Feedback State
+    const [loading, setLoading] = useState(true);
+    const [savingPersonal, setSavingPersonal] = useState(false);
+    const [savingComplementary, setSavingComplementary] = useState(false);
+    const [personalSuccess, setPersonalSuccess] = useState(false);
+    const [complementarySuccess, setComplementarySuccess] = useState(false);
+    const [error, setError] = useState('');
+
+    // Load user data on mount
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await apiClient.get('/users/me');
+                const user = response.data;
+
+                setFullName(user.full_name || '');
+                setEmail(user.email || '');
+                setPhone(user.phone ? formatPhone(user.phone) : '');
+                setBirthDate(user.birth_date || '');
+            } catch (err) {
+                console.error('Error loading user data:', err);
+                setError('Erro ao carregar dados do usuário');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
+    const handleSavePersonalInfo = async () => {
+        setSavingPersonal(true);
+        setError('');
+        setPersonalSuccess(false);
+
+        try {
+            await apiClient.put('/users/me/profile', {
+                full_name: fullName,
+                email: email
+            });
+
+            setPersonalSuccess(true);
+            setTimeout(() => setPersonalSuccess(false), 3000);
+        } catch (err: any) {
+            setError(err.response?.data?.detail || 'Erro ao salvar informações');
+        } finally {
+            setSavingPersonal(false);
+        }
+    };
+
+    const handleSaveComplementaryInfo = async () => {
+        setSavingComplementary(true);
+        setError('');
+        setComplementarySuccess(false);
+
+        try {
+            const phoneNumbers = phone.replace(/\D/g, '');
+
+            await apiClient.put('/users/me/profile', {
+                phone: phoneNumbers || null,
+                birth_date: birthDate || null
+            });
+
+            setComplementarySuccess(true);
+            setTimeout(() => setComplementarySuccess(false), 3000);
+        } catch (err: any) {
+            setError(err.response?.data?.detail || 'Erro ao salvar informações');
+        } finally {
+            setSavingComplementary(false);
+        }
+    };
 
     const handleLogout = () => {
         logout();
@@ -21,6 +111,16 @@ const Configuracoes = () => {
             console.log('Delete account');
         }
     };
+
+    if (loading) {
+        return (
+            <PanelLayout activePage="/painel/configuracoes">
+                <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+                    Carregando...
+                </div>
+            </PanelLayout>
+        );
+    }
 
     return (
         <PanelLayout activePage="/painel/configuracoes">
@@ -37,6 +137,21 @@ const Configuracoes = () => {
                     Configurações e Informações do Usuário
                 </h1>
             </div>
+
+            {/* Error Alert */}
+            {error && (
+                <div style={{
+                    background: '#ef444420',
+                    border: '1px solid #ef4444',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    marginBottom: '16px',
+                    color: '#ef4444',
+                    fontSize: '14px'
+                }}>
+                    {error}
+                </div>
+            )}
 
             {/* Personal Information Section */}
             <div style={{
@@ -88,6 +203,8 @@ const Configuracoes = () => {
                             </label>
                             <input
                                 type="text"
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
                                 placeholder="Seu nome completo"
                                 style={{
                                     width: '100%',
@@ -112,6 +229,8 @@ const Configuracoes = () => {
                             </label>
                             <input
                                 type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 placeholder="seu@email.com"
                                 style={{
                                     width: '100%',
@@ -125,20 +244,32 @@ const Configuracoes = () => {
                                 }}
                             />
 
-                            <button style={{
-                                padding: '10px 24px',
-                                background: '#4F46E5',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '8px',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s'
-                            }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = '#4338ca'}
-                                onMouseLeave={(e) => e.currentTarget.style.background = '#4F46E5'}>
-                                Salvar Alterações
+                            <button
+                                onClick={handleSavePersonalInfo}
+                                disabled={savingPersonal}
+                                style={{
+                                    padding: '10px 24px',
+                                    background: personalSuccess ? '#10b981' : '#4F46E5',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    cursor: savingPersonal ? 'not-allowed' : 'pointer',
+                                    transition: 'all 0.2s',
+                                    opacity: savingPersonal ? 0.7 : 1
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!savingPersonal && !personalSuccess) {
+                                        e.currentTarget.style.background = '#4338ca';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (!personalSuccess) {
+                                        e.currentTarget.style.background = '#4F46E5';
+                                    }
+                                }}>
+                                {savingPersonal ? 'Salvando...' : personalSuccess ? '✓ Salvo!' : 'Salvar Alterações'}
                             </button>
                         </div>
                     </div>
@@ -195,7 +326,10 @@ const Configuracoes = () => {
                             </label>
                             <input
                                 type="tel"
+                                value={phone}
+                                onChange={(e) => setPhone(formatPhone(e.target.value))}
                                 placeholder="(00) 00000-0000"
+                                maxLength={15}
                                 style={{
                                     width: '100%',
                                     padding: '12px 16px',
@@ -219,6 +353,8 @@ const Configuracoes = () => {
                             </label>
                             <input
                                 type="date"
+                                value={birthDate}
+                                onChange={(e) => setBirthDate(e.target.value)}
                                 style={{
                                     width: '100%',
                                     padding: '12px 16px',
@@ -227,24 +363,37 @@ const Configuracoes = () => {
                                     borderRadius: '8px',
                                     color: '#fff',
                                     fontSize: '14px',
-                                    marginBottom: '16px'
+                                    marginBottom: '16px',
+                                    colorScheme: 'dark'
                                 }}
                             />
 
-                            <button style={{
-                                padding: '10px 24px',
-                                background: '#4F46E5',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '8px',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s'
-                            }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = '#4338ca'}
-                                onMouseLeave={(e) => e.currentTarget.style.background = '#4F46E5'}>
-                                Salvar Alterações
+                            <button
+                                onClick={handleSaveComplementaryInfo}
+                                disabled={savingComplementary}
+                                style={{
+                                    padding: '10px 24px',
+                                    background: complementarySuccess ? '#10b981' : '#4F46E5',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    cursor: savingComplementary ? 'not-allowed' : 'pointer',
+                                    transition: 'all 0.2s',
+                                    opacity: savingComplementary ? 0.7 : 1
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!savingComplementary && !complementarySuccess) {
+                                        e.currentTarget.style.background = '#4338ca';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (!complementarySuccess) {
+                                        e.currentTarget.style.background = '#4F46E5';
+                                    }
+                                }}>
+                                {savingComplementary ? 'Salvando...' : complementarySuccess ? '✓ Salvo!' : 'Salvar Alterações'}
                             </button>
                         </div>
                     </div>
