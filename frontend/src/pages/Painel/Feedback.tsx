@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import PanelLayout from '../../components/PanelLayout';
+import api from '../../services/api';
 
 const Feedback = () => {
     const [feedbackType, setFeedbackType] = useState('');
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const maxChars = 1000;
 
     const feedbackTypes = [
-        { value: 'sugestao', label: 'Sugestão' },
+        { value: 'sugestao', label: 'Sug estão' },
         { value: 'bug', label: 'Reportar Bug' },
         { value: 'reclamacao', label: 'Reclamação' },
         { value: 'elogio', label: 'Elogio' },
@@ -19,19 +22,30 @@ const Feedback = () => {
         e.preventDefault();
 
         if (!feedbackType || !message.trim()) {
-            alert('Por favor, preencha todos os campos.');
+            setErrorMessage('Por favor, preencha todos os campos.');
             return;
         }
 
         setIsSubmitting(true);
+        setSuccessMessage('');
+        setErrorMessage('');
 
-        // TODO: Implement API call to submit feedback
-        setTimeout(() => {
-            alert('Feedback enviado com sucesso! Obrigado pela sua contribuição.');
+        try {
+            await api.post('/feedback/', {
+                type: feedbackType,
+                message: message.trim()
+            });
+
+            setSuccessMessage('Feedback enviado com sucesso! Obrigado pela sua contribuição.');
             setFeedbackType('');
             setMessage('');
+        } catch (error: any) {
+            console.error('Erro ao enviar feedback:', error);
+            const errorMsg = error.response?.data?.detail || 'Erro ao enviar feedback. Tente novamente mais tarde.';
+            setErrorMessage(errorMsg);
+        } finally {
             setIsSubmitting(false);
-        }, 1000);
+        }
     };
 
     return (
@@ -143,6 +157,36 @@ const Feedback = () => {
                             {message.length}/{maxChars} caracteres
                         </div>
                     </div>
+
+                    {/* Success Message */}
+                    {successMessage && (
+                        <div style={{
+                            padding: '14px 16px',
+                            background: '#10b98120',
+                            border: '1px solid #10b981',
+                            borderRadius: '8px',
+                            color: '#10b981',
+                            fontSize: '14px',
+                            marginBottom: '20px'
+                        }}>
+                            ✓ {successMessage}
+                        </div>
+                    )}
+
+                    {/* Error Message */}
+                    {errorMessage && (
+                        <div style={{
+                            padding: '14px 16px',
+                            background: '#ef444420',
+                            border: '1px solid #ef4444',
+                            borderRadius: '8px',
+                            color: '#ef4444',
+                            fontSize: '14px',
+                            marginBottom: '20px'
+                        }}>
+                            ✗ {errorMessage}
+                        </div>
+                    )}
 
                     {/* Submit Button */}
                     <button

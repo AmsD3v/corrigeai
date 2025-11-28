@@ -33,6 +33,29 @@ class UserCreate(UserBase):
             raise ValueError('A senha deve conter pelo menos um caractere especial')
         return v
 
+class FeedbackCreate(BaseModel):
+    type: str
+    message: str
+    
+    @field_validator('type')
+    @classmethod
+    def validate_type(cls, v):
+        allowed_types = ['sugestao', 'bug', 'reclamacao', 'elogio', 'outro']
+        if v not in allowed_types:
+            raise ValueError(f'Tipo inválido. Deve ser um de: {", ".join(allowed_types)}')
+        return v
+    
+    @field_validator('message')
+    @classmethod
+    def validate_message(cls, v):
+        v = v.strip()
+        if len(v) < 10:
+            raise ValueError('Mensagem muito curta. Mínimo de 10 caracteres.')
+        if len(v) > 1000:
+            raise ValueError('Mensagem muito longa. Máximo de 1000 caracteres.')
+        return v
+
+
 class UserLogin(BaseModel):
     username: EmailStr
     password: str

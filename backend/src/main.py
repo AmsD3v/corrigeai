@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .core.logging_config import setup_logging
 from .core.config import settings
-from .routers import auth, users, admin, payments, submissions, packages
+from .routers import auth, users, admin, payments, submissions, packages, feedback
 from .routers import settings as settings_router
 
 app = FastAPI()
@@ -65,3 +65,4 @@ app.include_router(payments.router, tags=["payments"])
 app.include_router(submissions.router, tags=["submissions"])
 app.include_router(packages.router, tags=["packages"])
 app.include_router(settings_router.router, tags=["settings"])
+app.include_router(feedback.router, tags=["feedback"])
