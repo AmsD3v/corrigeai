@@ -129,33 +129,33 @@ const Register: React.FC = () => {
                   />
                 </div>
 
-                {/* Senha e Confirmação */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="password" className="block text-white font-semibold mb-2">Senha</label>
-                    <input
-                      type="password"
-                      id="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
-                    />
-                    <PasswordStrengthIndicator password={password} />
-                  </div>
-                  <div>
-                    <label htmlFor="confirmPassword" className="block text-white font-semibold mb-2">Confirmar</label>
-                    <input
-                      type="password"
-                      id="confirmPassword"
-                      placeholder="••••••••"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
-                    />
-                  </div>
+                {/* Senha */}
+                <div>
+                  <label htmlFor="password" className="block text-white font-semibold mb-2">Senha</label>
+                  <input
+                    type="password"
+                    id="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
+                  />
+                  <PasswordStrengthIndicator password={password} />
+                </div>
+
+                {/* Confirmar Senha */}
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-white font-semibold mb-2">Confirmar senha</label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
+                  />
                 </div>
 
                 {error && (
