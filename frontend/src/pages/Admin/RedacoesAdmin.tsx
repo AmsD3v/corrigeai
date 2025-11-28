@@ -168,25 +168,46 @@ const RedacoesAdmin = () => {
     const handleDelete = async (id: number) => {
         if (!confirm('Tem certeza que deseja excluir esta redação?')) return;
 
+        // Proteção: não permite delete se já está deletando
+        if (deleting) {
+            console.warn('Já existe uma operação de delete em andamento');
+            return;
+        }
+
+        console.log(`[DELETE] Iniciando exclusão da redação #${id}`);
+        console.log('[DELETE] Estado selectedIds antes:', Array.from(selectedIds));
+
         try {
             setDeleting(true);
+
+            // 1. DELETE na API
+            console.log(`[DELETE] Chamando API DELETE /admin/submissions/${id}`);
             await api.delete(`/admin/submissions/${id}`);
+            console.log(`[DELETE] API respondeu com sucesso`);
 
-            // Força atualização removendo da lista
-            setSubmissions(prev => prev.filter(s => s.id !== id));
+            // 2. Remove da lista local
+            setSubmissions(prev => {
+                const filtered = prev.filter(s => s.id !== id);
+                console.log(`[DELETE] Removido da lista. Antes: ${prev.length}, Depois: ${filtered.length}`);
+                return filtered;
+            });
 
-
-            // Remove da seleção
+            // 3. Remove da seleção
             setSelectedIds(prev => {
                 const updated = new Set(prev);
+                const wasSelected = updated.has(id);
                 updated.delete(id);
+                console.log(`[DELETE] Estava selecionado: ${wasSelected}, selectedIds após: ${Array.from(updated)}`);
                 return updated;
             });
+
+            console.log(`[DELETE] Exclusão da redação #${id} concluída com sucesso`);
         } catch (error) {
-            console.error('Erro ao deletar:', error);
-            alert('Erro ao deletar redação');
+            console.error('[DELETE] Erro ao deletar:', error);
+            alert('Erro ao deletar redação. Tente novamente.');
         } finally {
             setDeleting(false);
+            console.log('[DELETE] Estado deleting resetado para false');
         }
     };
 
