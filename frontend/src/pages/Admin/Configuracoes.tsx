@@ -35,9 +35,9 @@ const Configuracoes = () => {
         supportEmail: 'suporte@corrigeai.com',
         geminiApiKey: import.meta.env.VITE_GEMINI_API_KEY || '',
         aiProvider: 'groq',  // Default to Groq (recommended)
-        groqApiKey: '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',
-        hfToken: '',
-        togetherApiKey: '',
+        groqApiKey: import.meta.env.VITE_GROQ_API_KEY || '',
+        hfToken: import.meta.env.VITE_HF_TOKEN || '',
+        togetherApiKey: import.meta.env.VITE_TOGETHER_API_KEY || '',
         maintenanceMode: false,
         creditValue: 2.20, // Valor padrão por CorriCoin
         packages: []
