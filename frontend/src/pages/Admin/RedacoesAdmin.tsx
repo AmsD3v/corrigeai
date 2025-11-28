@@ -38,6 +38,10 @@ const RedacoesAdmin = () => {
 
     const observerTarget = useRef<HTMLDivElement>(null);
 
+    // Estados para seleção múltipla
+    const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+    const [deleting, setDeleting] = useState(false);
+
     // Função para carregar submissões com paginação
     const loadSubmissions = useCallback(async (currentSkip: number, append = false) => {
         if (loading) return;
@@ -138,6 +142,68 @@ const RedacoesAdmin = () => {
 
     const handleView = (submissionId: number) => {
         navigate(`/painel/redacao/${submissionId}`);
+    };
+
+    // Toggle seleção individual
+    const toggleSelection = (id: number) => {
+        const newSelected = new Set(selectedIds);
+        if (newSelected.has(id)) {
+            newSelected.delete(id);
+        } else {
+            newSelected.add(id);
+        }
+        setSelectedIds(newSelected);
+    };
+
+    // Toggle selecionar todos visíveis
+    const toggleSelectAll = () => {
+        if (selectedIds.size === filteredSubmissions.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(filteredSubmissions.map(s => s.id)));
+        }
+    };
+
+    // Deletar única redação
+    const handleDelete = async (id: number) => {
+        if (!confirm('Tem certeza que deseja excluir esta redação?')) return;
+
+        try {
+            setDeleting(true);
+            await api.delete(`/admin/submissions/${id}`);
+            setSubmissions(prev => prev.filter(s => s.id !== id));
+            setSelectedIds(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(id);
+                return newSet;
+            });
+        } catch (error) {
+            console.error('Erro ao deletar:', error);
+            alert('Erro ao deletar redação');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
+    // Deletar múltiplas redações
+    const handleDeleteSelected = async () => {
+        if (selectedIds.size === 0) return;
+
+        if (!confirm(`Tem certeza que deseja excluir ${selectedIds.size} redação(ões)?`)) return;
+
+        try {
+            setDeleting(true);
+            await Promise.all(
+                Array.from(selectedIds).map(id => api.delete(`/admin/submissions/${id}`))
+            );
+            setSubmissions(prev => prev.filter(s => !selectedIds.has(s.id)));
+            setSelectedIds(new Set());
+        } catch (error) {
+            console.error('Erro ao deletar:', error);
+            alert('Erro ao deletar redações');
+        } finally {
+            setDeleting(false);
+        }
     };
 
     if (loading) {
@@ -243,6 +309,41 @@ const RedacoesAdmin = () => {
                 </div>
             </div>
 
+            {/* Ações em massa */}
+            {selectedIds.size > 0 && (
+                <div style={{
+                    background: '#ef444420',
+                    border: '1px solid #ef4444',
+                    borderRadius: '12px',
+                    padding: '16px 20px',
+                    marginBottom: '24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}>
+                    <span style={{ color: '#ef4444', fontWeight: '600' }}>
+                        {selectedIds.size} redação(ões) selecionada(s)
+                    </span>
+                    <button
+                        onClick={handleDeleteSelected}
+                        disabled={deleting}
+                        style={{
+                            padding: '8px 16px',
+                            background: '#ef4444',
+                            border: 'none',
+                            borderRadius: '8px',
+                            color: '#fff',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: deleting ? 'not-allowed' : 'pointer',
+                            opacity: deleting ? 0.5 : 1
+                        }}
+                    >
+                        {deleting ? 'Excluindo...' : '🗑️ Excluir Selecionados'}
+                    </button>
+                </div>
+            )}
+
             {/* Search */}
             <div style={{
                 background: '#1a1f2e',
@@ -282,6 +383,14 @@ const RedacoesAdmin = () => {
                     }}>
                         <thead>
                             <tr style={{ background: '#0f1419' }}>
+                                <th style={{ padding: '16px', textAlign: 'center', width: '50px' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedIds.size === filteredSubmissions.length && filteredSubmissions.length > 0}
+                                        onChange={toggleSelectAll}
+                                        style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                                    />
+                                </th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>ID</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Aluno</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Título</th>
@@ -296,6 +405,14 @@ const RedacoesAdmin = () => {
                         <tbody>
                             {filteredSubmissions.map((submission) => (
                                 <tr key={submission.id} style={{ borderTop: '1px solid #334155' }}>
+                                    <td style={{ padding: '16px', textAlign: 'center' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedIds.has(submission.id)}
+                                            onChange={() => toggleSelection(submission.id)}
+                                            style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                                        />
+                                    </td>
                                     <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
                                         #{submission.id}
                                     </td>
@@ -362,21 +479,40 @@ const RedacoesAdmin = () => {
                                         </span>
                                     </td>
                                     <td style={{ padding: '16px' }}>
-                                        <button
-                                            onClick={() => handleView(submission.id)}
-                                            style={{
-                                                padding: '6px 12px',
-                                                background: '#3b82f6',
-                                                border: 'none',
-                                                borderRadius: '6px',
-                                                color: '#fff',
-                                                fontSize: '12px',
-                                                cursor: 'pointer',
-                                                fontWeight: '600'
-                                            }}
-                                        >
-                                            👁️ Ver
-                                        </button>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <button
+                                                onClick={() => handleView(submission.id)}
+                                                style={{
+                                                    padding: '6px 12px',
+                                                    background: '#3b82f6',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    color: '#fff',
+                                                    fontSize: '12px',
+                                                    cursor: 'pointer',
+                                                    fontWeight: '600'
+                                                }}
+                                            >
+                                                👁️ Ver
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(submission.id)}
+                                                disabled={deleting}
+                                                style={{
+                                                    padding: '6px 12px',
+                                                    background: '#ef4444',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    color: '#fff',
+                                                    fontSize: '12px',
+                                                    cursor: deleting ? 'not-allowed' : 'pointer',
+                                                    fontWeight: '600',
+                                                    opacity: deleting ? 0.5 : 1
+                                                }}
+                                            >
+                                                🗑️
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

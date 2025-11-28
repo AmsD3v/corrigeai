@@ -180,3 +180,33 @@ async def get_all_submissions(
         result.append(submission_data)
     
     return result
+
+@router.delete("/admin/submissions/{submission_id}")
+async def delete_submission(
+    submission_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """
+    Delete a submission and its correction (admin only)
+    """
+    # Find submission
+    submission = db.query(models.Submission).filter(
+        models.Submission.id == submission_id
+    ).first()
+    
+    if not submission:
+        raise HTTPException(status_code=404, detail="Redação não encontrada")
+    
+    # Delete associated correction if exists
+    correction = db.query(models.Correction).filter(
+        models.Correction.submission_id == submission_id
+    ).first()
+    if correction:
+        db.delete(correction)
+    
+    # Delete submission
+    db.delete(submission)
+    db.commit()
+    
+    return {"message": "Redação excluída com sucesso", "id": submission_id}
