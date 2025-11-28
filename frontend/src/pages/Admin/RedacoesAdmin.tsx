@@ -173,16 +173,14 @@ const RedacoesAdmin = () => {
             await api.delete(`/admin/submissions/${id}`);
 
             // Força atualização removendo da lista
-            setSubmissions(currentSubmissions => {
-                const filtered = currentSubmissions.filter(s => s.id !== id);
-                return [...filtered]; // Cria novo array para forçar re-render
-            });
+            setSubmissions(prev => prev.filter(s => s.id !== id));
+
 
             // Remove da seleção
-            setSelectedIds(currentSelected => {
-                const newSet = new Set(currentSelected);
-                newSet.delete(id);
-                return newSet;
+            setSelectedIds(prev => {
+                const updated = new Set(prev);
+                updated.delete(id);
+                return updated;
             });
         } catch (error) {
             console.error('Erro ao deletar:', error);
@@ -208,10 +206,8 @@ const RedacoesAdmin = () => {
             );
 
             // Força atualização removendo todas da lista
-            setSubmissions(currentSubmissions => {
-                const filtered = currentSubmissions.filter(s => !selectedIds.has(s.id));
-                return [...filtered]; // Cria novo array para forçar re-render
-            });
+            setSubmissions(prev => prev.filter(s => !selectedIds.has(s.id)));
+
 
             // Limpa seleção
             setSelectedIds(new Set());
