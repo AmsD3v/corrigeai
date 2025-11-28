@@ -137,7 +137,7 @@ async def get_all_submissions(
     # Query all submissions with user and correction data
     submissions = db.query(models.Submission)\
         .join(models.User)\
-        .order_by(models.Submission.created_at.desc())\
+        .order_by(models.Submission.submitted_at.desc())\
         .all()
     
     result = []
@@ -152,7 +152,7 @@ async def get_all_submissions(
             "title": sub.title,
             "theme": sub.theme,
             "content": sub.content,
-            "created_at": sub.created_at,
+            "created_at": sub.submitted_at,
             "status": sub.status,
             "correction_type": sub.correction_type if hasattr(sub, 'correction_type') else 'advanced',
             "owner": {
