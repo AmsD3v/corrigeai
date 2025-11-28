@@ -10,6 +10,38 @@ interface User {
     credits: number;
     free_credits?: number;
     is_admin?: boolean;
+    phone?: string | null;
+    birth_date?: string | null;
+}
+
+// Helper function to format phone
+const formatPhone = (phone: string | null | undefined) => {
+    if (!phone) return '-';
+    const numbers = phone.replace(/\D/g, '');
+    if (numbers.length === 11) {
+        return numbers.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    }
+    if (numbers.length === 10) {
+        return numbers.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    }
+    return phone;
+};
+
+// Helper function to calculate age
+const calculateAge = (birthDate: string | null | undefined) => {
+    if (!birthDate) return null;
+    try {
+        const birth = new Date(birthDate);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    } catch {
+        return null;
+    }
 }
 
 const Usuarios = () => {
@@ -152,6 +184,8 @@ const Usuarios = () => {
                             <tr style={{ background: '#0f1419' }}>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Nome</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Email</th>
+                                <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Telefone</th>
+                                <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Idade</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Cadastro</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>CorriCoins</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Grátis</th>
@@ -161,13 +195,13 @@ const Usuarios = () => {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan={6} style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
+                                    <td colSpan={8} style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
                                         Carregando...
                                     </td>
                                 </tr>
                             ) : filteredUsers.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
+                                    <td colSpan={8} style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
                                         Nenhum usuário encontrado
                                     </td>
                                 </tr>
@@ -176,6 +210,12 @@ const Usuarios = () => {
                                     <tr key={user.id} style={{ borderTop: '1px solid #334155' }}>
                                         <td style={{ padding: '16px', color: '#fff', fontSize: '14px' }}>{user.full_name || 'Sem nome'}</td>
                                         <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>{user.email}</td>
+                                        <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
+                                            {formatPhone(user.phone)}
+                                        </td>
+                                        <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }} title={user.birth_date || 'Não informado'}>
+                                            {calculateAge(user.birth_date) ? `${calculateAge(user.birth_date)} anos` : '-'}
+                                        </td>
                                         <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
                                             {user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : '-'}
                                         </td>
