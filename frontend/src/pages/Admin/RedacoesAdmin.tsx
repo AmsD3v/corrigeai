@@ -183,6 +183,8 @@ const RedacoesAdmin = () => {
 
         try {
             setDeleting(true);
+            deletingRef.current = true; // Sincroniza ref
+
 
             // 1. DELETE na API
             console.log(`[DELETE] Chamando API DELETE /admin/submissions/${id}`);
@@ -224,6 +226,7 @@ const RedacoesAdmin = () => {
 
         try {
             setDeleting(true);
+            deletingRef.current = true; // Sincroniza ref
             const idsToDelete = Array.from(selectedIds);
 
             // Deleta todas as selecionadas
@@ -242,6 +245,7 @@ const RedacoesAdmin = () => {
             alert('Erro ao deletar redações');
         } finally {
             setDeleting(false);
+            deletingRef.current = false; // Reset ref
         }
     };
 
