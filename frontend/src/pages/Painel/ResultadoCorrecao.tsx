@@ -10,6 +10,13 @@ const ResultadoCorrecao = () => {
     const [score, setScore] = useState(0);
     const [showConfetti, setShowConfetti] = useState(false);
 
+    // Redirect if URL has "M" prefix (clean URL)
+    useEffect(() => {
+        if (rawId?.startsWith('M')) {
+            navigate(`/painel/redacao/${id}/resultado`, { replace: true });
+        }
+    }, [rawId, id, navigate]);
+
     useEffect(() => {
         // Get correction data from localStorage
         const correctionDataStr = localStorage.getItem(`correction_${id}`);

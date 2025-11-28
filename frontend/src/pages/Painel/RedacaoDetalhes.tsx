@@ -38,6 +38,13 @@ const RedacaoDetalhes = () => {
     const [essay, setEssay] = useState<Essay | null>(null);
     const [loading, setLoading] = useState(true);
 
+    // Redirect if URL has "M" prefix (clean URL)
+    useEffect(() => {
+        if (rawId?.startsWith('M')) {
+            navigate(`/painel/redacao/${id}`, { replace: true });
+        }
+    }, [rawId, id, navigate]);
+
     // Safe parse helper: handles both string (JSON) and array formats
     const parseArrayField = (field: any): string[] => {
         if (!field) return [];

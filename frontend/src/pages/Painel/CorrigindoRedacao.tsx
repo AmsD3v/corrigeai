@@ -10,6 +10,14 @@ const CorrigindoRedacao = () => {
   const [progress, setProgress] = useState(0);
   const hasCalledRef = useRef(false);
 
+  // Redirect if URL has "M" prefix (clean URL)
+  useEffect(() => {
+    if (rawId?.startsWith('M')) {
+      navigate(`/painel/redacao/${id}/corrigindo`, { replace: true });
+      return;
+    }
+  }, [rawId, id, navigate]);
+
   useEffect(() => {
     // Prevent duplicate calls
     if (hasCalledRef.current) return;
