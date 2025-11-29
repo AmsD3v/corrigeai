@@ -216,22 +216,13 @@ const Login: React.FC = () => {
 
           {/* LEFT: FORM */}
           <div className="order-2 lg:order-1 relative z-10 w-full lg:w-auto">
-            <div className="mb-8">
-              <p className="text-[#94A3B8] text-sm mb-2 uppercase tracking-wider font-semibold">
-                {authMode === 'login' ? 'Bem-vindo de volta' : 'Recuperação de senha'}
-              </p>
-              <h1 className="text-4xl font-bold text-white mb-2">
-                {authMode === 'login' ? 'Entrar' : 'Esqueci minha senha'}
-              </h1>
-              <p className="text-[#94A3B8]">
-                {authMode === 'login' && 'Acesse sua conta para continuar praticando suas redações.'}
-                {authMode === 'forgot-email' && 'Informe o e-mail da sua conta para enviarmos um código de recuperação.'}
-                {authMode === 'forgot-token' && 'Digite o código numérico enviado ao seu e-mail.'}
-                {authMode === 'new-password' && 'Defina sua nova senha.'}
-              </p>
+            <div className="mb-8 text-center">
+              <p className="text-[#94A3B8] text-sm mb-2 uppercase tracking-wider font-semibold">Bem-vindo de volta</p>
+              <h1 className="text-4xl font-bold text-white mb-2">Entrar</h1>
+              <p className="text-[#94A3B8]">Acesse sua conta para continuar praticando suas redações.</p>
             </div>
 
-            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-8">
+            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-8 max-w-xl mx-auto">
 
               {/* ============================================ */}
               {/* MODO: LOGIN */}
@@ -302,6 +293,11 @@ const Login: React.FC = () => {
               {/* ============================================ */}
               {authMode === 'forgot-email' && (
                 <div className="space-y-6">
+                  <div className="bg-[#0F172A] border border-[#334155] rounded-lg p-4">
+                    <p className="text-[#94A3B8] text-sm">
+                      Informe o e-mail da sua conta para enviarmos um código de recuperação de senha. O código tem validade de 1 hora.
+                    </p>
+                  </div>
                   <div>
                     <label htmlFor="recovery-email" className="block text-white font-semibold mb-2">
                       E-mail para recuperação
