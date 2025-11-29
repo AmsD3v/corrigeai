@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
+import api from '../../services/api';
 
 interface AnalyticsData {
     userMetrics: {
@@ -47,74 +48,22 @@ const Analytics = () => {
     });
 
     useEffect(() => {
-        calculateAnalytics();
-    }, []);
-
-    const calculateAnalytics = () => {
-        const allKeys = Object.keys(localStorage);
-
-        // User metrics
-        const userKeys = allKeys.filter(key => key.startsWith('user_'));
-        const totalUsers = userKeys.length;
-        const activeUsers = Math.floor(totalUsers * 0.7); // Mock: 70% active
-        const newUsersThisMonth = Math.floor(totalUsers * 0.2); // Mock: 20% new
-        const retentionRate = 75; // Mock: 75%
-        const churnRate = 25; // Mock: 25%
-
-        // Essay metrics
-        const essayKeys = allKeys.filter(key => key.startsWith('essay_'));
-        const correctionKeys = allKeys.filter(key => key.startsWith('correction_'));
-
-        let totalScore = 0;
-        const competencyTotals = [0, 0, 0, 0, 0];
-
-        correctionKeys.forEach(key => {
+        const fetchAnalytics = async () => {
             try {
-                const correction = JSON.parse(localStorage.getItem(key) || '{}');
-                totalScore += correction.total_score || 0;
-                competencyTotals[0] += correction.competence_1_score || 0;
-                competencyTotals[1] += correction.competence_2_score || 0;
-                competencyTotals[2] += correction.competence_3_score || 0;
-                competencyTotals[3] += correction.competence_4_score || 0;
-                competencyTotals[4] += correction.competence_5_score || 0;
-            } catch (e) {
-                // ignore
+                const response = await api.get('/admin/analytics');
+
+                setAnalytics({
+                    userMetrics: response.data.user_metrics,
+                    essayMetrics: response.data.essay_metrics,
+                    revenueMetrics: response.data.revenue_metrics
+                });
+            } catch (error) {
+                console.error('Erro ao carregar analytics:', error);
             }
-        });
+        };
 
-        const avgScore = correctionKeys.length > 0 ? Math.round(totalScore / correctionKeys.length) : 0;
-        const avgCompetencyScores = competencyTotals.map(total =>
-            correctionKeys.length > 0 ? Math.round(total / correctionKeys.length) : 0
-        );
-
-        // Revenue metrics
-        const totalRevenue = essayKeys.length * 15; // R$15 per essay
-        const mrr = totalRevenue * 0.3; // Mock: 30% recurring
-        const arpu = totalUsers > 0 ? totalRevenue / totalUsers : 0;
-        const ltv = arpu * 12; // Mock: 12 months lifetime
-
-        setAnalytics({
-            userMetrics: {
-                totalUsers,
-                activeUsers,
-                newUsersThisMonth,
-                retentionRate,
-                churnRate
-            },
-            essayMetrics: {
-                totalEssays: essayKeys.length,
-                avgScore,
-                essaysThisMonth: Math.floor(essayKeys.length * 0.3),
-                avgCompetencyScores
-            },
-            revenueMetrics: {
-                totalRevenue,
-                mrr,
-                arpu,
-                ltv
-            }
-        });
-    };
+        fetchAnalytics();
+    }, []);
 
     const MetricCard = ({ title, value, subtitle, icon, color, trend }: any) => (
         <div style={{

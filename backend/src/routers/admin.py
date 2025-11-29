@@ -344,3 +344,110 @@ async def get_admin_stats(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar estatísticas: {str(e)}")
+
+
+@router.get("/admin/analytics")
+async def get_admin_analytics(
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """Retorna métricas detalhadas para a página Analytics Admin."""
+    from sqlalchemy import func, extract
+    from datetime import datetime, timedelta
+    
+    try:
+        now = datetime.utcnow()
+        first_day_of_month = datetime(now.year, now.month, 1)
+        thirty_days_ago = now - timedelta(days=30)
+        
+        # === USER METRICS ===
+        total_users = db.query(func.count(models.User.id)).scalar() or 0
+        
+        # Usuários ativos (com submissions nos últimos 30 dias)
+        active_users = db.query(func.count(func.distinct(models.Submission.owner_id))).filter(
+            models.Submission.submitted_at >= thirty_days_ago
+        ).scalar() or 0
+        
+        # Novos usuários este mês
+        new_users_this_month = db.query(func.count(models.User.id)).filter(
+            models.User.created_at >= first_day_of_month
+        ).scalar() or 0
+        
+        # Taxa de retenção (% de usuários com pelo menos 2 submissions)
+        users_with_multiple_submissions = db.query(
+            func.count(func.distinct(models.Submission.owner_id))
+        ).filter(
+            db.query(func.count(models.Submission.id))
+            .filter(models.Submission.owner_id == models.User.id)
+            .correlate(models.User)
+            .as_scalar() >= 2
+        ).scalar() or 0
+        retention_rate = round((users_with_multiple_submissions / total_users * 100) if total_users > 0 else 0, 1)
+        
+        # Taxa de churn (100 - retention)
+        churn_rate = round(100 - retention_rate, 1)
+        
+        # === ESSAY METRICS ===
+        # Total de redações completed
+        total_essays = db.query(func.count(models.Submission.id)).filter(
+            models.Submission.status == "completed"
+        ).scalar() or 0
+        
+        # Pontuação média geral
+        avg_score = db.query(func.avg(models.Correction.total_score)).scalar()
+        avg_score = round(avg_score) if avg_score else 0
+        
+        # Redações deste mês
+        essays_this_month = db.query(func.count(models.Submission.id)).filter(
+            models.Submission.submitted_at >= first_day_of_month,
+            models.Submission.status == "completed"
+        ).scalar() or 0
+        
+        # Performance média por competência
+        avg_competency_scores = []
+        for i in range(1, 6):
+            competency_field = getattr(models.Correction, f'competence_{i}_score')
+            avg_comp = db.query(func.avg(competency_field)).scalar()
+            avg_competency_scores.append(round(avg_comp) if avg_comp else 0)
+        
+        # === REVENUE METRICS ===
+        # Receita total (em centavos)
+        total_revenue_cents = db.query(func.sum(models.Transaction.price)).filter(
+            models.Transaction.status == "approved"
+        ).scalar() or 0
+        total_revenue = total_revenue_cents / 100  # Converter para reais
+        
+        # ARPU (Average Revenue Per User)
+        arpu = round(total_revenue / total_users, 2) if total_users > 0 else 0
+        
+        # MRR (simplificado: 30% da receita total dividido por número de meses ativos)
+        # Assumindo que o sistema tem pelo menos 1 mês
+        mrr = round(total_revenue * 0.3, 2)
+        
+        # LTV (assumindo 12 meses de lifetime)
+        ltv = round(arpu * 12, 2)
+        
+        return {
+            "user_metrics": {
+                "total_users": total_users,
+                "active_users": active_users,
+                "new_users_this_month": new_users_this_month,
+                "retention_rate": retention_rate,
+                "churn_rate": churn_rate
+            },
+            "essay_metrics": {
+                "total_essays": total_essays,
+                "avg_score": avg_score,
+                "essays_this_month": essays_this_month,
+                "avg_competency_scores": avg_competency_scores
+            },
+            "revenue_metrics": {
+                "total_revenue": total_revenue,
+                "mrr": mrr,
+                "arpu": arpu,
+                "ltv": ltv
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar analytics: {str(e)}")
