@@ -28,60 +28,39 @@ const AdminDashboard = () => {
     });
 
     const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Calculate real metrics from localStorage
-        const allKeys = Object.keys(localStorage);
-
-        // Count users
-        const userKeys = allKeys.filter(key => key.startsWith('user_'));
-        const totalUsers = userKeys.length;
-
-        // Count essays
-        const essayKeys = allKeys.filter(key => key.startsWith('essay_'));
-        const totalEssays = essayKeys.length;
-
-        // Calculate average score
-        const correctionKeys = allKeys.filter(key => key.startsWith('correction_'));
-        let totalScore = 0;
-        correctionKeys.forEach(key => {
+        const fetchStats = async () => {
             try {
-                const correction = JSON.parse(localStorage.getItem(key) || '{}');
-                totalScore += correction.total_score || 0;
-            } catch (e) {
-                // ignore
-            }
-        });
-        const avgScore = correctionKeys.length > 0 ? Math.round(totalScore / correctionKeys.length) : 0;
-
-        setMetrics({
-            totalUsers,
-            activeUsers: Math.floor(totalUsers * 0.7), // Mock: 70% active
-            totalEssays,
-            totalRevenue: totalEssays * 15, // Mock: R$15 per essay
-            avgScore,
-            pendingCorrections: 0
-        });
-
-        // Generate recent activities
-        const activities: Activity[] = [];
-
-        // Add recent essays
-        essayKeys.slice(-5).forEach((key, index) => {
-            try {
-                const essay = JSON.parse(localStorage.getItem(key) || '{}');
-                activities.push({
-                    id: `essay_${index}`,
-                    type: 'essay',
-                    description: `Nova redação: "${essay.title || 'Sem título'}"`,
-                    time: new Date(essay.submitted_at || Date.now()).toLocaleString('pt-BR')
+                const response = await fetch('https://api.corrigeai.online/admin/stats', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    }
                 });
-            } catch (e) {
-                // ignore
-            }
-        });
 
-        setRecentActivities(activities.reverse());
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar estatísticas');
+                }
+
+                const data = await response.json();
+
+                setMetrics({
+                    totalUsers: data.total_users,
+                    activeUsers: data.active_users,
+                    totalEssays: data.total_essays,
+                    totalRevenue: data.total_revenue / 100, // Converter de centavos para reais
+                    avgScore: data.avg_score,
+                    pendingCorrections: data.pending_corrections
+                });
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStats();
     }, []);
 
     const MetricCard = ({ title, value, subtitle, icon, color }: any) => (
@@ -266,8 +245,8 @@ const AdminDashboard = () => {
                                         background: '#0f1419',
                                         borderRadius: '8px',
                                         borderLeft: `3px solid ${activity.type === 'user' ? '#10b981' :
-                                                activity.type === 'essay' ? '#f59e0b' :
-                                                    '#ef4444'
+                                            activity.type === 'essay' ? '#f59e0b' :
+                                                '#ef4444'
                                             }`
                                     }}
                                 >
