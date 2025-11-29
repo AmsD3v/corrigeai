@@ -366,7 +366,7 @@ const Login: React.FC = () => {
                       {[0, 1, 2, 3, 4, 5].map((index) => (
                         <input
                           key={index}
-                          ref={(el) => (tokenInputRefs.current[index] = el)}
+                          ref={(el) => { tokenInputRefs.current[index] = el; }}
                           type="text"
                           maxLength={1}
                           value={tokenDigits[index]}
