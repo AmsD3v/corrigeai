@@ -6,7 +6,7 @@ import secrets
 
 from .. import models
 from ..database import get_db
-from ..auth import get_password_hash
+from ..security import get_password_hash
 import resend
 import os
 
