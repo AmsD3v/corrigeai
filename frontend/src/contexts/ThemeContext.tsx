@@ -11,21 +11,27 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+    console.log('🎨 ThemeProvider montado!'); // <- DEBUG
+    
     // Carrega tema do localStorage ou usa 'dark' como padrão
     const [theme, setThemeState] = useState<Theme>(() => {
         const saved = localStorage.getItem('corrigeai-theme');
+        console.log('📦 Tema salvo no localStorage:', saved); // <- DEBUG
         return (saved as Theme) || 'dark';
     });
 
     // Salva no localStorage quando mudar
     useEffect(() => {
+        console.log('💾 Salvando tema:', theme); // <- DEBUG
         localStorage.setItem('corrigeai-theme', theme);
         
         // Adiciona classe .light no <html> quando tema claro
         document.documentElement.classList.toggle('light', theme === 'light');
+        console.log('✅ Classe HTML:', document.documentElement.className); // <- DEBUG
     }, [theme]);
 
     const setTheme = (newTheme: Theme) => {
+        console.log('🔄 Mudando tema para:', newTheme); // <- DEBUG
         setThemeState(newTheme);
     };
 
