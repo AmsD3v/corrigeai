@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Painel from './pages/Painel';
 import RedigirRedacao from './pages/Painel/RedigirRedacao';
 import MinhasRedacoes from './pages/Painel/MinhasRedacoes';
@@ -41,6 +43,8 @@ function App() {
         <Route path="/" element={token ? <Navigate to="/painel" /> : <LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* Rotas Protegidas */}
         <Route element={<ProtectedRoute />}>

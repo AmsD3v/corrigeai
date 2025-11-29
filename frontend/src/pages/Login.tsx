@@ -129,7 +129,7 @@ const Login: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <a href="#" className="text-[#3B82F6] text-sm font-semibold hover:underline">Esqueci minha senha</a>
+                  <a href="/forgot-password" className="text-[#3B82F6] text-sm font-semibold hover:underline">Esqueci minha senha</a>
                 </div>
 
                 {error && (

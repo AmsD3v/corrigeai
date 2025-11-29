@@ -22,6 +22,8 @@ class User(Base):
     is_admin = Column(Boolean, default=False)  # Flag de administrador
     phone = Column(String, nullable=True)  # Telefone opcional
     birth_date = Column(String, nullable=True)  # Data de nascimento (YYYY-MM-DD)
+    reset_token = Column(String, nullable=True)  # Token de recuperação de senha
+    reset_token_expires = Column(DateTime, nullable=True)  # Expiração do token
 
     submissions = relationship("Submission", back_populates="owner")
 

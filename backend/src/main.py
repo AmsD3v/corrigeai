@@ -3,8 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .core.logging_config import setup_logging
 from .core.config import settings
-from .routers import auth, users, admin, payments, submissions, packages, feedback, gemini
-from .routers import settings as settings_router
+from .routers import auth, users, submissions, admin, payments, packages, settings as settings_router, feedback, gemini, password_reset
 
 app = FastAPI()
 
@@ -67,3 +66,4 @@ app.include_router(packages.router, tags=["packages"])
 app.include_router(settings_router.router, tags=["settings"])
 app.include_router(feedback.router, tags=["feedback"])
 app.include_router(gemini.router, tags=["gemini"])
+app.include_router(password_reset.router, tags=["password-reset"])
