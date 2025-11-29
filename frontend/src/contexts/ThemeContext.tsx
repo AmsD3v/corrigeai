@@ -21,8 +21,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         localStorage.setItem('corrigeai-theme', theme);
         
-        // Atualiza classe no body para aplicar CSS global (opcional)
-        document.body.className = theme;
+        // Adiciona classe .light no <html> quando tema claro
+        document.documentElement.classList.toggle('light', theme === 'light');
     }, [theme]);
 
     const setTheme = (newTheme: Theme) => {

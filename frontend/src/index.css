@@ -187,3 +187,55 @@
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
+
+/* ========================================
+   TEMA CLARO - Light Theme
+   ======================================== */
+
+.light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f4f6;
+  --bg-card: #f9fafb;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+}
+
+.light body {
+  background: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+.light .bg-dark-900,
+.light [style*="background: #0f1419"],
+.light [style*="background:#0f1419"] {
+  background: #ffffff !important;
+}
+
+.light .bg-dark-800,
+.light [style*="background: #1a1f2e"],
+.light [style*="background:#1a1f2e"] {
+  background: #f9fafb !important;
+}
+
+.light [style*="color: #fff"],
+.light [style*="color:#fff"],
+.light [style*="color: #ffffff"],
+.light [style*="color:#ffffff"] {
+  color: #111827 !important;
+}
+
+.light [style*="color: #94a3b8"],
+.light [style*="color:#94a3b8"] {
+  color: #6b7280 !important;
+}
+
+.light [style*="color: #64748b"],
+.light [style*="color:#64748b"] {
+  color: #6b7280 !important;
+}
+
+.light [style*="border: 1px solid #334155"],
+.light [style*="border:1px solid #334155"] {
+  border-color: #e5e7eb !important;
+}
