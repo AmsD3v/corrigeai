@@ -10,6 +10,7 @@ interface Essay {
     status: string;
     theme?: string;
     score?: number;
+    correction_type?: string;
 }
 
 const MinhasRedacoes = () => {
@@ -99,6 +100,30 @@ const MinhasRedacoes = () => {
         );
     };
 
+    const getCorrectionTypeBadge = (type?: string) => {
+        if (!type) return <span style={{ fontSize: '14px', color: '#64748b' }}>-</span>;
+
+        const typeConfig = {
+            advanced: { label: 'Avançada', color: '#3b82f6' },
+            premium: { label: 'Premium', color: '#f59e0b' }
+        };
+
+        const config = typeConfig[type as keyof typeof typeConfig] || typeConfig.advanced;
+
+        return (
+            <span style={{
+                padding: '4px 12px',
+                borderRadius: '12px',
+                fontSize: '12px',
+                fontWeight: '600',
+                background: `${config.color}20`,
+                color: config.color
+            }}>
+                {config.label}
+            </span>
+        );
+    };
+
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('pt-BR');
@@ -140,7 +165,7 @@ const MinhasRedacoes = () => {
                 {/* Table Header */}
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr',
+                    gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr',
                     padding: '16px 24px',
                     borderBottom: '1px solid #334155',
                     background: '#0f1419'
@@ -150,6 +175,9 @@ const MinhasRedacoes = () => {
                     </div>
                     <div style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase' }}>
                         Data
+                    </div>
+                    <div style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase' }}>
+                        Tipo
                     </div>
                     <div style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase' }}>
                         Status
@@ -178,7 +206,7 @@ const MinhasRedacoes = () => {
                                 key={essay.id}
                                 style={{
                                     display: 'grid',
-                                    gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr',
+                                    gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr',
                                     padding: '20px 24px',
                                     borderBottom: '1px solid #334155',
                                     alignItems: 'center',
@@ -199,6 +227,9 @@ const MinhasRedacoes = () => {
                                 </div>
                                 <div style={{ fontSize: '14px', color: '#94a3b8' }}>
                                     {formatDate(essay.submitted_at)}
+                                </div>
+                                <div>
+                                    {getCorrectionTypeBadge(essay.correction_type)}
                                 </div>
                                 <div>
                                     {getStatusBadge(essay.status)}
