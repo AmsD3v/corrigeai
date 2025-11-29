@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
+import api from '../../services/api';
 
 interface Metrics {
     totalUsers: number;
@@ -33,25 +34,15 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await fetch('https://api.corrigeai.online/admin/stats', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro ao buscar estatísticas');
-                }
-
-                const data = await response.json();
-
+                const response = await api.get('/admin/stats');
+                
                 setMetrics({
-                    totalUsers: data.total_users,
-                    activeUsers: data.active_users,
-                    totalEssays: data.total_essays,
-                    totalRevenue: data.total_revenue / 100, // Converter de centavos para reais
-                    avgScore: data.avg_score,
-                    pendingCorrections: data.pending_corrections
+                    totalUsers: response.data.total_users,
+                    activeUsers: response.data.active_users,
+                    totalEssays: response.data.total_essays,
+                    totalRevenue: response.data.total_revenue / 100, // Converter de centavos para reais
+                    avgScore: response.data.avg_score,
+                    pendingCorrections: response.data.pending_corrections
                 });
             } catch (error) {
                 console.error('Erro ao carregar estatísticas:', error);
