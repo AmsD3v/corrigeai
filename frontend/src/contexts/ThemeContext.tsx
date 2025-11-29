@@ -22,12 +22,13 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
     // Salva no localStorage quando mudar
     useEffect(() => {
-        console.log('💾 Salvando tema:', theme); // <- DEBUG
+        console.log('💾 Salvando tema:', theme);
         localStorage.setItem('corrigeai-theme', theme);
         
-        // Adiciona classe .light no <html> quando tema claro
-        document.documentElement.classList.toggle('light', theme === 'light');
-        console.log('✅ Classe HTML:', document.documentElement.className); // <- DEBUG
+        // Remove ambas as classes e adiciona apenas a correta
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(theme);
+        console.log('✅ Classe HTML:', document.documentElement.className);
     }, [theme]);
 
     const setTheme = (newTheme: Theme) => {
