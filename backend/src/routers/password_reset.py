@@ -4,9 +4,9 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime, timedelta
 import secrets
 
-from . import models
-from .database import get_db
-from .auth import get_password_hash
+from .. import models
+from ..database import get_db
+from ..auth import get_password_hash
 import resend
 import os
 
