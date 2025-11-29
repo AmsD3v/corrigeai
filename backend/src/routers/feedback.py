@@ -56,8 +56,9 @@ async def send_feedback(
         """
         
         # Enviar email via Resend
+        from_email = os.getenv("FEEDBACK_FROM_EMAIL", "onboarding@resend.dev")
         params = {
-            "from": "CorrigeAI <feedback@corrigeai.online>",
+            "from": f"CorrigeAI <{from_email}>",
             "to": [os.getenv("FEEDBACK_EMAIL", "feedback@corrigeai.online")],
             "subject": f"[{tipo_label}] Novo Feedback de {current_user.full_name or current_user.email}",
             "html": html_content
