@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PanelLayout from '../../components/PanelLayout';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext'; 
 import apiClient from '../../services/api';
 import ConfirmModal from '../../components/ConfirmModal';
 
@@ -21,7 +22,7 @@ const Configuracoes = () => {
     // UI State
     const [personalInfoOpen, setPersonalInfoOpen] = useState(true);
     const [complementaryInfoOpen, setComplementaryInfoOpen] = useState(false);
-    const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+    const { theme, setTheme } = useTheme();
 
     // Form State
     const [fullName, setFullName] = useState('');
