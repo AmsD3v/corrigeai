@@ -8,10 +8,11 @@ export const geminiService = {
   async generateTheme(category: string): Promise<string> {
     try {
       const response = await api.post('/api/gemini/generate-theme', {
-        category
+        context: category
       });
 
-      if (response.data.success && response.data.theme) {
+      // Backend retorna: { theme: string, description: string }
+      if (response.data && response.data.theme) {
         return response.data.theme;
       } else {
         throw new Error('Falha ao gerar tema');
