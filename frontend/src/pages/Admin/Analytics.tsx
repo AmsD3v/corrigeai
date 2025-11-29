@@ -51,11 +51,28 @@ const Analytics = () => {
         const fetchAnalytics = async () => {
             try {
                 const response = await api.get('/admin/analytics');
+                const data = response.data;
 
                 setAnalytics({
-                    userMetrics: response.data.user_metrics,
-                    essayMetrics: response.data.essay_metrics,
-                    revenueMetrics: response.data.revenue_metrics
+                    userMetrics: {
+                        totalUsers: data.user_metrics.total_users,
+                        activeUsers: data.user_metrics.active_users,
+                        newUsersThisMonth: data.user_metrics.new_users_this_month,
+                        retentionRate: data.user_metrics.retention_rate,
+                        churnRate: data.user_metrics.churn_rate
+                    },
+                    essayMetrics: {
+                        totalEssays: data.essay_metrics.total_essays,
+                        avgScore: data.essay_metrics.avg_score,
+                        essaysThisMonth: data.essay_metrics.essays_this_month,
+                        avgCompetencyScores: data.essay_metrics.avg_competency_scores || [0, 0, 0, 0, 0]
+                    },
+                    revenueMetrics: {
+                        totalRevenue: data.revenue_metrics.total_revenue,
+                        mrr: data.revenue_metrics.mrr,
+                        arpu: data.revenue_metrics.arpu,
+                        ltv: data.revenue_metrics.ltv
+                    }
                 });
             } catch (error) {
                 console.error('Erro ao carregar analytics:', error);
