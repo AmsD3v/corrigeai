@@ -294,3 +294,53 @@ async def delete_user(
             detail=f"Erro ao excluir usuário: {str(e)}"
         )
 
+
+@router.get("/admin/stats")
+async def get_admin_stats(
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """Retorna estatísticas gerais do sistema para o dashboard admin."""
+    from sqlalchemy import func
+    from datetime import datetime, timedelta
+    
+    try:
+        # 1. Total de usuários
+        total_users = db.query(func.count(models.User.id)).scalar() or 0
+        
+        # 2. Usuários ativos (com submissions nos últimos 30 dias)
+        thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+        active_users = db.query(func.count(func.distinct(models.Submission.owner_id))).filter(
+            models.Submission.submitted_at >= thirty_days_ago
+        ).scalar() or 0
+        
+        # 3. Total de redações (apenas completed)
+        total_essays = db.query(func.count(models.Submission.id)).filter(
+            models.Submission.status == "completed"
+        ).scalar() or 0
+        
+        # 4. Receita total (transações aprovadas, em centavos)
+        total_revenue = db.query(func.sum(models.Transaction.price)).filter(
+            models.Transaction.status == "approved"
+        ).scalar() or 0
+        
+        # 5. Pontuação média (de todas as correções)
+        avg_score = db.query(func.avg(models.Correction.total_score)).scalar()
+        avg_score = round(avg_score) if avg_score else 0
+        
+        # 6. Pendentes (redações aguardando correção)
+        pending_corrections = db.query(func.count(models.Submission.id)).filter(
+            models.Submission.status.in_(["pending", "processing"])
+        ).scalar() or 0
+        
+        return {
+            "total_users": total_users,
+            "active_users": active_users,
+            "total_essays": total_essays,
+            "total_revenue": total_revenue,
+            "avg_score": avg_score,
+            "pending_corrections": pending_corrections
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar estatísticas: {str(e)}")
