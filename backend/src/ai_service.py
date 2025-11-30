@@ -487,15 +487,23 @@ def combine_corrections(groq_result: dict, gemini_insights: dict) -> dict:
     return combined
 
 
-async def correct_essay_premium(title: str, theme: str, content: str, api_key_groq: str, api_key_gemini: str) -> dict:
+async def correct_essay_premium(title: str, theme: str, content: str, exam_type: str = 'enem', api_key_groq: str = '', api_key_gemini: str = '') -> dict:
     """
     Premium correction: Groq (initial) + Gemini (refinement)
+    Now supports multiple exam types with specific criteria.
     """
-    print("🌟 === PREMIUM CORRECTION (Groq + Gemini) ===")
+    print(f"🌟 === PREMIUM CORRECTION ({exam_type.upper()}) (Groq + Gemini) ===")
     
-    # Step 1: Groq initial correction
-    print("Step 1/3: Groq initial correction...")
-    groq_result = await correct_with_groq(title, theme, content, api_key_groq)
+    # Import prompt_builder to use exam-specific prompts
+    from .prompt_builder import create_correction_prompt
+    
+    # Get exam-specific prompt
+    prompt = create_correction_prompt(exam_type, title, theme, content)
+    print(f"✅ Prompt específico para {exam_type.upper()} criado")
+    
+    # Step 1: Groq initial correction with custom prompt
+    print(f"Step 1/3: Groq initial correction for {exam_type.upper()}...")
+    groq_result = await correct_with_groq_custom_prompt(title, theme, content, api_key_groq, prompt)
     
     # Step 2: Gemini refinement
     print("Step 2/3: Gemini refinement...")
@@ -507,3 +515,138 @@ async def correct_essay_premium(title: str, theme: str, content: str, api_key_gr
     
     print(f"✅ Premium correction completed. Score: {final_result.get('total_score')}")
     return final_result
+
+
+async def correct_with_groq_custom_prompt(title: str, theme: str, content: str, api_key: str, custom_prompt: str) -> dict:
+    """Correct essay using Groq API with custom prompt (for exam-specific prompts)"""
+    try:
+        from groq import Groq
+        
+        client = Groq(api_key=api_key)
+        
+        print(f"📤 Sending to Groq with custom prompt: {title}")
+        logger.info(f"Sending to Groq: {title}")
+        
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": custom_prompt}],
+            temperature=0.2,
+            max_tokens=2048
+        )
+        
+        text = response.choices[0].message.content.strip()
+        
+        # Clean JSON
+        if text.startswith("```json"):
+            text = text[7:]
+        if text.startswith("```"):
+            text = text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+        text = text.strip()
+        
+        data = json.loads(text)
+        data['strengths'] = json.dumps(data.get('strengths', []), ensure_ascii=False)
+        data['improvements'] = json.dumps(data.get('improvements', []), ensure_ascii=False)
+        
+        print(f"✅ Groq correction completed. Score: {data.get('total_score')}")
+        logger.info(f"Groq correction completed. Score: {data.get('total_score')}")
+        return data
+        
+    except Exception as e:
+        print(f"❌ Groq error: {e}")
+        logger.error(f"Groq error: {e}")
+        raise
+
+
+async def correct_essay_with_gemini(title: str, theme: str, content: str, exam_type: str = 'enem') -> dict:
+    """
+    Main correction function using active provider (wrapper function).
+    Now supports multiple exam types with specific criteria.
+    
+    Args:
+        title: Essay title
+        theme: Essay theme
+        content: Essay content
+        exam_type: Type of exam (enem, fuvest, unicamp, ita, etc.)
+    
+    Returns:
+        Dictionary with correction data
+    """
+    print(f"📚 Corrigindo para: {exam_type.upper()}")
+    
+    # Import prompt_builder to use specific prompts
+    from .prompt_builder import create_correction_prompt
+    
+    # Get active provider
+    provider, api_key = get_active_provider()
+    
+    if not api_key:
+        raise Exception(f"API key not configured for provider: {provider}")
+    
+    try:
+        # Get exam-specific prompt
+        prompt = create_correction_prompt(exam_type, title, theme, content)
+        print(f"✅ Prompt específico para {exam_type.upper()} criado")
+        
+        # Use the appropriate provider with custom prompt
+        if provider == 'groq':
+            return await correct_with_groq_custom_prompt(title, theme, content, api_key, prompt)
+        elif provider == 'gemini':
+            # For Gemini, we'll use a similar custom prompt function
+            return await correct_with_gemini_custom_prompt(title, theme, content, api_key, prompt)
+        elif provider == 'huggingface':
+            raise Exception("HuggingFace provider not implemented yet")
+        elif provider == 'together':
+            raise Exception("Together AI provider not implemented yet")
+        else:
+            raise Exception(f"Unknown provider: {provider}")
+            
+    except Exception as e:
+        print(f"❌ AI correction failed: {e}")
+        logger.error(f"AI correction failed: {e}")
+        raise
+
+
+async def correct_with_gemini_custom_prompt(title: str, theme: str, content: str, api_key: str, custom_prompt: str) -> dict:
+    """Correct essay using Gemini API with custom prompt (for exam-specific prompts)"""
+    try:
+        import google.generativeai as genai
+        
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        
+        logger.info(f"Sending to Gemini: {title}")
+        
+        response = model.generate_content(
+            custom_prompt,
+            generation_config=genai.GenerationConfig(temperature=0.1, max_output_tokens=2048),
+            safety_settings=[
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+            ]
+        )
+        
+        text = response.text.strip()
+        
+        # Clean JSON
+        if text.startswith("```json"):
+            text = text[7:]
+        if text.startswith("```"):
+            text = text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+        text = text.strip()
+        
+        data = json.loads(text)
+        data['strengths'] = json.dumps(data.get('strengths', []), ensure_ascii=False)
+        data['improvements'] = json.dumps(data.get('improvements', []), ensure_ascii=False)
+        
+        logger.info(f"Gemini correction completed. Score: {data.get('total_score')}")
+        return data
+        
+    except Exception as e:
+        logger.error(f"Gemini error: {e}")
+        raise
