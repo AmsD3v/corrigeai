@@ -20,6 +20,7 @@ const RedigirRedacao = () => {
   const [themeCategory, setThemeCategory] = useState('geral');
   const [content, setContent] = useState('');
   const [correctionType, setCorrectionType] = useState<'advanced' | 'premium'>('advanced'); // NEW
+  const [examType, setExamType] = useState<string>('enem'); // NOVO - Tipo de vestibular
   const [generatingTheme, setGeneratingTheme] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userCredits, setUserCredits] = useState<number>(0);
@@ -139,7 +140,8 @@ const RedigirRedacao = () => {
       title,
       theme,
       content,
-      correction_type: correctionType
+      correction_type: correctionType,
+      exam_type: examType // NOVO - incluir tipo de vestibular
     };
 
     localStorage.setItem(`essay_${essayId}`, JSON.stringify(essayData));
@@ -397,6 +399,57 @@ const RedigirRedacao = () => {
               }}>
                 {content.length} caracteres
               </div>
+            </div>
+
+            {/* Exam Type Selector (NOVO) */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#94a3b8',
+                marginBottom: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                🎓 Selecione o Vestibular/Concurso
+              </label>
+              <select
+                value={examType}
+                onChange={(e) => setExamType(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  background: '#0f1419',
+                  border: '2px solid #3B82F6',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <option value="enem">📝 ENEM - Exame Nacional do Ensino Médio (0-1000)</option>
+                <option value="fuvest">🎓 FUVEST - USP (0-50)</option>
+                <option value="unicamp">🦄 UNICAMP (0-48)</option>
+                <option value="ita">🚀 ITA - Instituto Tecnológico de Aeronáutica (0-100)</option>
+                <option value="unesp">🌟 UNESP - Universidade Estadual Paulista (0-100)</option>
+                <option value="uerj">🏛️ UERJ - Universidade do Estado do Rio de Janeiro (0-100)</option>
+                <option value="ufmg">⚗️ UFMG - Universidade Federal de Minas Gerais (0-100)</option>
+                <option value="afa">✈️ AFA - Academia da Força Aérea (0-100)</option>
+                <option value="cacd">💼 CACD - Carreira Diplomática (0-100) - MAIS DIFÍCIL!</option>
+                <option value="sisu">📊 SISU - Sistema de Seleção Unificada (usa ENEM)</option>
+              </select>
+              <p style={{
+                fontSize: '12px',
+                color: '#64748b',
+                marginTop: '8px',
+                fontStyle: 'italic'
+              }}>
+                Sua redação será corrigida com os critérios específicos do vestibular selecionado.
+              </p>
             </div>
 
             {/* Correction Type Selector */}
