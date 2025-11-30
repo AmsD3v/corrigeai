@@ -57,7 +57,8 @@ const CorrigindoRedacao = () => {
           theme: essayData.theme,
           content: essayData.content,
           plan_type: essayData.correction_type as 'basic' | 'premium',
-          correction_type: essayData.correction_type
+          correction_type: essayData.correction_type,
+          exam_type: essayData.exam_type || 'enem' // ADICIONAR exam_type
         });
 
         console.log('✅ Correção concluída!', result);

@@ -30,6 +30,7 @@ export interface SubmitEssayData {
     theme?: string;
     content: string;
     correction_type?: 'advanced' | 'premium';
+    exam_type?: string; // NOVO - tipo de vestibular
 }
 
 // Types
@@ -78,6 +79,7 @@ export interface SubmitEssayData {
     theme?: string;
     content: string;
     plan_type: 'basic' | 'premium';
+    exam_type?: string; // NOVO - tipo de vestibular
 }
 
 // API Service
@@ -134,7 +136,8 @@ export const essayService = {
                 title: data.title || 'Sem título',
                 theme: data.theme || 'Tema livre',
                 content: data.content,
-                correction_type: data.correction_type || 'advanced'  // NEW: Send correction type
+                correction_type: data.correction_type || 'advanced',  // Send correction type
+                exam_type: data.exam_type || 'enem'  // NOVO - Send exam type
             });
 
             const submission = submitResponse.data;
