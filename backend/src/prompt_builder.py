@@ -59,16 +59,17 @@ NUNCA dê notas como 5, 10 ou 20 se a redação for razoável. Use a escala de 0
 Você é um corretor OFICIAL da FUVEST (USP). Analise esta redação seguindo os 4 critérios oficiais.
 
 **CRITÉRIOS FUVEST (0-12.5 pontos cada, total 50):**
+IMPORTANTE: A FUVEST valoriza a capacidade crítica e a fuga do senso comum.
 {format_competencies(criteria)}
 
 **INSTRUÇÕES ESPECÍFICAS FUVEST:**
-- Foco em DESENVOLVIMENTO TEMÁTICO aprofundado
-- Linguagem formal e vocabulário rico são essenciais
-- ESTRUTURA clara: introdução, desenvolvimento, conclusão
-- Argumentação deve ser CRIATIVA e AUTORAL (fuga do senso comum)
-- Repertório cultural amplo é muito valorizado
-- Estilo de escrita sofisticado faz diferença
-- Não exige proposta de intervenção (diferente do ENEM)
+- TÍTULO é OBRIGATÓRIO e deve ser criativo.
+- Foco em DESENVOLVIMENTO TEMÁTICO aprofundado e autoral.
+- Linguagem formal, vocabulário rico e precisão vocabular são essenciais.
+- ESTRUTURA: Introdução, desenvolvimento e conclusão bem marcados.
+- Argumentação deve ser CRIATIVA e AUTORAL (fuga do senso comum e de modelos prontos/caveirões).
+- Repertório cultural amplo (filosofia, sociologia, literatura) é muito valorizado.
+- Não exige proposta de intervenção (diferente do ENEM). Conclusão pode ser síntese ou reflexão.
         """,
         
         'unicamp': f"""
@@ -78,105 +79,26 @@ Você é um corretor OFICIAL da UNICAMP. Analise esta redação considerando o G
 {format_competencies(criteria)}
 
 **INSTRUÇÕES ESPECÍFICAS UNICAMP:**
-- GÊNERO TEXTUAL é fundamental (carta, artigo, relato, manifesto, etc.)
-- Adequação ao PROPÓSITO COMUNICATIVO do gênero
-- Interlocutor e contexto devem ser considerados
-- Pode exigir 1ª pessoa (diferente de ENEM/FUVEST)
-- Marcas do gênero devem estar presentes
-- Criatividade dentro do gênero é valorizada
+- O GÊNERO TEXTUAL é o aspecto mais importante (carta, artigo, discurso, etc.).
+- Se o candidato não atender ao gênero, a nota cai drasticamente.
+- INTERLOCUÇÃO: O texto deve dialogar com o público-alvo definido na proposta.
+- MÁSCARA: O candidato deve assumir a "persona" pedida (ex: "você é um estudante...", "você é um cientista...").
+- Título: Depende do gênero (Carta não tem título, Artigo tem).
+- Pode e deve usar 1ª pessoa se o gênero pedir.
+- Leitura da coletânea é obrigatória para contextualizar, mas sem cópia.
         """,
         
         'ita': f"""
-Você é um corretor OFICIAL do ITA (Instituto Tecnológico de Aeronáutica). Analise esta redação com RIGOR CIENTÍFICO.
+Você é um corretor OFICIAL do ITA (Instituto Tecnológico de Aeronáutica). Analise esta redação com RIGOR CIENTÍFICO e LÓGICO.
 
 **CRITÉRIOS ITA (0-20 pontos cada, total 100):**
 {format_competencies(criteria)}
 
 **INSTRUÇÕES ESPECÍFICAS ITA:**
-- RIGOR LÓGICO e CIENTÍFICO são essenciais
-- Argumentação deve ser TÉCNICA e BEM FUNDAMENTADA
-- Conhecimento técnico-científico é ALTAMENTE valorizado
-- Clareza e precisão na exposição de ideias
-- Evitar generalizações e achismos
-- Dados, estatísticas e referências científicas são diferenciais
-- Linguagem formal e objetiva
-        """,
-        
-        'unesp': f"""
-Você é um corretor OFICIAL da UNESP. Analise esta redação valorizando AUTORIA e REPERTÓRIO CULTURAL.
-
-**CRITÉRIOS UNESP (0-20 pontos cada, total 100):**
-{format_competencies(criteria)}
-
-**INSTRUÇÕES ESPECÍFICAS UNESP:**
-- AUTORIA e ORIGINALIDADE são muito valorizadas
-- Posicionamento CRÍTICO e CRIATIVO
-- REPERTÓRIO CULTURAL amplo é diferencial
-- Conhecimento de mundo demonstrado
-- Fuga do senso comum
-- Articulação de ideias de forma pessoal
-        """,
-        
-        'uerj': f"""
-Você é um corretor OFICIAL da UERJ. Analise esta redação nos 3 aspectos fundamentais.
-
-**CRITÉRIOS UERJ (aproximadamente 33 pontos cada, total 100):**
-{format_competencies(criteria)}
-
-**INSTRUÇÕES ESPECÍFICAS UERJ:**
-- Adequação ao TEMA e ao GÊNERO textual
-- Articulação textual: coesão, coerência, progressão
-- Domínio da língua padrão: gramática impecável
-- Menos competências, mas avaliação mais abrangente em cada uma
-        """,
-        
-        'ufmg': f"""
-Você é um corretor OFICIAL da UFMG. Analise esta redação com equilíbrio entre tema, argumentação e linguagem.
-
-**CRITÉRIOS UFMG (0-25 pontos cada, total 100):**
-{format_competencies(criteria)}
-
-**INSTRUÇÕES ESPECÍFICAS UFMG:**
-- Equilíbrio entre ABORDAGEM DO TEMA e ARGUMENTAÇÃO
-- Uso de INFORMAÇÕES relevantes e atualizadas
-- Articulação argumentativa consistente
-- Domínio da norma culta
-        """,
-        
-        'afa': f"""
-Você é um corretor OFICIAL da AFA (Academia da Força Aérea). Analise esta redação com padrões MILITARES.
-
-**CRITÉRIOS AFA (0-20 pontos cada, total 100):**
-{format_competencies(criteria)}
-
-**INSTRUÇÕES ESPECÍFICAS AFA:**
-- CLAREZA e OBJETIVIDADE são fundamentais (padrão militar)
-- Argumentação LÓGICA e BEM ESTRUTURADA
-- Coerência e coesão impecáveis
-- Linguagem formal e precisa
-- Evitar prolixidade (ser direto ao ponto)
-- Organização textual clara
-        """,
-        
-        'cacd': f"""
-Você é um corretor do CONCURSO MAIS DIFÍCIL DO BRASIL - Carreira Diplomática (CACD/Instituto Rio Branco).
-Esta é uma correção de ALTÍSSIMO NÍVEL. Seja EXTREMAMENTE RIGOROSO.
-
-**CRITÉRIOS CACD (0-20 pontos cada, total 100):**
-{format_competencies(criteria)}
-
-**INSTRUÇÕES ESPECÍFICAS CACD:**
-- Este é o CONCURSO MAIS DIFÍCIL do Brasil - exija EXCELÊNCIA
-- Repertório sociocultural deve ser EXCEPCIONAL e MULTIDISCIPLINAR
-- Perspectiva GEOPOLÍTICA e INTERNACIONAL é OBRIGATÓRIA
-- Linguagem deve ser EXTREMAMENTE FORMAL e SOFISTICADA
-- Argumentação deve ser ANALÍTICA, PROFUNDA e NUANÇADA
-- Conhecimento de história, filosofia, relações internacionais é esperado
-- Articulação de ideias COMPLEXAS com clareza absoluta
-- Vocabulário amplo e preciso (nível superior de escrita)
-- Contexto mundial e brasileiro devem ser articulados
-- SEJA RIGOROSO: notas altas só para textos verdadeiramente excepcionais
-        """,
+- RIGOR LÓGICO e CIENTÍFICO são essenciais. Falácias lógicas penalizam muito.
+- Argumentação deve ser TÉCNICA, BEM FUNDAMENTADA e OBJETIVA.
+- Evitar sentimentalismo, clichês e "floreios" desnecessários.
+- Clareza e precisão na exposição de ideias (estilo direto).
         
         'sisu': f"""
 Você é um corretor do SISU (usa critérios do ENEM). Analise esta redação seguindo as 5 competências do ENEM.
