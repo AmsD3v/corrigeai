@@ -505,7 +505,7 @@ async def correct_essay_premium(title: str, theme: str, content: str, exam_type:
     print(f"Step 1/3: Groq initial correction for {exam_type.upper()}...")
     # Premium uses the BEST model (70B)
     groq_result = await correct_with_groq_custom_prompt(
-        title, theme, content, api_key_groq, prompt, model="llama-3.3-70b-versatile"
+        title, theme, content, api_key_groq, prompt, model="llama-3.1-70b-versatile"
     )
     
     # Step 2: Gemini refinement
@@ -520,7 +520,7 @@ async def correct_essay_premium(title: str, theme: str, content: str, exam_type:
     return final_result
 
 
-async def correct_with_groq_custom_prompt(title: str, theme: str, content: str, api_key: str, custom_prompt: str, model: str = "llama-3.3-70b-versatile") -> dict:
+async def correct_with_groq_custom_prompt(title: str, theme: str, content: str, api_key: str, custom_prompt: str, model: str = "llama-3.1-70b-versatile") -> dict:
     """Correct essay using Groq API with custom prompt (for exam-specific prompts)"""
     try:
         from groq import Groq
