@@ -31,19 +31,6 @@ async def process_correction(submission_id: int, db: Session):
         print(f"✅ Submissão encontrada. Tipo: {correction_type}")
         logger.info(f"Iniciando correção {correction_type} da submissão {submission_id}")
         
-        # Update status to processing
-        submission.status = "processing"
-        db.commit()
-        
-        # Call appropriate correction function based on type
-        exam_type = getattr(submission, 'exam_type', None) or 'enem'  # Pega exam_type da submission
-        print(f"📚 Tipo de vestibular: {exam_type.upper()}")
-        
-        if correction_type == "premium":
-            print("💎 Usando correção PREMIUM (Groq + Gemini)")
-            groq_key = os.getenv('GROQ_API_KEY')
-            gemini_key = os.getenv('GEMINI_API_KEY')
-            
             if not groq_key or not gemini_key:
                 raise Exception("Premium requires both GROQ and GEMINI API keys")
             
