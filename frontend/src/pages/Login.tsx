@@ -222,13 +222,15 @@ const Login: React.FC = () => {
               <p className="text-[#94A3B8]">Acesse sua conta para continuar praticando suas redações.</p>
             </div>
 
-            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-8 max-w-xl mx-auto">
+            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl px-12 py-6 max-w-3xl mx-auto">
+              {/* Título interno */}
+              <h2 className="text-xl font-bold text-white mb-4">Entrar</h2>
 
               {/* ============================================ */}
               {/* MODO: LOGIN */}
               {/* ============================================ */}
               {authMode === 'login' && (
-                <form onSubmit={handleLogin} className="space-y-6">
+                <form onSubmit={handleLogin} className="space-y-4">
                   <div>
                     <label htmlFor="email" className="block text-white font-semibold mb-2">E-mail</label>
                     <input
