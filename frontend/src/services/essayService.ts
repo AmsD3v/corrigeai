@@ -128,6 +128,10 @@ export const essayService = {
      * Submit and immediately request correction (combined operation)
      * Now properly integrated with backend API
      */
+    /**
+     * Submit and immediately request correction (combined operation)
+     * Now properly integrated with backend API
+     */
     async submitAndCorrect(data: SubmitEssayData): Promise<{ essay: Essay; correction: Correction }> {
         console.log('📤 Enviando redação para o backend...');
 
@@ -139,6 +143,20 @@ export const essayService = {
                 content: data.content,
                 correction_type: data.correction_type || 'advanced',  // Send correction type
                 exam_type: data.exam_type || 'enem'  // NOVO - Send exam type
+            });
+
+            const submission = submitResponse.data;
+
+            console.log('✅ Redação submetida! ID:', submission.id, 'Status:', submission.status);
+
+            // Poll for correction completion (wait up to 180 seconds)
+            const maxAttempts = 36; // 36 * 5s = 180s (3 minutes)
+            let attempts = 0;
+            let correctionData = null;
+
+            while (attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5s
+                attempts++;
 
                 console.log(`🔍 Verificando correção (tentativa ${attempts}/${maxAttempts})...`);
 
@@ -149,8 +167,8 @@ export const essayService = {
 
                     console.log('✅ Correção encontrada! Nota:', correctionData.total_score);
                     break;
-                } catch(error: any) {
-                    if (error.response?.status === 404) {
+                } catch (error: any) {
+                    if (error.response?.status === 404 || error.response?.status === 202) {
                         console.log('⏳ Correção ainda não pronta, aguardando...');
                         continue;
                     }
@@ -159,7 +177,7 @@ export const essayService = {
             }
 
             if (!correctionData) {
-                throw new Error('Timeout: Correção não foi concluída em 90 segundos');
+                throw new Error('Timeout: Correção não foi concluída em 180 segundos');
             }
 
             // Convert to expected format
