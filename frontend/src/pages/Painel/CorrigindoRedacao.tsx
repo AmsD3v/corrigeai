@@ -64,7 +64,10 @@ const CorrigindoRedacao = () => {
         console.log('✅ Correção concluída!', result);
 
         // Save correction result to localStorage
-        localStorage.setItem(`correction_${id}`, JSON.stringify(result.correction));
+        localStorage.setItem(`correction_${id}`, JSON.stringify({
+          ...result.correction,
+          exam_type: result.essay.exam_type || essayData.exam_type || 'enem'
+        }));
 
         // Complete progress
         setProgress(100);

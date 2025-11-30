@@ -8,7 +8,23 @@ const ResultadoCorrecao = () => {
     const id = rawId?.startsWith('M') ? rawId.substring(1) : rawId;
     const navigate = useNavigate();
     const [score, setScore] = useState(0);
+    const [examType, setExamType] = useState('enem');
     const [showConfetti, setShowConfetti] = useState(false);
+
+    const EXAM_DETAILS: Record<string, { name: string; max: number }> = {
+        enem: { name: 'ENEM', max: 1000 },
+        fuvest: { name: 'FUVEST', max: 50 },
+        unicamp: { name: 'UNICAMP', max: 48 },
+        ita: { name: 'ITA', max: 100 },
+        unesp: { name: 'UNESP', max: 100 },
+        uerj: { name: 'UERJ', max: 100 },
+        ufmg: { name: 'UFMG', max: 100 },
+        afa: { name: 'AFA', max: 100 },
+        cacd: { name: 'CACD', max: 100 },
+        sisu: { name: 'SISU', max: 1000 }
+    };
+
+    const currentExam = EXAM_DETAILS[examType] || EXAM_DETAILS['enem'];
 
     // Redirect if URL has "M" prefix (clean URL)
     useEffect(() => {
@@ -27,6 +43,9 @@ const ResultadoCorrecao = () => {
             try {
                 const correctionData = JSON.parse(correctionDataStr);
                 finalScore = correctionData.total_score;
+                if (correctionData.exam_type) {
+                    setExamType(correctionData.exam_type);
+                }
                 console.log('📊 Exibindo correção real:', correctionData);
             } catch (error) {
                 console.error('Erro ao ler correção do localStorage:', error);
@@ -53,16 +72,18 @@ const ResultadoCorrecao = () => {
     }, [id]);
 
     const getScoreColor = (score: number) => {
-        if (score >= 800) return '#10b981';
-        if (score >= 600) return '#f59e0b';
+        const percentage = score / currentExam.max;
+        if (percentage >= 0.8) return '#10b981';
+        if (percentage >= 0.6) return '#f59e0b';
         return '#ef4444';
     };
 
     const getScoreMessage = (score: number) => {
-        if (score >= 900) return 'Excelente! 🎉';
-        if (score >= 800) return 'Muito bom! 👏';
-        if (score >= 700) return 'Bom trabalho! 👍';
-        if (score >= 600) return 'Continue melhorando! 💪';
+        const percentage = score / currentExam.max;
+        if (percentage >= 0.9) return 'Excelente! 🎉';
+        if (percentage >= 0.8) return 'Muito bom! 👏';
+        if (percentage >= 0.7) return 'Bom trabalho! 👍';
+        if (percentage >= 0.6) return 'Continue melhorando! 💪';
         return 'Não desista! 📚';
     };
 
@@ -88,6 +109,23 @@ const ResultadoCorrecao = () => {
                         position: 'relative',
                         overflow: 'hidden'
                     }}>
+                        {/* Exam Badge */}
+                        <div style={{
+                            position: 'absolute',
+                            top: '24px',
+                            right: '24px',
+                            background: '#3B82F6',
+                            color: 'white',
+                            padding: '6px 12px',
+                            borderRadius: '20px',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase',
+                            boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.5)'
+                        }}>
+                            {currentExam.name}
+                        </div>
+
                         {/* Confetti effect */}
                         {showConfetti && (
                             <div style={{
@@ -141,7 +179,7 @@ const ResultadoCorrecao = () => {
                                 color: '#64748b',
                                 fontWeight: '600'
                             }}>
-                                / 1000
+                                / {currentExam.max}
                             </div>
                         </div>
 

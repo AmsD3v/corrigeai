@@ -40,6 +40,7 @@ export interface Essay {
     title?: string;
     theme?: string;
     content: string;
+    exam_type?: string; // NOVO - tipo de vestibular
     status: 'pending' | 'processing' | 'completed' | 'failed';
     plan_type: 'basic' | 'premium';
     credits_used: number;
