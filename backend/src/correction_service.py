@@ -16,6 +16,72 @@ async def process_correction(submission_id: int, db: Session):
         db: Sessão do banco de dados
     """
     print(f"\n🟢 ==== PROCESS_CORRECTION STARTED for submission {submission_id} ====")
+    try:
+        # Get submission
+        submission = db.query(models.Submission).filter(
+            models.Submission.id == submission_id
+        ).first()
+        
+        if not submission:
+            print(f"❌ Submissão {submission_id} não encontrada")
+            logger.error(f"Submissão {submission_id} não encontrada")
+            return
+        
+        correction_type = getattr(submission, 'correction_type', 'advanced')
+        print(f"✅ Submissão encontrada. Tipo: {correction_type}")
+        logger.info(f"Iniciando correção {correction_type} da submissão {submission_id}")
+        
+        # Update status to processing
+        submission.status = "processing"
+        db.commit()
+        
+        # Call appropriate correction function based on type
+        exam_type = getattr(submission, 'exam_type', None) or 'enem'  # Pega exam_type da submission
+        print(f"📚 Tipo de vestibular: {exam_type.upper()}")
+        
+        if correction_type == "premium":
+            print("💎 Usando correção PREMIUM (Groq + Gemini)")
+            groq_key = os.getenv('GROQ_API_KEY')
+            gemini_key = os.getenv('GEMINI_API_KEY')
+            
+            if not groq_key or not gemini_key:
+                raise Exception("Premium requires both GROQ and GEMINI API keys")
+            
+            correction_data = await ai_service.correct_essay_premium(
+                title=submission.title,
+                theme=submission.theme or "Tema livre",
+                content=submission.content,
+                exam_type=exam_type,  # NOVO - passa exam_type
+                api_key_groq=groq_key,
+                api_key_gemini=gemini_key
+            )
+        else:
+            print("⚡ Usando correção AVANÇADA (Groq)")
+            correction_data = await ai_service.correct_essay_with_gemini(
+                title=submission.title,
+                theme=submission.theme or "Tema livre",
+                content=submission.content,
+                exam_type=exam_type  # NOVO - passa exam_type
+            )
+        
+        logger.info(f"AI retornou dados. Salvando no banco...")
+        
+        print(f"\n🔍 === DADOS RECEBIDOS DA IA ===")
+        print(f"Total Score: {correction_data.get('total_score')}")
+        print(f"Comp 1: {correction_data.get('competence_1_score')}")
+        print(f"Comp 2: {correction_data.get('competence_2_score')}")
+        print(f"Comp 3: {correction_data.get('competence_3_score')}")
+        print(f"Comp 4: {correction_data.get('competence_4_score')}")
+        print(f"Comp 5: {correction_data.get('competence_5_score')}")
+        print(f"===================================\n")
+        
+        # Save correction
+        db_correction = models.Correction(
+            submission_id=submission.id,
+            competence_1_score=correction_data['competence_1_score'],
+            competence_2_score=correction_data['competence_2_score'],
+            competence_3_score=correction_data['competence_3_score'],
+            competence_4_score=correction_data['competence_4_score'],
             competence_5_score=correction_data['competence_5_score'],
             total_score=correction_data['total_score'],
             competence_1_feedback=correction_data['competence_1_feedback'],
