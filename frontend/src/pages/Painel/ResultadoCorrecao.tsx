@@ -34,41 +34,61 @@ const ResultadoCorrecao = () => {
     }, [rawId, id, navigate]);
 
     useEffect(() => {
-        // Get correction data from localStorage
-        const correctionDataStr = localStorage.getItem(`correction_${id}`);
+        const loadCorrection = async () => {
+            // 1. Tenta pegar do localStorage
+            const correctionDataStr = localStorage.getItem(`correction_${id}`);
 
-        let finalScore = 880; // Default fallback
-
-        if (correctionDataStr) {
-            try {
-                const correctionData = JSON.parse(correctionDataStr);
-                finalScore = correctionData.total_score;
-                if (correctionData.exam_type) {
-                    setExamType(correctionData.exam_type);
+            if (correctionDataStr) {
+                try {
+                    const correctionData = JSON.parse(correctionDataStr);
+                    processCorrectionData(correctionData);
+                    return;
+                } catch (error) {
+                    console.error('Erro ao ler localStorage:', error);
                 }
-                console.log('📊 Exibindo correção real:', correctionData);
+            }
+
+            // 2. Se falhar, tenta buscar da API
+            console.log('⚠️ Correção não encontrada no localStorage, buscando da API...');
+            try {
+                const { essayService } = await import('../../services/essayService');
+                const correction = await essayService.correctEssay(id!); // Reusa endpoint de get correction
+                console.log('✅ Correção recuperada da API:', correction);
+
+                // Salva no localStorage para próximas vezes
+                localStorage.setItem(`correction_${id}`, JSON.stringify(correction));
+
+                processCorrectionData(correction);
             } catch (error) {
-                console.error('Erro ao ler correção do localStorage:', error);
+                console.error('❌ Erro ao buscar correção da API:', error);
+                // Fallback apenas se tudo falhar
+                setScore(0); // Mostra 0 ou erro em vez de mock
+                // Opcional: setar estado de erro para mostrar na UI
             }
-        } else {
-            console.warn('⚠️ Correção não encontrada no localStorage, usando dados mock');
-        }
+        };
 
-        // Animate score counting
-        let current = 0;
-        const increment = finalScore / 50;
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= finalScore) {
-                setScore(finalScore);
-                setShowConfetti(true);
-                clearInterval(timer);
-            } else {
-                setScore(Math.floor(current));
+        const processCorrectionData = (data: any) => {
+            const finalScore = data.total_score || 0;
+            if (data.exam_type) {
+                setExamType(data.exam_type);
             }
-        }, 20);
 
-        return () => clearInterval(timer);
+            // Animate score
+            let current = 0;
+            const increment = finalScore / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= finalScore) {
+                    setScore(finalScore);
+                    setShowConfetti(true);
+                    clearInterval(timer);
+                } else {
+                    setScore(Math.floor(current));
+                }
+            }, 20);
+        };
+
+        loadCorrection();
     }, [id]);
 
     const getScoreColor = (score: number) => {
