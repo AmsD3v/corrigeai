@@ -86,8 +86,8 @@ async def submit_essay(
     )
     
     # DEBUG: Log exam_type
-    logging.info(f\"🎓 EXAM_TYPE RECEBIDO: {submission.exam_type or 'None/NULL'}\")
-    logging.info(f\"🎓 EXAM_TYPE NO DB_SUBMISSION: {db_submission.exam_type or 'None/NULL'}\")
+    logging.info(f"🎓 EXAM_TYPE RECEBIDO: {submission.exam_type or 'None/NULL'}")
+    logging.info(f"🎓 EXAM_TYPE NO DB_SUBMISSION: {db_submission.exam_type or 'None/NULL'}")
     
     db.add(db_submission)
     
