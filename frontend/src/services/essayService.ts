@@ -139,20 +139,6 @@ export const essayService = {
                 content: data.content,
                 correction_type: data.correction_type || 'advanced',  // Send correction type
                 exam_type: data.exam_type || 'enem'  // NOVO - Send exam type
-            });
-
-            const submission = submitResponse.data;
-
-            console.log('✅ Redação submetida! ID:', submission.id, 'Status:', submission.status);
-
-            // Poll for correction completion (wait up to 90 seconds)
-            const maxAttempts = 18; // 18 * 5s = 90s
-            let attempts = 0;
-            let correctionData = null;
-
-            while (attempts < maxAttempts) {
-                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5s
-                attempts++;
 
                 console.log(`🔍 Verificando correção (tentativa ${attempts}/${maxAttempts})...`);
 
@@ -163,7 +149,7 @@ export const essayService = {
 
                     console.log('✅ Correção encontrada! Nota:', correctionData.total_score);
                     break;
-                } catch (error: any) {
+                } catch(error: any) {
                     if (error.response?.status === 404) {
                         console.log('⏳ Correção ainda não pronta, aguardando...');
                         continue;

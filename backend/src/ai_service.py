@@ -503,10 +503,19 @@ async def correct_essay_premium(title: str, theme: str, content: str, exam_type:
     
     # Step 1: Groq initial correction with custom prompt
     print(f"Step 1/3: Groq initial correction for {exam_type.upper()}...")
-    # Premium uses the BEST model (70B)
-    groq_result = await correct_with_groq_custom_prompt(
-        title, theme, content, api_key_groq, prompt, model="llama-3.1-70b-versatile"
-    )
+    
+    try:
+        # Premium uses the BEST model (70B)
+        groq_result = await correct_with_groq_custom_prompt(
+            title, theme, content, api_key_groq, prompt, model="llama-3.1-70b-versatile"
+        )
+    except Exception as e:
+        print(f"⚠️ Erro com modelo 70B: {e}. Tentando fallback para 8B...")
+        logger.warning(f"Erro com modelo 70B: {e}. Tentando fallback para 8B...")
+        # Fallback to 8B model if 70B fails
+        groq_result = await correct_with_groq_custom_prompt(
+            title, theme, content, api_key_groq, prompt, model="llama-3.1-8b-instant"
+        )
     
     # Step 2: Gemini refinement
     print("Step 2/3: Gemini refinement...")
