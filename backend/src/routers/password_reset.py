@@ -41,50 +41,6 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
     
     # Definir expiração (1 hora)
     expires_at = datetime.utcnow() + timedelta(hours=1)
-    
-    # Salvar token no banco
-    user.reset_token = reset_token
-    user.reset_token_expires = expires_at
-    db.commit()
-    
-    # Criar HTML com dígitos separados
-    digits = list(reset_token)
-    digit_boxes = ""
-    for digit in digits:
-        digit_boxes += f"""
-        <div style="width: 50px; height: 60px; border: 2px solid #3B82F6; border-radius: 8px; 
-                    display: inline-flex; align-items: center; justify-content: center; 
-                    font-size: 28px; font-weight: bold; margin: 0 5px; background: #F0F7FF;">
-            {digit}
-        </div>
-        """
-    
-    # Enviar email
-    try:
-        resend.Emails.send({
-            "from": "CorrigeAI <noreply@corrigeai.online>",
-            "to": [user.email],
-            "subject": "🔐 Seu código de verificação - CorrigeAI",
-            "html": f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            </head>
-            <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f3f4f6;">
-                <div style="max-width: 600px; margin: 40px auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    
-                    <!-- Header -->
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">🦉</div>
-                        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">CorrigeAI</h1>
-                    </div>
-                    
-                    <!-- Content -->
-                    <div style="padding: 40px 30px;">
-                        <h2 style="color: #1a202c; margin-top: 0; font-size: 22px;">🔐 Seu código de verificação</h2>
-                        
                         <p style="color: #4a5568; font-size: 16px; line-height: 1.6;">
                             Olá <strong>{user.full_name or 'Usuário'}</strong>,
                         </p>
