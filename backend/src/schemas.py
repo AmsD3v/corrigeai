@@ -144,6 +144,24 @@ class SubmissionBase(BaseModel):
         if len(v) > 5000:
             raise ValueError('O conteúdo não pode ter mais de 5.000 caracteres')
         return bleach.clean(v)
+    
+    @field_validator('exam_type')
+    @classmethod
+    def validate_exam_type(cls, v):
+        if v is None:
+            return 'enem'  # Padrão é ENEM
+        
+        allowed_types = [
+            'enem', 'fuvest', 'unicamp', 'ita', 'unesp',
+            'uerj', 'ufmg', 'afa', 'cacd', 'sisu'
+        ]
+        
+        v = v.lower().strip()
+        if v not in allowed_types:
+            raise ValueError(
+                f'Tipo de vestibular inválido. Deve ser um de: {", ".join(allowed_types)}'
+            )
+        return v
 
 class SubmissionCreate(SubmissionBase):
     pass
