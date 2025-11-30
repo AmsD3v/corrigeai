@@ -47,15 +47,15 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
     user.reset_token_expires = expires_at
     db.commit()
     
-    # Criar HTML com dígitos separados
+    # Criar HTML com dígitos separados (inline-block + line-height para centralizar)
     digits = list(reset_token)
     digit_boxes = ""
     for digit in digits:
         digit_boxes += f"""
-        <div style="width: 50px; height: 60px; border: 2px solid #3B82F6; border-radius: 8px; 
-                    display: inline-flex; align-items: center; justify-content: center; 
-                    font-size: 28px; font-weight: bold; margin: 0 5px; background: #F0F7FF;
-                    text-align: center; color: #1a202c;">
+        <div style="width: 50px; height: 56px; border: 2px solid #3B82F6; border-radius: 8px; 
+                    display: inline-block; font-size: 28px; font-weight: bold; margin: 0 5px; 
+                    background: #F0F7FF; text-align: center; color: #1a202c; 
+                    line-height: 56px;">
             {digit}
         </div>
         """
@@ -76,12 +76,16 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
             <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f3f4f6;">
                 <div style="max-width: 600px; margin: 40px auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     
-                    <!-- Header -->
+                    <!-- Header com Table -->
                     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
-                        <div style="display: inline-flex; align-items: center; justify-content: center; gap: 12px;">
-                            <span style="font-size: 48px;">🦉</span>
-                            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">CorrigeAI</h1>
-                        </div>
+                        <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                            <tr>
+                                <td style="font-size: 48px; padding-right: 12px; vertical-align: middle;">🦉</td>
+                                <td style="vertical-align: middle;">
+                                    <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700; line-height: 1;">CorrigeAI</h1>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                     
                     <!-- Content -->
