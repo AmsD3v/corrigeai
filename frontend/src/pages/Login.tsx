@@ -28,6 +28,12 @@ const Login: React.FC = () => {
   // Refs para inputs de token
   const tokenInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Validação de email
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   // Limpar mensagens ao trocar de modo
   useEffect(() => {
     setError(null);
@@ -75,6 +81,13 @@ const Login: React.FC = () => {
   const handleSendToken = async () => {
     setError(null);
     setSuccess(null);
+
+    // Validar formato de email
+    if (!isValidEmail(recoveryEmail.trim())) {
+      setError('Por favor, digite um e-mail válido.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -298,19 +311,19 @@ const Login: React.FC = () => {
                     <p className="text-[#94A3B8] text-sm py-2">
                       Informe o e-mail da sua conta para enviarmos um código de recuperação de senha. O código tem validade de 1 hora.
                     </p>
-                  <div>
-                    <label htmlFor="recovery-email" className="block text-white font-semibold mb-4">
-                      E-mail para recuperação
-                    </label>
-                    <input
-                      type="email"
-                      id="recovery-email"
-                      placeholder="seu@email.com"
-                      value={recoveryEmail}
-                      onChange={(e) => setRecoveryEmail(e.target.value)}
-                      className="w-full px-4 py-2 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
-                    />
-                  </div>                    
+                    <div>
+                      <label htmlFor="recovery-email" className="block text-white font-semibold mb-4">
+                        E-mail para recuperação
+                      </label>
+                      <input
+                        type="email"
+                        id="recovery-email"
+                        placeholder="seu@email.com"
+                        value={recoveryEmail}
+                        onChange={(e) => setRecoveryEmail(e.target.value)}
+                        className="w-full px-4 py-2 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
+                      />
+                    </div>
                   </div>
                   {error && (
                     <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">
@@ -326,7 +339,7 @@ const Login: React.FC = () => {
 
                   <button
                     onClick={handleSendToken}
-                    disabled={isLoading || !recoveryEmail}
+                    disabled={isLoading || !recoveryEmail.trim() || !isValidEmail(recoveryEmail.trim())}
                     className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-2.5 rounded-lg font-bold transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? 'Enviando...' : 'Enviar token de recuperação'}
