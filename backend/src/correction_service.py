@@ -36,6 +36,9 @@ async def process_correction(submission_id: int, db: Session):
         db.commit()
         
         # Call appropriate correction function based on type
+        exam_type = getattr(submission, 'exam_type', None) or 'enem'  # Pega exam_type da submission
+        print(f"📚 Tipo de vestibular: {exam_type.upper()}")
+        
         if correction_type == "premium":
             print("💎 Usando correção PREMIUM (Groq + Gemini)")
             groq_key = os.getenv('GROQ_API_KEY')
@@ -48,6 +51,7 @@ async def process_correction(submission_id: int, db: Session):
                 title=submission.title,
                 theme=submission.theme or "Tema livre",
                 content=submission.content,
+                exam_type=exam_type,  # NOVO - passa exam_type
                 api_key_groq=groq_key,
                 api_key_gemini=gemini_key
             )
@@ -56,7 +60,8 @@ async def process_correction(submission_id: int, db: Session):
             correction_data = await ai_service.correct_essay_with_gemini(
                 title=submission.title,
                 theme=submission.theme or "Tema livre",
-                content=submission.content
+                content=submission.content,
+                exam_type=exam_type  # NOVO - passa exam_type
             )
         
         logger.info(f"AI retornou dados. Salvando no banco...")
