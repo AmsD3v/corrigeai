@@ -527,6 +527,9 @@ async def correct_with_groq_custom_prompt(title: str, theme: str, content: str, 
         print(f"📤 Sending to Groq with custom prompt: {title}")
         logger.info(f"Sending to Groq: {title}")
         
+        # DEBUG PROMPT
+        print(f"📝 PROMPT ENVIADO PARA GROQ:\n{custom_prompt[:500]}...")
+        
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": custom_prompt}],
@@ -535,6 +538,7 @@ async def correct_with_groq_custom_prompt(title: str, theme: str, content: str, 
         )
         
         text = response.choices[0].message.content.strip()
+        print(f"📥 RESPOSTA RAW GROQ:\n{text[:500]}...")
         
         # Clean JSON
         if text.startswith("```json"):

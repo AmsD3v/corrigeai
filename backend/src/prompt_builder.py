@@ -36,6 +36,10 @@ def create_correction_prompt(exam_type: str, title: str, theme: str, content: st
 Você é um corretor OFICIAL do ENEM. Analise esta redação seguindo RIGOROSAMENTE as 5 competências oficiais.
 
 **CRITÉRIOS ENEM (0-200 pontos cada):**
+IMPORTANTE: A nota de cada competência varia de 0 a 200.
+Notas comuns: 40 (precário), 80 (insuficiente), 120 (médio), 160 (bom), 200 (excelente).
+NUNCA dê notas como 5, 10 ou 20 se a redação for razoável. Use a escala de 0 a 200.
+
 {format_competencies(criteria)}
 
 **INSTRUÇÕES ESPECÍFICAS ENEM:**
