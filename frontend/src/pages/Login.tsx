@@ -212,7 +212,7 @@ const Login: React.FC = () => {
 
       {/* MAIN CONTENT */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-6xl relative flex flex-col lg:flex-row items-center justify-center gap-0">
+        <div className="max-w-6xl relative flex flex-col lg:flex-row items-center justify-center gap-0">
 
           {/* LEFT: FORM */}
           <div className="order-2 lg:order-1 relative z-10 w-full lg:w-auto">
@@ -222,9 +222,8 @@ const Login: React.FC = () => {
               <p className="text-[#94A3B8]">Acesse sua conta para continuar praticando suas redações.</p>
             </div>
 
-            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl px-12 py-6 max-w-3xl mx-auto">
+            <div className="w-160 bg-[#1E293B] border border-[#334155] rounded-2xl px-12 py-6 max-w-3xl mx-auto">
               {/* Título interno */}
-              <h2 className="text-xl font-bold text-white mb-4">Entrar</h2>
 
               {/* ============================================ */}
               {/* MODO: LOGIN */}
@@ -232,7 +231,7 @@ const Login: React.FC = () => {
               {authMode === 'login' && (
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div>
-                    <label htmlFor="email" className="block text-white font-semibold mb-2">E-mail</label>
+                    <label htmlFor="email" className="block text-white font-semibold mb-1">E-mail</label>
                     <input
                       type="email"
                       id="email"
@@ -240,7 +239,7 @@ const Login: React.FC = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
+                      className="w-full px-4 py-2 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
                     />
                   </div>
 
@@ -253,7 +252,7 @@ const Login: React.FC = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
+                      className="w-full px-4 py-2 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
                     />
                   </div>
 
@@ -276,7 +275,7 @@ const Login: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-3.5 rounded-lg font-bold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-2.5 rounded-lg font-bold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? 'Entrando...' : 'Entrar'}
                   </button>
@@ -294,14 +293,13 @@ const Login: React.FC = () => {
               {/* MODO: PEDIR EMAIL PARA RECUPERAÇÃO */}
               {/* ============================================ */}
               {authMode === 'forgot-email' && (
-                <div className="space-y-6">
-                  <div className="bg-[#0F172A] border border-[#334155] rounded-lg p-4">
-                    <p className="text-[#94A3B8] text-sm">
+                <div className="space-y-4">
+                  <div className="bg-[#0F172A] border border-[#334155] rounded-lg p-7">
+                    <p className="text-[#94A3B8] text-sm py-2">
                       Informe o e-mail da sua conta para enviarmos um código de recuperação de senha. O código tem validade de 1 hora.
                     </p>
-                  </div>
                   <div>
-                    <label htmlFor="recovery-email" className="block text-white font-semibold mb-2">
+                    <label htmlFor="recovery-email" className="block text-white font-semibold mb-4">
                       E-mail para recuperação
                     </label>
                     <input
@@ -310,10 +308,10 @@ const Login: React.FC = () => {
                       placeholder="seu@email.com"
                       value={recoveryEmail}
                       onChange={(e) => setRecoveryEmail(e.target.value)}
-                      className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
+                      className="w-full px-4 py-2 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
                     />
+                  </div>                    
                   </div>
-
                   {error && (
                     <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">
                       {error}
@@ -329,7 +327,7 @@ const Login: React.FC = () => {
                   <button
                     onClick={handleSendToken}
                     disabled={isLoading || !recoveryEmail}
-                    className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-3.5 rounded-lg font-bold transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-2.5 rounded-lg font-bold transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? 'Enviando...' : 'Enviar token de recuperação'}
                   </button>
