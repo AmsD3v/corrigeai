@@ -315,7 +315,7 @@ def get_correction(
         elif submission.status == "failed" or submission.status == "error":
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Falha na correção. Ocorreu um erro interno ao processar sua redação."
+                detail="Falha na correção. Ocorreu um erro interno. Tente novamente."
             )
         else:
             # Status desconhecido ou 'completed' mas sem correção (inconsistência)
