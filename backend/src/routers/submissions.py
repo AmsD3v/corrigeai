@@ -80,9 +80,15 @@ async def submit_essay(
             detail=f"Créditos insuficientes. Necessário: {required_credits}, Disponível: {total_available} (Grátis: {current_user.free_credits or 0}, CorriCoins: {current_user.credits})",
         )
 
+
     db_submission = models.Submission(
         **submission.model_dump(), owner_id=current_user.id
     )
+    
+    # DEBUG: Log exam_type
+    logging.info(f\"🎓 EXAM_TYPE RECEBIDO: {submission.exam_type or 'None/NULL'}\")
+    logging.info(f\"🎓 EXAM_TYPE NO DB_SUBMISSION: {db_submission.exam_type or 'None/NULL'}\")
+    
     db.add(db_submission)
     
     # Deduct credits: use free_credits first, then paid credits
