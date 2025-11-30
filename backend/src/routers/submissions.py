@@ -312,12 +312,18 @@ def get_correction(
                 status_code=status.HTTP_202_ACCEPTED,
                 detail="Correção em andamento. Aguarde alguns instantes."
             )
-        elif submission.status == "failed":
+        elif submission.status == "failed" or submission.status == "error":
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Falha na correção. Seu crédito foi estornado. Tente novamente."
+                detail="Falha na correção. Ocorreu um erro interno ao processar sua redação."
             )
         else:
+            # Status desconhecido ou 'completed' mas sem correção (inconsistência)
+            logging.error(f"Inconsistência: Submissão {submission.id} com status {submission.status} mas sem correção no banco.")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Erro de consistência. Status: {submission.status}"
+            )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Correção não disponível."
