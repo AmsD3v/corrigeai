@@ -503,7 +503,10 @@ async def correct_essay_premium(title: str, theme: str, content: str, exam_type:
     
     # Step 1: Groq initial correction with custom prompt
     print(f"Step 1/3: Groq initial correction for {exam_type.upper()}...")
-    groq_result = await correct_with_groq_custom_prompt(title, theme, content, api_key_groq, prompt)
+    # Premium uses the BEST model (70B)
+    groq_result = await correct_with_groq_custom_prompt(
+        title, theme, content, api_key_groq, prompt, model="llama-3.3-70b-versatile"
+    )
     
     # Step 2: Gemini refinement
     print("Step 2/3: Gemini refinement...")
@@ -517,7 +520,7 @@ async def correct_essay_premium(title: str, theme: str, content: str, exam_type:
     return final_result
 
 
-async def correct_with_groq_custom_prompt(title: str, theme: str, content: str, api_key: str, custom_prompt: str) -> dict:
+async def correct_with_groq_custom_prompt(title: str, theme: str, content: str, api_key: str, custom_prompt: str, model: str = "llama-3.3-70b-versatile") -> dict:
     """Correct essay using Groq API with custom prompt (for exam-specific prompts)"""
     try:
         from groq import Groq
@@ -526,12 +529,13 @@ async def correct_with_groq_custom_prompt(title: str, theme: str, content: str, 
         
         print(f"📤 Sending to Groq with custom prompt: {title}")
         logger.info(f"Sending to Groq: {title}")
+        print(f"🤖 Model: {model}")
         
         # DEBUG PROMPT
         print(f"📝 PROMPT ENVIADO PARA GROQ:\n{custom_prompt[:500]}...")
         
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=model,
             messages=[{"role": "user", "content": custom_prompt}],
             temperature=0.2,
             max_tokens=2048
@@ -567,15 +571,6 @@ async def correct_essay_with_gemini(title: str, theme: str, content: str, exam_t
     """
     Main correction function using active provider (wrapper function).
     Now supports multiple exam types with specific criteria.
-    
-    Args:
-        title: Essay title
-        theme: Essay theme
-        content: Essay content
-        exam_type: Type of exam (enem, fuvest, unicamp, ita, etc.)
-    
-    Returns:
-        Dictionary with correction data
     """
     print(f"📚 Corrigindo para: {exam_type.upper()}")
     
@@ -595,7 +590,10 @@ async def correct_essay_with_gemini(title: str, theme: str, content: str, exam_t
         
         # Use the appropriate provider with custom prompt
         if provider == 'groq':
-            return await correct_with_groq_custom_prompt(title, theme, content, api_key, prompt)
+            # Advanced uses a LIGHTER model (8B) for differentiation and speed
+            return await correct_with_groq_custom_prompt(
+                title, theme, content, api_key, prompt, model="llama-3.1-8b-instant"
+            )
         elif provider == 'gemini':
             # For Gemini, we'll use a similar custom prompt function
             return await correct_with_gemini_custom_prompt(title, theme, content, api_key, prompt)
