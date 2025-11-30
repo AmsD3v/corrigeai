@@ -16,23 +16,6 @@ async def process_correction(submission_id: int, db: Session):
         db: Sessão do banco de dados
     """
     print(f"\n🟢 ==== PROCESS_CORRECTION STARTED for submission {submission_id} ====")
-    try:
-        # Get submission
-        submission = db.query(models.Submission).filter(
-            models.Submission.id == submission_id
-        ).first()
-        
-        print(f"Comp 4: {correction_data.get('competence_4_score')}")
-        print(f"Comp 5: {correction_data.get('competence_5_score')}")
-        print(f"===================================\n")
-        
-        # Save correction
-        db_correction = models.Correction(
-            submission_id=submission.id,
-            competence_1_score=correction_data['competence_1_score'],
-            competence_2_score=correction_data['competence_2_score'],
-            competence_3_score=correction_data['competence_3_score'],
-            competence_4_score=correction_data['competence_4_score'],
             competence_5_score=correction_data['competence_5_score'],
             total_score=correction_data['total_score'],
             competence_1_feedback=correction_data['competence_1_feedback'],
