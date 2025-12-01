@@ -326,7 +326,29 @@ def get_correction(
                     detail=f"Erro de consistência. Status: {submission.status}"
                 )
         
-        return correction
+        # Manually construct response to include exam_type from submission
+        response_data = schemas.CorrectionDetail(
+            id=correction.id,
+            submission_id=correction.submission_id,
+            competence_1_score=correction.competence_1_score,
+            competence_2_score=correction.competence_2_score,
+            competence_3_score=correction.competence_3_score,
+            competence_4_score=correction.competence_4_score,
+            competence_5_score=correction.competence_5_score,
+            total_score=correction.total_score,
+            competence_1_feedback=correction.competence_1_feedback,
+            competence_2_feedback=correction.competence_2_feedback,
+            competence_3_feedback=correction.competence_3_feedback,
+            competence_4_feedback=correction.competence_4_feedback,
+            competence_5_feedback=correction.competence_5_feedback,
+            strengths=correction.strengths,
+            improvements=correction.improvements,
+            general_comments=correction.general_comments,
+            corrected_at=correction.corrected_at,
+            exam_type=submission.exam_type or "enem"
+        )
+        
+        return response_data
         
     except HTTPException:
         raise

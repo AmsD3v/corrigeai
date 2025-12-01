@@ -245,6 +245,7 @@ class CorrectionDetail(BaseModel):
     general_comments: str
     
     corrected_at: Optional[datetime] = None
+    exam_type: Optional[str] = "enem"  # Field from Submission, not Correction table
     
     model_config = ConfigDict(from_attributes=True)
 
