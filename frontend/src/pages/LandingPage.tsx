@@ -246,8 +246,16 @@ const LandingPage = () => {
           align-items: center;
         }
 
+        .mobile-only {
+          display: none;
+        }
+
         /* MEDIA QUERIES */
         @media (max-width: 768px) {
+          .mobile-only {
+            display: flex !important;
+          }
+
           /* Force container padding */
           .container {
             padding: 0 16px !important;
@@ -284,23 +292,27 @@ const LandingPage = () => {
           
           /* Hide desktop nav */
           .nav-links {
-            display: none !important;
+            display: flex !important;
             position: fixed;
-            top: 70px;
+            top: 0;
             left: 0;
-            right: 0;
+            bottom: 0;
+            width: 280px;
             background: rgba(26, 31, 46, 0.98);
             backdrop-filter: blur(10px);
             flex-direction: column;
-            padding: 24px;
-            border-bottom: 1px solid #334155;
+            padding: 80px 24px 24px;
+            border-right: 1px solid #334155;
             gap: 20px;
             z-index: 999;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
           }
           
           /* Show nav when open */
           .nav-links.open {
-            display: flex !important;
+            transform: translateX(0);
           }
           
           /* Show hamburger menu */
@@ -352,6 +364,24 @@ const LandingPage = () => {
 
       <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%)' }}>
 
+        {/* Mobile Menu Overlay */}
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.6)',
+            zIndex: 999,
+            backdropFilter: 'blur(4px)',
+            opacity: mobileMenuOpen ? 1 : 0,
+            pointerEvents: mobileMenuOpen ? 'auto' : 'none',
+            transition: 'opacity 0.3s ease'
+          }}
+          onClick={() => setMobileMenuOpen(false)}
+        />
+
         {/* HEADER */}
         <header style={{
           position: 'fixed',
@@ -364,36 +394,61 @@ const LandingPage = () => {
           borderBottom: '1px solid rgba(255,255,255,0.1)'
         }}>
           <div className="container flex-between" style={{ height: '70px' }}>
+            {/* Mobile Menu Button (Moved to left) */}
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              style={{ zIndex: 1002, position: 'relative' }}
+            >
+              {mobileMenuOpen ? '✕' : '☰'}
+            </button>
+
             {/* Logo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => navigate('/')}>
               <div style={{
                 width: '40px',
                 height: '40px',
                 background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
-                borderRadius: '10px',
+                borderRadius: '12px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '24px'
+                fontSize: '24px',
+                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)'
               }}>
                 🦉
               </div>
-              <span style={{ fontSize: '20px', fontWeight: '700', color: '#fff' }}>
-                CorrigeAI
-              </span>
+              <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px' }}>CorrigeAI</span>
             </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="mobile-menu-btn"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? '✕' : '☰'}
-            </button>
 
             {/* Nav Links */}
             <nav className={`nav-links ${mobileMenuOpen ? 'open' : ''}`}>
-              <a href="#como-funciona" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Como funciona</a>
+              {/* Mobile Header inside Menu */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                marginBottom: '32px',
+                paddingBottom: '24px',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                width: '100%'
+              }} className="mobile-only">
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px'
+                }}>
+                  🦉
+                </div>
+                <span style={{ fontSize: '18px', fontWeight: '800', color: '#fff' }}>Menu</span>
+              </div>
+
+              <a href="#como-funciona" onClick={() => setMobileMenuOpen(false)}>Como funciona</a>
               <a href="#correcao" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Correção do Enem</a>
               <a href="#objetivos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Objetivos</a>
               <a href="#relatos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Relatos</a>
@@ -441,12 +496,12 @@ const LandingPage = () => {
           {/* Background glow */}
           <div style={{
             position: 'absolute',
-            top: '-200px',
+            top: '0',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: '800px',
-            height: '800px',
-            background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%)',
+            width: '100%',
+            height: '100%',
+            background: 'radial-gradient(circle at 50% 0%, rgba(79, 70, 229, 0.15) 0%, transparent 50%)',
             pointerEvents: 'none'
           }} />
 
@@ -477,7 +532,7 @@ const LandingPage = () => {
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'
               }}>
-                TESTE DEPLOY - Nota 1000<br />
+                Nota 1000<br />
                 começa com feedback<br />
                 inteligente
               </h1>
