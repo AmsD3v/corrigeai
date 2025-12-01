@@ -1,5 +1,6 @@
 import logging
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from .core.logging_config import setup_logging
 from .core.config import settings
@@ -50,6 +51,29 @@ app.add_middleware(
     # Exposição de headers para client-side
     expose_headers=["Access-Control-Allow-Origin"],
 )
+
+# Middleware para logging de requisições e erros
+from fastapi import Request
+import time
+import traceback
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start_time = time.time()
+    try:
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        logging.info(f"Request: {request.method} {request.url.path} - Status: {response.status_code} - Time: {process_time:.2f}s")
+        return response
+    except Exception as e:
+        process_time = time.time() - start_time
+        error_msg = f"❌ UNHANDLED EXCEPTION: {str(e)}\n{traceback.format_exc()}"
+        print(error_msg)
+        logging.error(error_msg)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal Server Error (Logged)"}
+        )
 
 # Rota de Health Check para diagnóstico
 @app.get("/health")
