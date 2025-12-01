@@ -222,7 +222,7 @@ const CorrigindoRedacao = () => {
                   lineHeight: '1.6',
                   margin: 0
                 }}>
-                  Nossa IA está analisando sua redação em todas as 5 competências do ENEM.
+                  Nossa IA está analisando sua redação em todas as competências do <strong>{(essayData.exam_type || 'enem').toUpperCase()}</strong>.
                   Você pode fechar esta página e voltar depois - te avisaremos quando estiver pronto!
                 </p>
               </div>

@@ -28,7 +28,127 @@ interface Essay {
     submitted_at: string;
     status: string;
     correction?: Correction;
+    exam_type?: string;
 }
+
+const EXAM_CRITERIA: Record<string, { name: string; max_score: number; competencies: string[]; weights: number[] }> = {
+    enem: {
+        name: 'ENEM',
+        max_score: 1000,
+        competencies: [
+            'Domínio da Norma Culta',
+            'Compreensão do Tema',
+            'Argumentação',
+            'Coesão e Coerência',
+            'Proposta de Intervenção'
+        ],
+        weights: [200, 200, 200, 200, 200]
+    },
+    fuvest: {
+        name: 'FUVEST',
+        max_score: 50,
+        competencies: [
+            'Desenvolvimento do Tema',
+            'Estrutura e Organização',
+            'Expressão e Gramática',
+            'Coesão e Coerência'
+        ],
+        weights: [12.5, 12.5, 12.5, 12.5]
+    },
+    unicamp: {
+        name: 'UNICAMP',
+        max_score: 48,
+        competencies: [
+            'Adequação ao Gênero',
+            'Compreensão da Proposta',
+            'Propósito Comunicativo',
+            'Articulação de Ideias',
+            'Adequação Linguística'
+        ],
+        weights: [9.6, 9.6, 9.6, 9.6, 9.6]
+    },
+    ita: {
+        name: 'ITA',
+        max_score: 100,
+        competencies: [
+            'Argumentação Técnica',
+            'Rigor Lógico',
+            'Conhecimento Técnico',
+            'Organização Textual',
+            'Domínio da Norma Culta'
+        ],
+        weights: [20, 20, 20, 20, 20]
+    },
+    unesp: {
+        name: 'UNESP',
+        max_score: 100,
+        competencies: [
+            'Tema',
+            'Estrutura e Coesão',
+            'Expressão',
+            'Autoria e Originalidade',
+            'Conhecimento de Mundo'
+        ],
+        weights: [20, 20, 20, 20, 20]
+    },
+    uerj: {
+        name: 'UERJ',
+        max_score: 100,
+        competencies: [
+            'Adequação ao Tema/Gênero',
+            'Articulação Textual',
+            'Domínio da Língua'
+        ],
+        weights: [33.3, 33.3, 33.4]
+    },
+    ufmg: {
+        name: 'UFMG',
+        max_score: 100,
+        competencies: [
+            'Abordagem do Tema',
+            'Articulação Argumentativa',
+            'Uso de Informações',
+            'Domínio da Norma Culta'
+        ],
+        weights: [25, 25, 25, 25]
+    },
+    afa: {
+        name: 'AFA',
+        max_score: 100,
+        competencies: [
+            'Adequação ao Tema',
+            'Clareza e Objetividade',
+            'Coerência e Coesão',
+            'Argumentação Lógica',
+            'Domínio da Norma Culta'
+        ],
+        weights: [20, 20, 20, 20, 20]
+    },
+    cacd: {
+        name: 'CACD',
+        max_score: 100,
+        competencies: [
+            'Aprofundamento Temático',
+            'Argumentação Sofisticada',
+            'Domínio da Norma Culta',
+            'Articulação de Ideias',
+            'Perspectiva Geopolítica'
+        ],
+        weights: [20, 20, 20, 20, 20]
+    },
+    sisu: {
+        name: 'SISU',
+        max_score: 1000,
+        competencies: [
+            'Domínio da Norma Culta',
+            'Compreensão do Tema',
+            'Argumentação',
+            'Coesão e Coerência',
+            'Proposta de Intervenção'
+        ],
+        weights: [200, 200, 200, 200, 200]
+    }
+};
 
 const RedacaoDetalhes = () => {
     const { id: rawId } = useParams<{ id: string }>();
@@ -148,9 +268,14 @@ const RedacaoDetalhes = () => {
         );
     }
 
-    const getScoreColor = (score: number) => {
-        if (score >= 160) return '#10b981';
-        if (score >= 120) return '#f59e0b';
+    // Determine current exam criteria
+    const currentExamKey = essay.exam_type?.toLowerCase() || 'enem';
+    const currentExam = EXAM_CRITERIA[currentExamKey] || EXAM_CRITERIA['enem'];
+
+    const getScoreColor = (score: number, max: number = 200) => {
+        const percentage = score / max;
+        if (percentage >= 0.8) return '#10b981';
+        if (percentage >= 0.6) return '#f59e0b';
         return '#ef4444';
     };
 
@@ -177,6 +302,23 @@ const RedacaoDetalhes = () => {
                     height: '200px',
                     background: 'radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, transparent 70%)'
                 }} />
+
+                {/* Exam Badge */}
+                <div style={{
+                    position: 'absolute',
+                    top: '24px',
+                    right: '24px',
+                    background: '#3B82F6',
+                    color: 'white',
+                    padding: '4px 12px',
+                    borderRadius: '20px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.5)'
+                }}>
+                    {currentExam.name}
+                </div>
 
                 <button
                     onClick={() => navigate('/painel/minhas-redacoes')}
@@ -218,16 +360,19 @@ const RedacaoDetalhes = () => {
                         <div style={{
                             fontSize: '48px',
                             fontWeight: '800',
-                            color: getScoreColor(essay.correction?.total_score || 0)
+                            color: getScoreColor(essay.correction?.total_score || 0, currentExam.max_score)
                         }}>
                             {essay.correction?.total_score || 0}
-                            <span style={{ fontSize: '24px', color: '#64748b' }}>/1000</span>
+                            <span style={{ fontSize: '24px', color: '#64748b' }}>/{currentExam.max_score}</span>
                         </div>
                     </div>
 
-                    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
-                        {[1, 2, 3, 4, 5].map((comp) => {
+                    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${currentExam.competencies.length}, 1fr)`, gap: '12px' }}>
+                        {currentExam.competencies.map((_, idx) => {
+                            const comp = idx + 1;
                             const score = essay.correction?.[`competence_${comp}_score` as keyof Correction] as number || 0;
+                            const maxScore = currentExam.weights[idx];
+
                             return (
                                 <div key={comp} style={{
                                     background: '#0f1419',
@@ -239,7 +384,7 @@ const RedacaoDetalhes = () => {
                                     <div style={{
                                         fontSize: '20px',
                                         fontWeight: '700',
-                                        color: getScoreColor(score)
+                                        color: getScoreColor(score, maxScore)
                                     }}>
                                         {score}
                                     </div>
@@ -289,17 +434,12 @@ const RedacaoDetalhes = () => {
                             Correção por Competência
                         </h2>
 
-                        {[1, 2, 3, 4, 5].map((comp) => {
-                            const competenceNames = [
-                                'Domínio da Norma Culta',
-                                'Compreensão do Tema',
-                                'Argumentação',
-                                'Coesão e Coerência',
-                                'Proposta de Intervenção'
-                            ];
+                        {currentExam.competencies.map((compName, idx) => {
+                            const comp = idx + 1;
                             const score = essay.correction?.[`competence_${comp}_score` as keyof Correction] as number || 0;
                             const rawFeedback = essay.correction?.[`competence_${comp}_feedback` as keyof Correction];
                             const feedback = typeof rawFeedback === 'string' ? rawFeedback : (rawFeedback ? JSON.stringify(rawFeedback) : '');
+                            const maxScore = currentExam.weights[idx];
 
                             return (
                                 <div key={comp} style={{
@@ -322,17 +462,17 @@ const RedacaoDetalhes = () => {
                                             fontWeight: '700',
                                             color: '#fff'
                                         }}>
-                                            Competência {comp}: {competenceNames[comp - 1]}
+                                            Competência {comp}: {compName}
                                         </h3>
                                         <div style={{
                                             padding: '6px 16px',
-                                            background: `${getScoreColor(score)}20`,
-                                            color: getScoreColor(score),
+                                            background: `${getScoreColor(score, maxScore)}20`,
+                                            color: getScoreColor(score, maxScore),
                                             borderRadius: '8px',
                                             fontSize: '14px',
                                             fontWeight: '700'
                                         }}>
-                                            {score}/200
+                                            {score}/{maxScore}
                                         </div>
                                     </div>
 
