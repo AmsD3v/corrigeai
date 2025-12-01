@@ -488,24 +488,31 @@ const RedacaoDetalhes = () => {
                                         padding: 0,
                                         margin: 0
                                     }}>
-                                        {strengths.map((strength, idx) => (
-                                            <li key={idx} style={{
-                                                fontSize: '14px',
-                                                color: '#94a3b8',
-                                                marginBottom: '12px',
-                                                paddingLeft: '20px',
-                                                position: 'relative',
-                                                lineHeight: '1.6'
-                                            }}>
-                                                <span style={{
-                                                    position: 'absolute',
-                                                    left: 0,
-                                                    color: '#10b981',
-                                                    fontWeight: '700'
-                                                }}>•</span>
-                                                {strength}
-                                            </li>
-                                        ))}
+                                        {strengths.map((strength: any, idx) => {
+                                            // Handle case where strength is an object (e.g. {descricao: "..."})
+                                            const text = typeof strength === 'object' && strength !== null
+                                                ? (strength.descricao || JSON.stringify(strength))
+                                                : String(strength);
+
+                                            return (
+                                                <li key={idx} style={{
+                                                    fontSize: '14px',
+                                                    color: '#94a3b8',
+                                                    marginBottom: '12px',
+                                                    paddingLeft: '20px',
+                                                    position: 'relative',
+                                                    lineHeight: '1.6'
+                                                }}>
+                                                    <span style={{
+                                                        position: 'absolute',
+                                                        left: 0,
+                                                        color: '#10b981',
+                                                        fontWeight: '700'
+                                                    }}>•</span>
+                                                    {text}
+                                                </li>
+                                            );
+                                        })}
                                     </ul>
                                 </div>
                             )}
@@ -534,24 +541,31 @@ const RedacaoDetalhes = () => {
                                         padding: 0,
                                         margin: 0
                                     }}>
-                                        {improvements.map((improvement, idx) => (
-                                            <li key={idx} style={{
-                                                fontSize: '14px',
-                                                color: '#94a3b8',
-                                                marginBottom: '12px',
-                                                paddingLeft: '20px',
-                                                position: 'relative',
-                                                lineHeight: '1.6'
-                                            }}>
-                                                <span style={{
-                                                    position: 'absolute',
-                                                    left: 0,
-                                                    color: '#f59e0b',
-                                                    fontWeight: '700'
-                                                }}>•</span>
-                                                {improvement}
-                                            </li>
-                                        ))}
+                                        {improvements.map((improvement: any, idx) => {
+                                            // Handle case where improvement is an object (e.g. {descricao: "..."})
+                                            const text = typeof improvement === 'object' && improvement !== null
+                                                ? (improvement.descricao || JSON.stringify(improvement))
+                                                : String(improvement);
+
+                                            return (
+                                                <li key={idx} style={{
+                                                    fontSize: '14px',
+                                                    color: '#94a3b8',
+                                                    marginBottom: '12px',
+                                                    paddingLeft: '20px',
+                                                    position: 'relative',
+                                                    lineHeight: '1.6'
+                                                }}>
+                                                    <span style={{
+                                                        position: 'absolute',
+                                                        left: 0,
+                                                        color: '#f59e0b',
+                                                        fontWeight: '700'
+                                                    }}>•</span>
+                                                    {text}
+                                                </li>
+                                            );
+                                        })}
                                     </ul>
                                 </div>
                             )}
