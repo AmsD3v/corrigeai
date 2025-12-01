@@ -17,6 +17,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -78,6 +79,70 @@ const LandingPage = () => {
           background: #1a1f2e;
           color: #fff;
           overflow-x: hidden;
+        }
+
+        /* Responsive Utilities */
+        .container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 24px;
+        }
+
+        .grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 60px;
+          align-items: center;
+        }
+
+        .grid-3 {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 24px;
+        }
+
+        .grid-4 {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 40px;
+        }
+
+        .flex-between {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .nav-links {
+          display: flex;
+          gap: 32px;
+          align-items: center;
+        }
+
+        .hero-title {
+          fontSize: 56px;
+          fontWeight: 800;
+          lineHeight: 1.1;
+          marginBottom: 24px;
+          background: linear-gradient(135deg, #fff 0%, #818cf8 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        
+        .hero-buttons {
+          display: flex;
+          gap: 16px;
+          margin-bottom: 24px;
+        }
+        
+        .mobile-menu-btn {
+          display: none;
+          background: transparent;
+          border: none;
+          color: white;
+          font-size: 24px;
+          cursor: pointer;
         }
 
         /* Scroll Reveal Animations */
@@ -164,6 +229,85 @@ const LandingPage = () => {
           transform: translateY(-8px);
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
+
+        .cta-box {
+          background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+          border: 1px solid rgba(79, 70, 229, 0.3);
+          border-radius: 20px;
+          padding: 48px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .footer-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        /* MEDIA QUERIES */
+        @media (max-width: 768px) {
+          .grid-2, .grid-3, .grid-4 {
+            grid-template-columns: 1fr !important;
+            gap: 40px !important;
+          }
+          
+          .stats-grid {
+            grid-template-columns: 1fr 1fr !important;
+          }
+
+          .hero-title {
+            font-size: 36px !important;
+          }
+          
+          .nav-links {
+            display: none;
+            position: absolute;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: #1a1f2e;
+            flex-direction: column;
+            padding: 24px;
+            border-bottom: 1px solid #334155;
+            gap: 20px;
+          }
+          
+          .nav-links.open {
+            display: flex;
+          }
+          
+          .mobile-menu-btn {
+            display: block;
+          }
+          
+          .hero-buttons {
+            flex-direction: column;
+          }
+          
+          .hero-buttons button {
+            width: 100%;
+            justify-content: center;
+          }
+          
+          .hero-image {
+            width: 100% !important;
+            max-width: 300px;
+          }
+
+          .cta-box {
+            flex-direction: column;
+            text-align: center;
+            gap: 24px;
+          }
+
+          .footer-content {
+            flex-direction: column;
+            gap: 24px;
+            text-align: center;
+          }
+        }
       `}</style>
 
       <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%)' }}>
@@ -179,15 +323,7 @@ const LandingPage = () => {
           backdropFilter: 'blur(10px)',
           borderBottom: '1px solid rgba(255,255,255,0.1)'
         }}>
-          <div style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            padding: '0 24px',
-            height: '70px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
+          <div className="container flex-between" style={{ height: '70px' }}>
             {/* Logo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => navigate('/')}>
               <div style={{
@@ -207,13 +343,21 @@ const LandingPage = () => {
               </span>
             </div>
 
+            {/* Mobile Menu Button */}
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? '✕' : '☰'}
+            </button>
+
             {/* Nav Links */}
-            <nav style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-              <a href="#como-funciona" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>Como funciona</a>
-              <a href="#correcao" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>Correção do Enem</a>
-              <a href="#objetivos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>Objetivos</a>
-              <a href="#relatos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>Relatos</a>
-              <a href="#precos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>Preços</a>
+            <nav className={`nav-links ${mobileMenuOpen ? 'open' : ''}`}>
+              <a href="#como-funciona" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Como funciona</a>
+              <a href="#correcao" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Correção do Enem</a>
+              <a href="#objetivos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Objetivos</a>
+              <a href="#relatos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Relatos</a>
+              <a href="#precos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Preços</a>
               <button
                 onClick={() => navigate('/login')}
                 style={{
@@ -266,15 +410,7 @@ const LandingPage = () => {
             pointerEvents: 'none'
           }} />
 
-          <div style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            padding: '0 24px',
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '60px',
-            alignItems: 'center'
-          }}>
+          <div className="container grid-2">
             {/* Left side - Text */}
             <div className="slide-left">
               <div style={{
@@ -299,7 +435,7 @@ const LandingPage = () => {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'
-              }}>
+              }} className="hero-title">
                 Nota 1000 começa<br />com feedback inteligente
               </h1>
 
@@ -313,7 +449,7 @@ const LandingPage = () => {
                 Receba nota e feedback detalhado da sua redação do Enem em segundos. Correção com IA alinhada aos critérios oficiais do Enem.
               </p>
 
-              <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+              <div className="hero-buttons">
                 <button
                   onClick={() => navigate('/register')}
                   style={{
@@ -375,6 +511,7 @@ const LandingPage = () => {
               <img
                 src="/owl-thumbs-up-plate.png"
                 alt="Character"
+                className="hero-image"
                 style={{
                   width: '400px',
                   height: 'auto',
@@ -400,21 +537,17 @@ const LandingPage = () => {
 
         {/* COMO FUNCIONA */}
         <section id="como-funciona" style={{
-          padding: '80px 24px',
+          padding: '80px 0',
           background: '#0f1419'
         }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div className="container">
             <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
               <p style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>SIMPLES E RÁPIDO</p>
               <h2 style={{ fontSize: '42px', fontWeight: '800', color: '#fff', marginBottom: '16px' }}>Como funciona</h2>
               <p style={{ fontSize: '18px', color: '#94a3b8' }}>Em apenas 3 passos você recebe feedback completo da sua redação</p>
             </div>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '24px'
-            }}>
+            <div className="grid-3">
               {/* Card 1 */}
               <div className="reveal-on-scroll delay-1 hover-lift" style={{
                 background: '#1a1f2e',
@@ -494,8 +627,8 @@ const LandingPage = () => {
         </section>
 
         {/* TIMELINE */}
-        <section style={{ padding: '80px 24px', background: '#1a1f2e' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <section style={{ padding: '80px 0', background: '#1a1f2e' }}>
+          <div className="container">
             {/* Timeline Header */}
             <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
               <p style={{ color: '#64748b', fontSize: '13px', fontWeight: '600', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -525,13 +658,7 @@ const LandingPage = () => {
               }} className="reveal-on-scroll" />
 
               {/* Steps Container */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '40px',
-                position: 'relative',
-                zIndex: 1
-              }}>
+              <div className="grid-3" style={{ position: 'relative', zIndex: 1 }}>
                 {/* Step 1 - Envio */}
                 <div className="scale-in delay-1" style={{ textAlign: 'center' }}>
                   <div style={{
@@ -592,11 +719,7 @@ const LandingPage = () => {
             </div>
 
             {/* Detail Cards */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '24px'
-            }}>
+            <div className="grid-3">
               {/* Card 1 */}
               <div className="slide-left delay-1 hover-lift" style={{
                 background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(30, 41, 59, 0.8) 100%)',
@@ -721,14 +844,8 @@ const LandingPage = () => {
         </section>
 
         {/* STATISTICS */}
-        <section style={{ padding: '60px 24px', background: '#0B1121' }}>
-          <div style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '40px'
-          }}>
+        <section style={{ padding: '60px 0', background: '#0B1121' }}>
+          <div className="container stats-grid grid-4">
             <div className="scale-in delay-1" style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '48px', fontWeight: '800', color: '#4F46E5', marginBottom: '8px' }}>+300</div>
               <div style={{ fontSize: '14px', color: '#94a3b8' }}>redações corrigidas</div>
@@ -749,15 +866,15 @@ const LandingPage = () => {
         </section>
 
         {/* CORREÇÃO ENEM */}
-        <section id="correcao" style={{ padding: '80px 24px', background: '#0f1419' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <section id="correcao" style={{ padding: '80px 0', background: '#0f1419' }}>
+          <div className="container">
             <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
               <p style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>CRITÉRIOS OFICIAIS</p>
               <h2 style={{ fontSize: '42px', fontWeight: '800', color: '#fff', marginBottom: '16px' }}>Entenda a correção do Enem</h2>
               <p style={{ fontSize: '18px', color: '#94a3b8' }}>Nossa IA avalia sua redação nas 5 competências do Enem</p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+            <div className="grid-2">
               {/* Competências (sem timeline) */}
               <div className="slide-left" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {[
@@ -867,14 +984,14 @@ const LandingPage = () => {
         </section>
 
         {/* OBJETIVOS */}
-        <section id="objetivos" style={{ padding: '80px 24px', background: '#1a1f2e' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <section id="objetivos" style={{ padding: '80px 0', background: '#1a1f2e' }}>
+          <div className="container">
             <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
               <p style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>NOSSA MISSÃO</p>
               <h2 style={{ fontSize: '42px', fontWeight: '800', color: '#fff' }}>Objetivos do projeto</h2>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', alignItems: 'center' }}>
+            <div className="grid-2">
               {/* Objetivos */}
               <div className="reveal-on-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {[
@@ -914,8 +1031,8 @@ const LandingPage = () => {
         </section>
 
         {/* RELATOS / TESTIMONIALS */}
-        <section id="relatos" style={{ padding: '80px 24px', background: '#1a1f2e' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <section id="relatos" style={{ padding: '80px 0', background: '#1a1f2e' }}>
+          <div className="container">
             <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
               <p style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>DEPOIMENTOS</p>
               <h2 style={{ fontSize: '42px', fontWeight: '800', color: '#fff', marginBottom: '16px' }}>O que nossos usuários dizem</h2>
@@ -923,14 +1040,11 @@ const LandingPage = () => {
             </div>
 
             {/* Stats Cards */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '24px',
+            <div className="reveal-on-scroll grid-3" style={{
               marginBottom: '48px',
               maxWidth: '900px',
               margin: '0 auto 48px'
-            }} className="reveal-on-scroll">
+            }}>
               <div style={{
                 background: '#0f1419',
                 border: '1px solid #334155',
@@ -1013,8 +1127,8 @@ const LandingPage = () => {
         </section>
 
         {/* PREÇOS */}
-        <section id="precos" style={{ padding: '80px 24px', background: '#0f1419' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <section id="precos" style={{ padding: '80px 0', background: '#0f1419' }}>
+          <div className="container">
             <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
               <p style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>PLANOS FLEXÍVEIS</p>
               <h2 style={{ fontSize: '42px', fontWeight: '800', color: '#fff', marginBottom: '16px' }}>Consulte os Preços dos CorriCoins</h2>
@@ -1172,56 +1286,42 @@ const LandingPage = () => {
 
         {/* CTA SECTION */}
         <section style={{
-          padding: '60px 24px',
+          padding: '60px 0',
           background: '#1a1f2e'
         }}>
-          <div style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%)',
-            border: '1px solid rgba(79, 70, 229, 0.3)',
-            borderRadius: '20px',
-            padding: '48px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <div>
-              <h2 style={{ fontSize: '32px', fontWeight: '800', color: '#fff', marginBottom: '12px' }}>
-                Pronto para corrigir sua redação?
-              </h2>
-              <p style={{ fontSize: '16px', color: '#94a3b8' }}>
-                Crie sua conta gratuita e comece a corrigir agora.
-              </p>
+          <div className="container">
+            <div className="cta-box">
+              <div>
+                <h2 style={{ fontSize: '32px', fontWeight: '800', color: '#fff', marginBottom: '12px' }}>
+                  Pronto para corrigir sua redação?
+                </h2>
+                <p style={{ fontSize: '16px', color: '#94a3b8' }}>
+                  Crie sua conta gratuita e comece a corrigir agora.
+                </p>
+              </div>
+              <button
+                onClick={() => navigate('/register')}
+                style={{
+                  background: '#4F46E5',
+                  border: 'none',
+                  color: '#fff',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  padding: '16px 32px',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Começar correção grátis
+              </button>
             </div>
-            <button
-              onClick={() => navigate('/register')}
-              style={{
-                background: '#4F46E5',
-                border: 'none',
-                color: '#fff',
-                fontSize: '16px',
-                fontWeight: '600',
-                padding: '16px 32px',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Começar correção grátis
-            </button>
           </div>
         </section>
 
         {/* FOOTER */}
-        <footer style={{ padding: '40px 24px', background: '#1a1f2e', borderTop: '1px solid #334155' }}>
-          <div style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
+        <footer style={{ padding: '40px 0', background: '#1a1f2e', borderTop: '1px solid #334155' }}>
+          <div className="container footer-content">
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{
                 width: '40px',
