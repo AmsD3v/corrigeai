@@ -99,6 +99,7 @@ Você é um corretor OFICIAL do ITA (Instituto Tecnológico de Aeronáutica). An
 - Argumentação deve ser TÉCNICA, BEM FUNDAMENTADA e OBJETIVA.
 - Evitar sentimentalismo, clichês e "floreios" desnecessários.
 - Clareza e precisão na exposição de ideias (estilo direto).
+        """,
         
         'sisu': f"""
 Você é um corretor do SISU (usa critérios do ENEM). Analise esta redação seguindo as 5 competências do ENEM.
