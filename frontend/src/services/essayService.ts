@@ -97,8 +97,23 @@ export const essayService = {
      * Request correction for an essay
      */
     async correctEssay(essayId: string): Promise<Correction> {
-        const response = await apiClient.get<Correction>(`/get-correction/${essayId}`);
-        return response.data;
+        const response = await apiClient.get<any>(`/get-correction/${essayId}`);
+        const data = response.data;
+
+        // Parse JSON strings if needed
+        const strengths = typeof data.strengths === 'string'
+            ? JSON.parse(data.strengths)
+            : data.strengths || [];
+
+        const improvements = typeof data.improvements === 'string'
+            ? JSON.parse(data.improvements)
+            : data.improvements || [];
+
+        return {
+            ...data,
+            strengths,
+            improvements
+        };
     },
 
     /**

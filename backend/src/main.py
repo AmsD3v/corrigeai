@@ -14,13 +14,18 @@ def startup_event():
     # Configura o logging para usar o formato JSON
     setup_logging()
     # Inicializa o engine do banco de dados
-    from .database import init_db_engine, Base
-    engine = init_db_engine()
-    # Importa os models após inicializar o banco de dados
-    from . import models
-    Base.metadata.create_all(bind=engine)
-    logging.info("Tabelas criadas com sucesso!")
-    
+    # Inicializa o engine do banco de dados
+    try:
+        from .database import init_db_engine, Base
+        engine = init_db_engine()
+        # Importa os models após inicializar o banco de dados
+        from . import models
+        Base.metadata.create_all(bind=engine)
+        logging.info("✅ Tabelas criadas com sucesso!")
+    except Exception as e:
+        logging.error(f"❌ Erro fatal ao conectar no banco de dados: {e}")
+        # Não damos raise aqui para permitir que o app inicie e responda /health
+        
     # Valida configuração do Gemini AI
     if not settings.GEMINI_API_KEY or settings.GEMINI_API_KEY == "placeholder_key":
         logging.warning("="*60)
@@ -35,28 +40,6 @@ def startup_event():
         key_preview = f"{settings.GEMINI_API_KEY[:10]}...{settings.GEMINI_API_KEY[-4:]}"
         logging.info(f"✅ Gemini API key configurada! (Preview: {key_preview})")
 
-# Configuração do CORS
-# Lê as origens das variáveis de ambiente para permitir configuração flexível
-origins = settings.CORS_ORIGINS.split(",") if settings.CORS_ORIGINS else []
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
-    # Adiciona segurança adicional
-    # Permite envio de cookies com requisições CORS
-    allow_origin_regex=None,
-    # Exposição de headers para client-side
-    expose_headers=["Access-Control-Allow-Origin"],
-)
-
-# Middleware para logging de requisições e erros
-from fastapi import Request
-import time
-import traceback
-
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start_time = time.time()
@@ -70,10 +53,44 @@ async def log_requests(request: Request, call_next):
         error_msg = f"❌ UNHANDLED EXCEPTION: {str(e)}\n{traceback.format_exc()}"
         print(error_msg)
         logging.error(error_msg)
-        return JSONResponse(
+        
+        # Retorna erro 500 com headers CORS manuais para evitar bloqueio do navegador
+        response = JSONResponse(
             status_code=500,
             content={"detail": "Internal Server Error (Logged)"}
         )
+        # Permite qualquer origem no erro para garantir que o frontend veja a mensagem
+        response.headers["Access-Control-Allow-Origin"] = request.headers.get("origin", "*")
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
+
+# Configuração do CORS (Deve ser o último middleware adicionado para ser o primeiro a executar)
+# Lê as origens das variáveis de ambiente para permitir configuração flexível
+raw_origins = settings.CORS_ORIGINS.split(",") if settings.CORS_ORIGINS else []
+# Limpa espaços em branco e adiciona origens hardcoded de produção para garantia
+origins = [origin.strip() for origin in raw_origins] + [
+    "https://corrigeai.online",
+    "https://www.corrigeai.online",
+    "https://api.corrigeai.online",
+    "http://localhost:5173",
+    "http://localhost:3000"
+]
+# Remove duplicatas
+origins = list(set(origins))
+
+logging.info(f"✅ CORS Origins configurados: {origins}")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    allow_origin_regex=None,
+    expose_headers=["Access-Control-Allow-Origin"],
+)
 
 # Rota de Health Check para diagnóstico
 @app.get("/health")

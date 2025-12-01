@@ -44,8 +44,12 @@ echo "🧹 [2/8] Limpando Docker..."
 
 cd ~/corrigeai
 
-# Parar containers
-echo "   → Parando containers..."
+# Parar e remover containers na força bruta (evita erro de permissão)
+echo "   → Removendo containers na força..."
+sudo docker rm -f prosaai_backend prosaai_frontend prosaai_db 2>/dev/null || true
+
+# Parar via compose (garantia extra)
+echo "   → Parando via compose..."
 sudo docker-compose down 2>/dev/null || true
 
 # Forçar remoção de containers corrompidos

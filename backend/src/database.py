@@ -20,23 +20,30 @@ def init_db_engine():
     Esta função deve ser chamada no evento de startup do FastAPI.
     """
     global engine, SessionLocal
-    for attempt in range(5):  # 5 tentativas
+    max_retries = 10
+    retry_interval = 5
+    
+    for attempt in range(max_retries):
         try:
-            engine = create_engine(DATABASE_URL)
+            # Adiciona timeout de conexão para falhar rápido se o host não responder
+            engine = create_engine(
+                DATABASE_URL, 
+                connect_args={"connect_timeout": 10}
+            )
             # Testa a conexão
             with engine.connect() as conn:
                 pass
-            print("Conexão com o banco de dados estabelecida com sucesso!")
+            print("✅ Conexão com o banco de dados estabelecida com sucesso!")
             SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
             return engine
         except OperationalError as e:
-            print(f"Tentativa {attempt + 1} de 5 falhou ao conectar ao banco de dados: {e}")
-            if attempt < 4:  # Não dormir na última tentativa
-                time.sleep(2)
+            print(f"⚠️ Tentativa {attempt + 1} de {max_retries} falhou ao conectar ao banco de dados: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(retry_interval)
             else:
-                print(f"Falha após 5 tentativas. Levantando exceção.")
+                print(f"❌ Falha após {max_retries} tentativas. Levantando exceção.")
                 raise e
-    raise Exception(f"Não foi possível conectar ao banco de dados após 5 tentativas.")
+    raise Exception(f"Não foi possível conectar ao banco de dados após {max_retries} tentativas.")
 
 def get_db():
     if SessionLocal is None:

@@ -296,7 +296,8 @@ const RedacaoDetalhes = () => {
                         'Proposta de Intervenção'
                     ];
                     const score = essay.correction?.[`competence_${comp}_score` as keyof Correction] as number || 0;
-                    const feedback = essay.correction?.[`competence_${comp}_feedback` as keyof Correction] as string || '';
+                    const rawFeedback = essay.correction?.[`competence_${comp}_feedback` as keyof Correction];
+                    const feedback = typeof rawFeedback === 'string' ? rawFeedback : (rawFeedback ? JSON.stringify(rawFeedback) : '');
 
                     return (
                         <div key={comp} style={{
