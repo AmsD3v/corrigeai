@@ -133,7 +133,7 @@ Tema: {theme or '(Tema livre)'}
 {{
     "competence_1_score": <nota de 0 a {int(criteria.weights[0])}>,
     "competence_2_score": <nota de 0 a {int(criteria.weights[1])}>,
-    "competence_3_score": <nota de 0 a {int(criteria.weights[2]if len(criteria.weights) > 2 else 0)}>,
+    "competence_3_score": <nota de 0 a {int(criteria.weights[2]) if len(criteria.weights) > 2 else 0}>,
     "competence_4_score": <nota de 0 a {int(criteria.weights[3]) if len(criteria.weights) > 3 else 0}>,
     "competence_5_score": <nota de 0 a {int(criteria.weights[4]) if len(criteria.weights) > 4 else 0}>,
     "total_score": <soma de todas as competências>,
