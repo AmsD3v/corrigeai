@@ -1383,7 +1383,7 @@ const LandingPage = () => {
               <a href="#" style={{ color: '#94a3b8', textDecoration: 'none' }}>Termos</a>
             </div>
 
-            <p style={{ fontSize: '14px', color: '#64748b' }}>© 2025 CorrigeAI. Todos os direitos reservados. (v1.2)</p>
+            <p style={{ fontSize: '14px', color: '#64748b' }}>© 2025 CorrigeAI. Todos os direitos reservados.</p>
           </div>
         </footer>
 

@@ -81,11 +81,6 @@ echo ""
 # ============================================================
 # 4. REBUILD E RECRIAR CONTAINERS
 # ============================================================
-# Verificar se o arquivo foi atualizado
-echo "   → Verificando LandingPage.tsx..."
-ls -l frontend/src/pages/LandingPage.tsx
-grep "v1.2" frontend/src/pages/LandingPage.tsx || echo "   ⚠️ AVISO: Versão v1.2 não encontrada no arquivo!"
-
 # ============================================================
 # 4. REBUILD E RECRIAR CONTAINERS
 # ============================================================
