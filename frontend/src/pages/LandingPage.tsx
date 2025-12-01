@@ -248,25 +248,43 @@ const LandingPage = () => {
 
         /* MEDIA QUERIES */
         @media (max-width: 768px) {
+          /* Force container padding */
           .container {
-            padding: 0 16px;
+            padding: 0 16px !important;
           }
 
-          .grid-2, .grid-3, .grid-4 {
-            grid-template-columns: 1fr !important;
+          /* Force all grids to single column */
+          .grid-2 {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 24px !important;
+          }
+
+          .grid-3 {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 24px !important;
+          }
+
+          .grid-4 {
+            display: flex !important;
+            flex-direction: column !important;
             gap: 24px !important;
           }
           
           .stats-grid {
+            display: grid !important;
             grid-template-columns: 1fr 1fr !important;
+            gap: 20px !important;
           }
 
           .hero-title {
             font-size: 36px !important;
           }
           
+          /* Hide desktop nav */
           .nav-links {
-            display: none;
+            display: none !important;
             position: fixed;
             top: 70px;
             left: 0;
@@ -280,42 +298,51 @@ const LandingPage = () => {
             z-index: 999;
           }
           
+          /* Show nav when open */
           .nav-links.open {
-            display: flex;
+            display: flex !important;
           }
           
+          /* Show hamburger menu */
           .mobile-menu-btn {
-            display: block;
+            display: block !important;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 8px;
           }
           
           .hero-buttons {
-            flex-direction: column;
+            flex-direction: column !important;
+            width: 100% !important;
           }
           
           .hero-buttons button {
-            width: 100%;
-            justify-content: center;
+            width: 100% !important;
+            justify-content: center !important;
           }
           
           .hero-image {
             width: 100% !important;
-            max-width: 300px;
+            max-width: 300px !important;
           }
 
           .cta-box {
-            flex-direction: column;
-            text-align: center;
-            gap: 24px;
-            padding: 32px 24px;
+            flex-direction: column !important;
+            text-align: center !important;
+            gap: 24px !important;
+            padding: 32px 24px !important;
           }
 
           .footer-content {
-            flex-direction: column;
-            gap: 24px;
-            text-align: center;
+            flex-direction: column !important;
+            gap: 24px !important;
+            text-align: center !important;
           }
 
-          /* Força sections a ter padding lateral */
+          /* Force sections padding */
           section {
             padding-left: 16px !important;
             padding-right: 16px !important;
