@@ -85,15 +85,39 @@ async def process_correction(submission_id: int, db: Session):
         if not isinstance(improvements, str):
             improvements = json.dumps(improvements, ensure_ascii=False)
 
+        # Helper to safely get int score
+        def get_int_score(key, default=0):
+            try:
+                val = correction_data.get(key, default)
+                if val is None: return default
+                return int(float(val)) # Handle "120.0" or "120" strings
+            except (ValueError, TypeError):
+                return default
+
+        c1 = get_int_score('competence_1_score')
+        c2 = get_int_score('competence_2_score')
+        c3 = get_int_score('competence_3_score')
+        c4 = get_int_score('competence_4_score')
+        c5 = get_int_score('competence_5_score')
+        
+        # Recalculate total to be safe
+        calculated_total = c1 + c2 + c3 + c4 + c5
+        ai_total = get_int_score('total_score')
+        
+        # Use calculated total if AI total is 0 or very different (more than 10 points diff)
+        final_total = calculated_total
+        if ai_total > 0 and abs(ai_total - calculated_total) < 10:
+            final_total = ai_total
+
         # Save correction
         db_correction = models.Correction(
             submission_id=submission.id,
-            competence_1_score=correction_data.get('competence_1_score', 0),
-            competence_2_score=correction_data.get('competence_2_score', 0),
-            competence_3_score=correction_data.get('competence_3_score', 0),
-            competence_4_score=correction_data.get('competence_4_score', 0),
-            competence_5_score=correction_data.get('competence_5_score', 0),
-            total_score=correction_data.get('total_score', 0),
+            competence_1_score=c1,
+            competence_2_score=c2,
+            competence_3_score=c3,
+            competence_4_score=c4,
+            competence_5_score=c5,
+            total_score=final_total,
             competence_1_feedback=correction_data.get('competence_1_feedback', 'Sem feedback'),
             competence_2_feedback=correction_data.get('competence_2_feedback', 'Sem feedback'),
             competence_3_feedback=correction_data.get('competence_3_feedback', 'Sem feedback'),
