@@ -10,6 +10,16 @@ const CorrigindoRedacao = () => {
   const [progress, setProgress] = useState(0);
   const hasCalledRef = useRef(false);
 
+  // Retrieve essay data for display
+  const essayData = (() => {
+    try {
+      const data = localStorage.getItem(`essay_${id}`);
+      return data ? JSON.parse(data) : null;
+    } catch {
+      return null;
+    }
+  })();
+
   // Redirect if URL has "M" prefix (clean URL)
   useEffect(() => {
     if (rawId?.startsWith('M')) {
@@ -222,7 +232,7 @@ const CorrigindoRedacao = () => {
                   lineHeight: '1.6',
                   margin: 0
                 }}>
-                  Nossa IA está analisando sua redação em todas as competências do <strong>{(essayData.exam_type || 'enem').toUpperCase()}</strong>.
+                  Nossa IA está analisando sua redação em todas as competências do <strong>{(essayData?.exam_type || 'enem').toUpperCase()}</strong>.
                   Você pode fechar esta página e voltar depois - te avisaremos quando estiver pronto!
                 </p>
               </div>
