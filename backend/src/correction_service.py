@@ -120,6 +120,12 @@ async def process_correction(submission_id: int, db: Session):
         logger.error(traceback.format_exc())
         print(f"❌ ERROR: {e}")
         
+        # Save error to submission
+        submission.status = "error"
+        submission.error_message = str(e)
+        db.commit()
+        print(f"❌ ERROR: {e}")
+        
         try:
             submission = db.query(models.Submission).filter(
                 models.Submission.id == submission_id

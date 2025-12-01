@@ -48,5 +48,12 @@ def fix_schema():
             conn.commit()
         print("Column added successfully.")
 
+    if 'error_message' not in sub_columns:
+        print("Adding error_message column to submission...")
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE submission ADD COLUMN error_message TEXT"))
+            conn.commit()
+        print("Column added successfully.")
+
 if __name__ == "__main__":
     fix_schema()

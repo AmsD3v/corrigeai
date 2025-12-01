@@ -314,9 +314,10 @@ def get_correction(
                     detail="Correção em andamento. Aguarde alguns instantes."
                 )
             elif submission.status == "failed" or submission.status == "error":
+                error_msg = submission.error_message if hasattr(submission, 'error_message') and submission.error_message else "Erro desconhecido"
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="Falha na correção. Ocorreu um erro interno. Tente novamente."
+                    detail=f"Falha na correção: {error_msg}"
                 )
             else:
                 # Status desconhecido ou 'completed' mas sem correção (inconsistência)
