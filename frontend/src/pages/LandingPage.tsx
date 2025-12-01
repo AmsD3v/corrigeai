@@ -248,9 +248,13 @@ const LandingPage = () => {
 
         /* MEDIA QUERIES */
         @media (max-width: 768px) {
+          .container {
+            padding: 0 16px;
+          }
+
           .grid-2, .grid-3, .grid-4 {
             grid-template-columns: 1fr !important;
-            gap: 40px !important;
+            gap: 24px !important;
           }
           
           .stats-grid {
@@ -263,15 +267,17 @@ const LandingPage = () => {
           
           .nav-links {
             display: none;
-            position: absolute;
+            position: fixed;
             top: 70px;
             left: 0;
             right: 0;
-            background: #1a1f2e;
+            background: rgba(26, 31, 46, 0.98);
+            backdrop-filter: blur(10px);
             flex-direction: column;
             padding: 24px;
             border-bottom: 1px solid #334155;
             gap: 20px;
+            z-index: 999;
           }
           
           .nav-links.open {
@@ -300,12 +306,19 @@ const LandingPage = () => {
             flex-direction: column;
             text-align: center;
             gap: 24px;
+            padding: 32px 24px;
           }
 
           .footer-content {
             flex-direction: column;
             gap: 24px;
             text-align: center;
+          }
+
+          /* Força sections a ter padding lateral */
+          section {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
           }
         }
       `}</style>
