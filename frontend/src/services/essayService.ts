@@ -97,7 +97,7 @@ export const essayService = {
      * Request correction for an essay
      */
     async correctEssay(essayId: string): Promise<Correction> {
-        const response = await apiClient.post<Correction>(`/essays/${essayId}/correct`);
+        const response = await apiClient.get<Correction>(`/get-correction/${essayId}`);
         return response.data;
     },
 

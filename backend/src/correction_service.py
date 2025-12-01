@@ -75,23 +75,33 @@ async def process_correction(submission_id: int, db: Session):
         print(f"Comp 5: {correction_data.get('competence_5_score')}")
         print(f"===================================\n")
         
+        # Ensure JSON fields are strings
+        import json
+        strengths = correction_data.get('strengths', [])
+        if not isinstance(strengths, str):
+            strengths = json.dumps(strengths, ensure_ascii=False)
+            
+        improvements = correction_data.get('improvements', [])
+        if not isinstance(improvements, str):
+            improvements = json.dumps(improvements, ensure_ascii=False)
+
         # Save correction
         db_correction = models.Correction(
             submission_id=submission.id,
-            competence_1_score=correction_data['competence_1_score'],
-            competence_2_score=correction_data['competence_2_score'],
-            competence_3_score=correction_data['competence_3_score'],
-            competence_4_score=correction_data['competence_4_score'],
-            competence_5_score=correction_data['competence_5_score'],
-            total_score=correction_data['total_score'],
-            competence_1_feedback=correction_data['competence_1_feedback'],
-            competence_2_feedback=correction_data['competence_2_feedback'],
-            competence_3_feedback=correction_data['competence_3_feedback'],
-            competence_4_feedback=correction_data['competence_4_feedback'],
-            competence_5_feedback=correction_data['competence_5_feedback'],
-            strengths=correction_data['strengths'],
-            improvements=correction_data['improvements'],
-            general_comments=correction_data['general_comments']
+            competence_1_score=correction_data.get('competence_1_score', 0),
+            competence_2_score=correction_data.get('competence_2_score', 0),
+            competence_3_score=correction_data.get('competence_3_score', 0),
+            competence_4_score=correction_data.get('competence_4_score', 0),
+            competence_5_score=correction_data.get('competence_5_score', 0),
+            total_score=correction_data.get('total_score', 0),
+            competence_1_feedback=correction_data.get('competence_1_feedback', 'Sem feedback'),
+            competence_2_feedback=correction_data.get('competence_2_feedback', 'Sem feedback'),
+            competence_3_feedback=correction_data.get('competence_3_feedback', 'Sem feedback'),
+            competence_4_feedback=correction_data.get('competence_4_feedback', 'Sem feedback'),
+            competence_5_feedback=correction_data.get('competence_5_feedback', 'Sem feedback'),
+            strengths=strengths,
+            improvements=improvements,
+            general_comments=correction_data.get('general_comments', 'Sem comentários gerais')
         )
         
         db.add(db_correction)

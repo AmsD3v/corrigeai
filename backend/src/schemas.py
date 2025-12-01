@@ -244,7 +244,7 @@ class CorrectionDetail(BaseModel):
     improvements: str  # JSON array
     general_comments: str
     
-    corrected_at: datetime
+    corrected_at: Optional[datetime] = None
     
     model_config = ConfigDict(from_attributes=True)
 
