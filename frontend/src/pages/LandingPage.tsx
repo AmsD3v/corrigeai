@@ -458,25 +458,28 @@ const LandingPage = () => {
                 alignItems: 'center',
                 gap: '8px',
                 background: 'rgba(79, 70, 229, 0.1)',
-                border: '1px solid rgba(79, 70, 229, 0.3)',
+                border: '1px solid rgba(79, 70, 229, 0.2)',
+                padding: '8px 16px',
                 borderRadius: '20px',
-                padding: '6px 14px',
                 marginBottom: '24px'
               }}>
-                <span style={{ fontSize: '12px', color: '#818cf8', fontWeight: '600' }}>✨ CORREÇÃO COM INTELIGÊNCIA ARTIFICIAL</span>
+                <span style={{ fontSize: '16px' }}>✨</span>
+                <span style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600' }}>CORREÇÃO COM INTELIGÊNCIA ARTIFICIAL</span>
               </div>
 
-              <h1 style={{
-                fontSize: '56px',
+              <h1 className="hero-title" style={{
+                fontSize: '64px',
                 fontWeight: '800',
                 lineHeight: '1.1',
                 marginBottom: '24px',
-                background: 'linear-gradient(135deg, #fff 0%, #818cf8 100%)',
+                background: 'linear-gradient(to right, #fff, #94a3b8)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'
-              }} className="hero-title">
-                Nota 1000 começa<br />com feedback inteligente
+              }}>
+                TESTE DEPLOY - Nota 1000<br />
+                começa com feedback<br />
+                inteligente
               </h1>
 
               <p style={{
