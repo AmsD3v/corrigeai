@@ -277,308 +277,335 @@ const RedacaoDetalhes = () => {
             </div>
 
             {/* Feedback by Competence */}
-            <div style={{ marginBottom: '32px' }}>
-                <h2 style={{
-                    fontSize: '20px',
-                    fontWeight: '700',
-                    color: '#fff',
-                    marginBottom: '16px'
-                }}>
-                    Correção por Competência
-                </h2>
-
-                {[1, 2, 3, 4, 5].map((comp) => {
-                    const competenceNames = [
-                        'Domínio da Norma Culta',
-                        'Compreensão do Tema',
-                        'Argumentação',
-                        'Coesão e Coerência',
-                        'Proposta de Intervenção'
-                    ];
-                    const score = essay.correction?.[`competence_${comp}_score` as keyof Correction] as number || 0;
-                    const rawFeedback = essay.correction?.[`competence_${comp}_feedback` as keyof Correction];
-                    const feedback = typeof rawFeedback === 'string' ? rawFeedback : (rawFeedback ? JSON.stringify(rawFeedback) : '');
-
-                    return (
-                        <div key={comp} style={{
-                            background: '#1a1f2e',
-                            border: '1px solid #334155',
-                            borderRadius: '16px',
-                            padding: '24px',
+            {essay.correction ? (
+                <>
+                    <div style={{ marginBottom: '32px' }}>
+                        <h2 style={{
+                            fontSize: '20px',
+                            fontWeight: '700',
+                            color: '#fff',
                             marginBottom: '16px'
                         }}>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                marginBottom: '16px',
-                                flexWrap: 'wrap',
-                                gap: '12px'
-                            }}>
-                                <h3 style={{
-                                    fontSize: '16px',
-                                    fontWeight: '700',
-                                    color: '#fff'
-                                }}>
-                                    Competência {comp}: {competenceNames[comp - 1]}
-                                </h3>
-                                <div style={{
-                                    padding: '6px 16px',
-                                    background: `${getScoreColor(score)}20`,
-                                    color: getScoreColor(score),
-                                    borderRadius: '8px',
-                                    fontSize: '14px',
-                                    fontWeight: '700'
-                                }}>
-                                    {score}/200
-                                </div>
-                            </div>
+                            Correção por Competência
+                        </h2>
 
-                            {(() => {
-                                // Parse feedback sections
-                                const parts = feedback ? feedback.split(/✅ Pontos Fortes:|⚠️ O que melhorar:/) : [];
-                                const analise = parts[0]?.replace('Análise:', '').trim();
-                                const pontosFortes = parts[1]?.trim();
-                                const melhorias = parts[2]?.trim();
+                        {[1, 2, 3, 4, 5].map((comp) => {
+                            const competenceNames = [
+                                'Domínio da Norma Culta',
+                                'Compreensão do Tema',
+                                'Argumentação',
+                                'Coesão e Coerência',
+                                'Proposta de Intervenção'
+                            ];
+                            const score = essay.correction?.[`competence_${comp}_score` as keyof Correction] as number || 0;
+                            const rawFeedback = essay.correction?.[`competence_${comp}_feedback` as keyof Correction];
+                            const feedback = typeof rawFeedback === 'string' ? rawFeedback : (rawFeedback ? JSON.stringify(rawFeedback) : '');
 
-                                return (
+                            return (
+                                <div key={comp} style={{
+                                    background: '#1a1f2e',
+                                    border: '1px solid #334155',
+                                    borderRadius: '16px',
+                                    padding: '24px',
+                                    marginBottom: '16px'
+                                }}>
                                     <div style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1fr)',
-                                        gap: '24px',
-                                        alignItems: 'stretch'
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        marginBottom: '16px',
+                                        flexWrap: 'wrap',
+                                        gap: '12px'
                                     }}>
-                                        {/* Left Column: Análise */}
-                                        <div>
-                                            {analise && (
-                                                <div style={{
-                                                    background: 'rgba(51, 65, 85, 0.3)', // Slate-700 with opacity
-                                                    border: '1px solid rgba(51, 65, 85, 0.5)',
-                                                    borderRadius: '12px',
-                                                    padding: '20px',
-                                                    height: '100%'
-                                                }}>
-                                                    <h4 style={{
-                                                        fontSize: '14px',
-                                                        fontWeight: '700',
-                                                        color: '#e2e8f0', // Slate-200
-                                                        marginBottom: '12px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '6px'
-                                                    }}>
-                                                        📝 Análise Detalhada
-                                                    </h4>
-                                                    <p style={{
-                                                        fontSize: '14px',
-                                                        color: '#cbd5e1', // Slate-300
-                                                        lineHeight: '1.8',
-                                                        margin: 0,
-                                                        whiteSpace: 'pre-line'
-                                                    }}>
-                                                        {analise}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Right Column: Cards */}
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                            {/* Pontos Fortes Card */}
-                                            {pontosFortes && (
-                                                <div style={{
-                                                    background: 'rgba(16, 185, 129, 0.1)',
-                                                    border: '1px solid rgba(16, 185, 129, 0.2)',
-                                                    borderRadius: '12px',
-                                                    padding: '16px'
-                                                }}>
-                                                    <h4 style={{
-                                                        fontSize: '14px',
-                                                        fontWeight: '700',
-                                                        color: '#10b981',
-                                                        marginBottom: '8px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '6px'
-                                                    }}>
-                                                        ✅ Pontos Fortes
-                                                    </h4>
-                                                    <p style={{
-                                                        fontSize: '13px',
-                                                        color: '#cbd5e1',
-                                                        lineHeight: '1.5',
-                                                        margin: 0,
-                                                        whiteSpace: 'pre-line'
-                                                    }}>
-                                                        {pontosFortes}
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                            {/* Melhorias Card */}
-                                            {melhorias && (
-                                                <div style={{
-                                                    background: 'rgba(245, 158, 11, 0.1)',
-                                                    border: '1px solid rgba(245, 158, 11, 0.2)',
-                                                    borderRadius: '12px',
-                                                    padding: '16px'
-                                                }}>
-                                                    <h4 style={{
-                                                        fontSize: '14px',
-                                                        fontWeight: '700',
-                                                        color: '#f59e0b',
-                                                        marginBottom: '8px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '6px'
-                                                    }}>
-                                                        ⚠️ O que melhorar
-                                                    </h4>
-                                                    <p style={{
-                                                        fontSize: '13px',
-                                                        color: '#cbd5e1',
-                                                        lineHeight: '1.5',
-                                                        margin: 0,
-                                                        whiteSpace: 'pre-line'
-                                                    }}>
-                                                        {melhorias}
-                                                    </p>
-                                                </div>
-                                            )}
+                                        <h3 style={{
+                                            fontSize: '16px',
+                                            fontWeight: '700',
+                                            color: '#fff'
+                                        }}>
+                                            Competência {comp}: {competenceNames[comp - 1]}
+                                        </h3>
+                                        <div style={{
+                                            padding: '6px 16px',
+                                            background: `${getScoreColor(score)}20`,
+                                            color: getScoreColor(score),
+                                            borderRadius: '8px',
+                                            fontSize: '14px',
+                                            fontWeight: '700'
+                                        }}>
+                                            {score}/200
                                         </div>
                                     </div>
-                                );
-                            })()}
-                        </div>
-                    );
-                })}
-            </div>
 
-            {/* Strengths and Improvements */}
-            {(strengths.length > 0 || improvements.length > 0) && (
+                                    {(() => {
+                                        // Parse feedback sections safely
+                                        const parts = feedback ? feedback.split(/✅ Pontos Fortes:|⚠️ O que melhorar:/) : [];
+                                        const analise = parts[0]?.replace('Análise:', '').trim();
+                                        const pontosFortes = parts[1]?.trim();
+                                        const melhorias = parts[2]?.trim();
+
+                                        return (
+                                            <div style={{
+                                                display: 'grid',
+                                                gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1fr)',
+                                                gap: '24px',
+                                                alignItems: 'stretch'
+                                            }}>
+                                                {/* Left Column: Análise */}
+                                                <div>
+                                                    {analise && (
+                                                        <div style={{
+                                                            background: 'rgba(51, 65, 85, 0.3)', // Slate-700 with opacity
+                                                            border: '1px solid rgba(51, 65, 85, 0.5)',
+                                                            borderRadius: '12px',
+                                                            padding: '20px',
+                                                            height: '100%'
+                                                        }}>
+                                                            <h4 style={{
+                                                                fontSize: '14px',
+                                                                fontWeight: '700',
+                                                                color: '#e2e8f0', // Slate-200
+                                                                marginBottom: '12px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '6px'
+                                                            }}>
+                                                                📝 Análise Detalhada
+                                                            </h4>
+                                                            <p style={{
+                                                                fontSize: '14px',
+                                                                color: '#cbd5e1', // Slate-300
+                                                                lineHeight: '1.8',
+                                                                margin: 0,
+                                                                whiteSpace: 'pre-line'
+                                                            }}>
+                                                                {analise}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Right Column: Cards */}
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                                    {/* Pontos Fortes Card */}
+                                                    {pontosFortes && (
+                                                        <div style={{
+                                                            background: 'rgba(16, 185, 129, 0.1)',
+                                                            border: '1px solid rgba(16, 185, 129, 0.2)',
+                                                            borderRadius: '12px',
+                                                            padding: '16px'
+                                                        }}>
+                                                            <h4 style={{
+                                                                fontSize: '14px',
+                                                                fontWeight: '700',
+                                                                color: '#10b981',
+                                                                marginBottom: '8px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '6px'
+                                                            }}>
+                                                                ✅ Pontos Fortes
+                                                            </h4>
+                                                            <p style={{
+                                                                fontSize: '13px',
+                                                                color: '#cbd5e1',
+                                                                lineHeight: '1.5',
+                                                                margin: 0,
+                                                                whiteSpace: 'pre-line'
+                                                            }}>
+                                                                {pontosFortes}
+                                                            </p>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Melhorias Card */}
+                                                    {melhorias && (
+                                                        <div style={{
+                                                            background: 'rgba(245, 158, 11, 0.1)',
+                                                            border: '1px solid rgba(245, 158, 11, 0.2)',
+                                                            borderRadius: '12px',
+                                                            padding: '16px'
+                                                        }}>
+                                                            <h4 style={{
+                                                                fontSize: '14px',
+                                                                fontWeight: '700',
+                                                                color: '#f59e0b',
+                                                                marginBottom: '8px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '6px'
+                                                            }}>
+                                                                ⚠️ O que melhorar
+                                                            </h4>
+                                                            <p style={{
+                                                                fontSize: '13px',
+                                                                color: '#cbd5e1',
+                                                                lineHeight: '1.5',
+                                                                margin: 0,
+                                                                whiteSpace: 'pre-line'
+                                                            }}>
+                                                                {melhorias}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Strengths and Improvements */}
+                    {(strengths.length > 0 || improvements.length > 0) && (
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(2, 1fr)',
+                            gap: '16px',
+                            marginBottom: '32px'
+                        }}>
+                            {/* Pontos Fortes */}
+                            {strengths.length > 0 && (
+                                <div style={{
+                                    background: '#1a1f2e',
+                                    border: '1px solid #334155',
+                                    borderRadius: '16px',
+                                    padding: '24px'
+                                }}>
+                                    <h3 style={{
+                                        fontSize: '16px',
+                                        fontWeight: '700',
+                                        color: '#10b981',
+                                        marginBottom: '16px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px'
+                                    }}>
+                                        ✓ Pontos Fortes
+                                    </h3>
+                                    <ul style={{
+                                        listStyle: 'none',
+                                        padding: 0,
+                                        margin: 0
+                                    }}>
+                                        {strengths.map((strength, idx) => (
+                                            <li key={idx} style={{
+                                                fontSize: '14px',
+                                                color: '#94a3b8',
+                                                marginBottom: '12px',
+                                                paddingLeft: '20px',
+                                                position: 'relative',
+                                                lineHeight: '1.6'
+                                            }}>
+                                                <span style={{
+                                                    position: 'absolute',
+                                                    left: 0,
+                                                    color: '#10b981',
+                                                    fontWeight: '700'
+                                                }}>•</span>
+                                                {strength}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {/* Pontos a Melhorar */}
+                            {improvements.length > 0 && (
+                                <div style={{
+                                    background: '#1a1f2e',
+                                    border: '1px solid #334155',
+                                    borderRadius: '16px',
+                                    padding: '24px'
+                                }}>
+                                    <h3 style={{
+                                        fontSize: '16px',
+                                        fontWeight: '700',
+                                        color: '#f59e0b',
+                                        marginBottom: '16px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px'
+                                    }}>
+                                        ⚠ Pontos a Melhorar
+                                    </h3>
+                                    <ul style={{
+                                        listStyle: 'none',
+                                        padding: 0,
+                                        margin: 0
+                                    }}>
+                                        {improvements.map((improvement, idx) => (
+                                            <li key={idx} style={{
+                                                fontSize: '14px',
+                                                color: '#94a3b8',
+                                                marginBottom: '12px',
+                                                paddingLeft: '20px',
+                                                position: 'relative',
+                                                lineHeight: '1.6'
+                                            }}>
+                                                <span style={{
+                                                    position: 'absolute',
+                                                    left: 0,
+                                                    color: '#f59e0b',
+                                                    fontWeight: '700'
+                                                }}>•</span>
+                                                {improvement}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* General Comments */}
+                    <div style={{
+                        background: '#1a1f2e',
+                        border: '1px solid #334155',
+                        borderRadius: '16px',
+                        padding: '24px'
+                    }}>
+                        <h3 style={{
+                            fontSize: '16px',
+                            fontWeight: '700',
+                            color: '#fff',
+                            marginBottom: '12px'
+                        }}>
+                            Comentário Geral
+                        </h3>
+                        <p style={{
+                            fontSize: '14px',
+                            color: '#94a3b8',
+                            lineHeight: '1.6'
+                        }}>
+                            {essay.correction?.general_comments}
+                        </p>
+                    </div>
+                </>
+            ) : (
                 <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
-                    gap: '16px',
-                    marginBottom: '32px'
+                    background: '#1a1f2e',
+                    border: '1px solid #334155',
+                    borderRadius: '16px',
+                    padding: '32px',
+                    textAlign: 'center'
                 }}>
-                    {/* Pontos Fortes */}
-                    {strengths.length > 0 && (
-                        <div style={{
-                            background: '#1a1f2e',
-                            border: '1px solid #334155',
-                            borderRadius: '16px',
-                            padding: '24px'
-                        }}>
-                            <h3 style={{
-                                fontSize: '16px',
-                                fontWeight: '700',
-                                color: '#10b981',
-                                marginBottom: '16px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px'
-                            }}>
-                                ✓ Pontos Fortes
-                            </h3>
-                            <ul style={{
-                                listStyle: 'none',
-                                padding: 0,
-                                margin: 0
-                            }}>
-                                {strengths.map((strength, idx) => (
-                                    <li key={idx} style={{
-                                        fontSize: '14px',
-                                        color: '#94a3b8',
-                                        marginBottom: '12px',
-                                        paddingLeft: '20px',
-                                        position: 'relative',
-                                        lineHeight: '1.6'
-                                    }}>
-                                        <span style={{
-                                            position: 'absolute',
-                                            left: 0,
-                                            color: '#10b981',
-                                            fontWeight: '700'
-                                        }}>•</span>
-                                        {strength}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-
-                    {/* Pontos a Melhorar */}
-                    {improvements.length > 0 && (
-                        <div style={{
-                            background: '#1a1f2e',
-                            border: '1px solid #334155',
-                            borderRadius: '16px',
-                            padding: '24px'
-                        }}>
-                            <h3 style={{
-                                fontSize: '16px',
-                                fontWeight: '700',
-                                color: '#f59e0b',
-                                marginBottom: '16px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px'
-                            }}>
-                                ⚠ Pontos a Melhorar
-                            </h3>
-                            <ul style={{
-                                listStyle: 'none',
-                                padding: 0,
-                                margin: 0
-                            }}>
-                                {improvements.map((improvement, idx) => (
-                                    <li key={idx} style={{
-                                        fontSize: '14px',
-                                        color: '#94a3b8',
-                                        marginBottom: '12px',
-                                        paddingLeft: '20px',
-                                        position: 'relative',
-                                        lineHeight: '1.6'
-                                    }}>
-                                        <span style={{
-                                            position: 'absolute',
-                                            left: 0,
-                                            color: '#f59e0b',
-                                            fontWeight: '700'
-                                        }}>•</span>
-                                        {improvement}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+                    <h3 style={{
+                        fontSize: '18px',
+                        fontWeight: '700',
+                        color: '#fff',
+                        marginBottom: '12px'
+                    }}>
+                        Correção em andamento ou indisponível
+                    </h3>
+                    <p style={{
+                        fontSize: '14px',
+                        color: '#94a3b8'
+                    }}>
+                        A correção para esta redação ainda não está disponível. Por favor, aguarde alguns instantes e recarregue a página.
+                    </p>
                 </div>
             )}
-
-            {/* General Comments */}
-            <div style={{
-                background: '#1a1f2e',
-                border: '1px solid #334155',
-                borderRadius: '16px',
-                padding: '24px'
-            }}>
-                <h3 style={{
-                    fontSize: '16px',
-                    fontWeight: '700',
-                    color: '#fff',
-                    marginBottom: '12px'
-                }}>
-                    Comentário Geral
-                </h3>
-                <p style={{
-                    fontSize: '14px',
-                    color: '#94a3b8',
-                    lineHeight: '1.6'
-                }}>
-                    {essay.correction?.general_comments}
-                </p>
-            </div>
         </PanelLayout>
     );
 };
