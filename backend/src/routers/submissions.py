@@ -314,9 +314,27 @@ def get_correction(
                     detail="Correção em andamento. Aguarde alguns instantes."
                 )
             elif submission.status == "failed" or submission.status == "error":
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="Falha na correção. Ocorreu um erro interno. Tente novamente."
+                # Em vez de erro 500, retorna um objeto de correção vazio com aviso
+                # Isso evita que o frontend quebre e permite mostrar o erro na UI
+                return schemas.CorrectionDetail(
+                    id=0,
+                    submission_id=submission_id,
+                    total_score=0,
+                    competence_1_score=0,
+                    competence_2_score=0,
+                    competence_3_score=0,
+                    competence_4_score=0,
+                    competence_5_score=0,
+                    competence_1_feedback="Falha na correção",
+                    competence_2_feedback="Falha na correção",
+                    competence_3_feedback="Falha na correção",
+                    competence_4_feedback="Falha na correção",
+                    competence_5_feedback="Falha na correção",
+                    strengths=[],
+                    improvements=[],
+                    general_comments="⚠️ Ocorreu uma falha ao processar sua redação com a IA. Isso pode acontecer por instabilidade momentânea. Por favor, tente enviar novamente ou entre em contato com o suporte.",
+                    corrected_at=submission.submitted_at,
+                    exam_type=submission.exam_type or "enem"
                 )
             else:
                 # Status desconhecido ou 'completed' mas sem correção (inconsistência)

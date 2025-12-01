@@ -6,9 +6,66 @@ Supports: Groq, Gemini, HuggingFace, Together AI
 import json
 import logging
 import os
+import asyncio
+import re
 from typing import Optional
 
 logger = logging.getLogger(__name__)
+
+def extract_json_robust(text: str) -> dict:
+    """
+    Extrai JSON de uma string de forma robusta, buscando o primeiro '{' e o último '}'.
+    Remove blocos de código markdown se houver.
+    """
+    text = text.strip()
+    
+    # Remove blocos de código markdown ```json ... ```
+    if "```" in text:
+        # Tenta extrair conteúdo dentro de ```json ou apenas ```
+        match = re.search(r"```(?:json)?(.*?)```", text, re.DOTALL)
+        if match:
+            text = match.group(1).strip()
+            
+    # Encontra o primeiro '{' e o último '}'
+    start = text.find('{')
+    end = text.rfind('}')
+    
+    if start != -1 and end != -1:
+        json_str = text[start:end+1]
+        try:
+            return json.loads(json_str)
+        except json.JSONDecodeError as e:
+            logger.error(f"Erro ao decodificar JSON extraído: {e}")
+            # Tenta limpar vírgulas finais (trailing commas) que o JSON padrão não aceita
+            try:
+                json_str_clean = re.sub(r",\s*}", "}", json_str)
+                json_str_clean = re.sub(r",\s*]", "]", json_str_clean)
+                return json.loads(json_str_clean)
+            except:
+                pass
+            raise ValueError(f"Falha ao extrair JSON válido. Texto: {text[:100]}...")
+    
+    raise ValueError("Nenhum objeto JSON encontrado na resposta da IA")
+
+async def retry_with_backoff(func, *args, max_retries=3, initial_delay=1, **kwargs):
+    """
+    Executa uma função async com retry e backoff exponencial.
+    """
+    delay = initial_delay
+    last_exception = None
+    
+    for attempt in range(max_retries):
+        try:
+            return await func(*args, **kwargs)
+        except Exception as e:
+            last_exception = e
+            logger.warning(f"Tentativa {attempt+1}/{max_retries} falhou: {str(e)}. Retentando em {delay}s...")
+            if attempt < max_retries - 1:
+                await asyncio.sleep(delay)
+                delay *= 2  # Backoff exponencial
+    
+    logger.error(f"Todas as {max_retries} tentativas falharam.")
+    raise last_exception
 
 # Provider configurations
 AI_PROVIDERS = {
@@ -252,16 +309,7 @@ async def correct_with_groq(title: str, theme: str, content: str, api_key: str) 
         
         text = response.choices[0].message.content.strip()
         
-        # Clean JSON
-        if text.startswith("```json"):
-            text = text[7:]
-        if text.startswith("```"):
-            text = text[3:]
-        if text.endswith("```"):
-            text = text[:-3]
-        text = text.strip()
-        
-        data = json.loads(text)
+        data = extract_json_robust(text)
         data['strengths'] = json.dumps(data.get('strengths', []), ensure_ascii=False)
         data['improvements'] = json.dumps(data.get('improvements', []), ensure_ascii=False)
         
@@ -306,16 +354,7 @@ async def correct_with_gemini(title: str, theme: str, content: str, api_key: str
         
         text = response.text.strip()
         
-        # Clean JSON
-        if text.startswith("```json"):
-            text = text[7:]
-        if text.startswith("```"):
-            text = text[3:]
-        if text.endswith("```"):
-            text = text[:-3]
-        text = text.strip()
-        
-        data = json.loads(text)
+        data = extract_json_robust(text)
         data['strengths'] = json.dumps(data.get('strengths', []), ensure_ascii=False)
         data['improvements'] = json.dumps(data.get('improvements', []), ensure_ascii=False)
         
@@ -327,7 +366,7 @@ async def correct_with_gemini(title: str, theme: str, content: str, api_key: str
         raise
 
 
-async def correct_essay_with_gemini(title: str, theme: str, content: str) -> dict:
+async def correct_essay_with_gemini(title: str, theme: str, content: str, exam_type: str = 'enem') -> dict:
     """
     Main correction function - routes to active provider
     Maintains backward compatibility with existing code
@@ -340,11 +379,26 @@ async def correct_essay_with_gemini(title: str, theme: str, content: str) -> dic
     print(f"🤖 Using AI provider: {AI_PROVIDERS[provider]['name']}")
     logger.info(f"Using AI provider: {AI_PROVIDERS[provider]['name']}")
     
+    # Define wrapper functions for retry
+    async def run_groq():
+        # Import prompt_builder to use specific prompts
+        from .prompt_builder import create_correction_prompt
+        prompt = create_correction_prompt(exam_type, title, theme, content)
+        return await correct_with_groq_custom_prompt(
+            title, theme, content, api_key, prompt, model="llama-3.1-8b-instant"
+        )
+        
+    async def run_gemini():
+        # Import prompt_builder to use specific prompts
+        from .prompt_builder import create_correction_prompt
+        prompt = create_correction_prompt(exam_type, title, theme, content)
+        return await correct_with_gemini_custom_prompt(title, theme, content, api_key, prompt)
+
     try:
         if provider == 'groq':
-            return await correct_with_groq(title, theme, content, api_key)
+            return await retry_with_backoff(run_groq, max_retries=3)
         elif provider == 'gemini':
-           return await correct_with_gemini(title, theme, content, api_key)
+           return await retry_with_backoff(run_gemini, max_retries=3)
         elif provider == 'huggingface':
             # TODO: Implement HuggingFace
             raise Exception("HuggingFace provider not implemented yet")
@@ -388,7 +442,6 @@ async def generate_theme_with_gemini(category: str) -> str:
         'sociedade': 'A importância do diálogo na resolução de conflitos',
         'saude': 'Desafios do sistema de saúde pública no Brasil'
     }.get(category, 'A educação como instrumento de transformação social')
-# Add these lines at the end of ai_service.py after line 350
 
 # ===== PREMIUM CORRECTION FUNCTIONS =====
 
@@ -446,16 +499,7 @@ async def refine_with_gemini(title: str, theme: str, content: str, groq_result: 
         response = model.generate_content(prompt)
         text = response.text.strip()
         
-        # Clean JSON
-        if text.startswith("```json"):
-            text = text[7:]
-        if text.startswith("```"):
-            text = text[3:]
-        if text.endswith("```"):
-            text = text[:-3]
-        text = text.strip()
-        
-        insights = json.loads(text)
+        insights = extract_json_robust(text)
         print(f"✅ Gemini refinement completed")
         return insights
         
@@ -504,18 +548,24 @@ async def correct_essay_premium(title: str, theme: str, content: str, exam_type:
     # Step 1: Groq initial correction with custom prompt
     print(f"Step 1/3: Groq initial correction for {exam_type.upper()}...")
     
-    try:
-        # Premium uses the BEST model (70B)
-        groq_result = await correct_with_groq_custom_prompt(
+    async def run_groq_70b():
+        return await correct_with_groq_custom_prompt(
             title, theme, content, api_key_groq, prompt, model="llama-3.1-70b-versatile"
         )
+        
+    async def run_groq_8b():
+        return await correct_with_groq_custom_prompt(
+            title, theme, content, api_key_groq, prompt, model="llama-3.1-8b-instant"
+        )
+    
+    try:
+        # Premium uses the BEST model (70B) with retry
+        groq_result = await retry_with_backoff(run_groq_70b, max_retries=2)
     except Exception as e:
         print(f"⚠️ Erro com modelo 70B: {e}. Tentando fallback para 8B...")
         logger.warning(f"Erro com modelo 70B: {e}. Tentando fallback para 8B...")
         # Fallback to 8B model if 70B fails
-        groq_result = await correct_with_groq_custom_prompt(
-            title, theme, content, api_key_groq, prompt, model="llama-3.1-8b-instant"
-        )
+        groq_result = await retry_with_backoff(run_groq_8b, max_retries=2)
     
     # Step 2: Gemini refinement
     print("Step 2/3: Gemini refinement...")
@@ -553,16 +603,7 @@ async def correct_with_groq_custom_prompt(title: str, theme: str, content: str, 
         text = response.choices[0].message.content.strip()
         print(f"📥 RESPOSTA RAW GROQ:\n{text[:500]}...")
         
-        # Clean JSON
-        if text.startswith("```json"):
-            text = text[7:]
-        if text.startswith("```"):
-            text = text[3:]
-        if text.endswith("```"):
-            text = text[:-3]
-        text = text.strip()
-        
-        data = json.loads(text)
+        data = extract_json_robust(text)
         data['strengths'] = json.dumps(data.get('strengths', []), ensure_ascii=False)
         data['improvements'] = json.dumps(data.get('improvements', []), ensure_ascii=False)
         
@@ -573,49 +614,6 @@ async def correct_with_groq_custom_prompt(title: str, theme: str, content: str, 
     except Exception as e:
         print(f"❌ Groq error: {e}")
         logger.error(f"Groq error: {e}")
-        raise
-
-
-async def correct_essay_with_gemini(title: str, theme: str, content: str, exam_type: str = 'enem') -> dict:
-    """
-    Main correction function using active provider (wrapper function).
-    Now supports multiple exam types with specific criteria.
-    """
-    print(f"📚 Corrigindo para: {exam_type.upper()}")
-    
-    # Import prompt_builder to use specific prompts
-    from .prompt_builder import create_correction_prompt
-    
-    # Get active provider
-    provider, api_key = get_active_provider()
-    
-    if not api_key:
-        raise Exception(f"API key not configured for provider: {provider}")
-    
-    try:
-        # Get exam-specific prompt
-        prompt = create_correction_prompt(exam_type, title, theme, content)
-        print(f"✅ Prompt específico para {exam_type.upper()} criado")
-        
-        # Use the appropriate provider with custom prompt
-        if provider == 'groq':
-            # Advanced uses a LIGHTER model (8B) for differentiation and speed
-            return await correct_with_groq_custom_prompt(
-                title, theme, content, api_key, prompt, model="llama-3.1-8b-instant"
-            )
-        elif provider == 'gemini':
-            # For Gemini, we'll use a similar custom prompt function
-            return await correct_with_gemini_custom_prompt(title, theme, content, api_key, prompt)
-        elif provider == 'huggingface':
-            raise Exception("HuggingFace provider not implemented yet")
-        elif provider == 'together':
-            raise Exception("Together AI provider not implemented yet")
-        else:
-            raise Exception(f"Unknown provider: {provider}")
-            
-    except Exception as e:
-        print(f"❌ AI correction failed: {e}")
-        logger.error(f"AI correction failed: {e}")
         raise
 
 
@@ -641,17 +639,7 @@ async def correct_with_gemini_custom_prompt(title: str, theme: str, content: str
         )
         
         text = response.text.strip()
-        
-        # Clean JSON
-        if text.startswith("```json"):
-            text = text[7:]
-        if text.startswith("```"):
-            text = text[3:]
-        if text.endswith("```"):
-            text = text[:-3]
-        text = text.strip()
-        
-        data = json.loads(text)
+        data = extract_json_robust(text)
         data['strengths'] = json.dumps(data.get('strengths', []), ensure_ascii=False)
         data['improvements'] = json.dumps(data.get('improvements', []), ensure_ascii=False)
         
