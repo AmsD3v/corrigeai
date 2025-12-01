@@ -122,7 +122,7 @@ async def process_correction(submission_id: int, db: Session):
         
         # Save error to submission
         submission.status = "error"
-        submission.error_message = str(e)
+        # submission.error_message = str(e) # Removed in rollback
         db.commit()
         print(f"❌ ERROR: {e}")
         

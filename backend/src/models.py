@@ -31,10 +31,6 @@ class Submission(Base):
     __tablename__ = "submission"
     __table_args__ = {'extend_existing': True}
 
-    __tablename__ = "correction"
-    __table_args__ = {'extend_existing': True}
-    
-    id = Column(Integer, primary_key=True, index=True)
     submission_id = Column(Integer, ForeignKey("submission.id"), unique=True, nullable=False)
     
     # ENEM Competencies (0-200 points each)
