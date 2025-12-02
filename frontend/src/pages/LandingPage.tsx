@@ -297,17 +297,16 @@ const LandingPage = () => {
             top: 0;
             left: 0;
             bottom: 0;
-            width: 85%;
-            background: rgba(0, 0, 0, 0.5);
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
             flex-direction: column;
             padding: 80px 24px 24px;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: none;
             gap: 20px;
             z-index: 999;
             transform: translateX(-100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
           }
           
           /* Show nav when open */
@@ -405,6 +404,7 @@ const LandingPage = () => {
 
             {/* Logo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => navigate('/')}>
+              <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px' }}>CorrigeAI</span>
               <div style={{
                 width: '40px',
                 height: '40px',
@@ -418,7 +418,6 @@ const LandingPage = () => {
               }}>
                 🦉
               </div>
-              <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px' }}>CorrigeAI</span>
             </div>
 
             {/* Nav Links */}
@@ -433,6 +432,7 @@ const LandingPage = () => {
                 borderBottom: '1px solid rgba(255,255,255,0.1)',
                 width: '100%'
               }} className="mobile-only">
+                <span style={{ fontSize: '18px', fontWeight: '800', color: '#fff' }}>Menu</span>
                 <div style={{
                   width: '32px',
                   height: '32px',
@@ -441,11 +441,11 @@ const LandingPage = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '18px'
+                  fontSize: '18px',
+                  marginLeft: 'auto'
                 }}>
                   🦉
                 </div>
-                <span style={{ fontSize: '18px', fontWeight: '800', color: '#fff' }}>Menu</span>
               </div>
 
               <a href="#como-funciona" onClick={() => setMobileMenuOpen(false)}>Como funciona</a>
