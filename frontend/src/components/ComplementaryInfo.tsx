@@ -61,6 +61,7 @@ const ComplementaryInfo: React.FC<ComplementaryInfoProps> = ({ user, onUpdate })
     }, [formData.state]);
 
     const loadDropdownOptions = async () => {
+        console.log('[ComplementaryInfo] Loading dropdown options...');
         try {
             const [schoolLevel, enemAttempts, mainGoal, studyMethod] = await Promise.all([
                 apiClient.get('/api/dropdown-options?category=school_level'),
@@ -69,12 +70,19 @@ const ComplementaryInfo: React.FC<ComplementaryInfoProps> = ({ user, onUpdate })
                 apiClient.get('/api/dropdown-options?category=study_method')
             ]);
 
+            console.log('[ComplementaryInfo] Dropdown options loaded:', {
+                schoolLevel: schoolLevel.data.length,
+                enemAttempts: enemAttempts.data.length,
+                mainGoal: mainGoal.data.length,
+                studyMethod: studyMethod.data.length
+            });
+
             setSchoolLevelOptions(schoolLevel.data);
             setEnemAttemptsOptions(enemAttempts.data);
             setMainGoalOptions(mainGoal.data);
             setStudyMethodOptions(studyMethod.data);
         } catch (error) {
-            console.error('Error loading dropdown options:', error);
+            console.error('[ComplementaryInfo] Error loading dropdown options:', error);
         }
     };
 
