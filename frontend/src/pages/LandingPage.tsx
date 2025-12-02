@@ -359,6 +359,12 @@ const LandingPage = () => {
             padding-left: 16px !important;
             padding-right: 16px !important;
           }
+
+          /* Force logo row layout */
+          .logo-container {
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+          }
         }
       `}</style>
 
@@ -395,14 +401,16 @@ const LandingPage = () => {
         }}>
           <div className="container flex-between" style={{ height: '70px' }}>
             {/* Logo - Icon LEFT, Text RIGHT */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              cursor: 'pointer',
-              flexDirection: 'row',
-              flexWrap: 'nowrap'
-            }} onClick={() => navigate('/')}>
+            <div
+              className="logo-container"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                cursor: 'pointer',
+                flexDirection: 'row',
+                flexWrap: 'nowrap'
+              }} onClick={() => navigate('/')}>
               <div style={{
                 width: '40px',
                 height: '40px',
@@ -430,7 +438,7 @@ const LandingPage = () => {
             <button
               className="mobile-menu-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              style={{ zIndex: 1002, position: 'relative' }}
+              style={{ zIndex: 1002, position: 'relative', paddingRight: '12px' }}
             >
               {mobileMenuOpen ? '✕' : '☰'}
             </button>
