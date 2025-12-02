@@ -14,7 +14,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 # Import models AFTER adding src to path
 from src.database import Base
-from src.models import User, Submission, Correction, Transaction, CreditPackage
+from src.models import User, Submission, Correction, Transaction, Package, Settings
 from src.auth import get_password_hash
 
 load_dotenv()
