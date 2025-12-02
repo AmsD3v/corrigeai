@@ -130,6 +130,20 @@ const ComplementaryInfo: React.FC<ComplementaryInfoProps> = ({ user, onUpdate })
         try {
             const response = await apiClient.put('/users/me/profile', formData);
             console.log('[ComplementaryInfo] Save successful:', response.data);
+
+            // ADICIONE ESTAS 13 LINHAS AQUI:
+            // Update formData with saved values to keep fields populated
+            setFormData({
+                school_level: response.data.school_level || '',
+                intended_course: response.data.intended_course || '',
+                state: response.data.state || '',
+                city: response.data.city || '',
+                enem_attempts: response.data.enem_attempts || '',
+                previous_scores: response.data.previous_scores || '',
+                main_goal: response.data.main_goal || '',
+                study_method: response.data.study_method || ''
+            });
+
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
             onUpdate();

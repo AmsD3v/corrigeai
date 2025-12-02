@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import api from '../../services/api';
+import UserProfileAnalytics from '../../components/Analytics/UserProfileAnalytics';
 
 interface AnalyticsData {
     userMetrics: {
@@ -370,7 +371,8 @@ const Analytics = () => {
                 background: '#1a1f2e',
                 border: '1px solid #334155',
                 borderRadius: '12px',
-                padding: '24px'
+                padding: '24px',
+                marginBottom: '32px'
             }}>
                 <h2 style={{
                     fontSize: '18px',
@@ -398,6 +400,9 @@ const Analytics = () => {
                     </div>
                 </div>
             </div>
+
+            {/* NEW: Complementary User Info Analytics */}
+            <UserProfileAnalytics />
         </AdminLayout>
     );
 };
