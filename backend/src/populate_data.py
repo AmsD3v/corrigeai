@@ -224,8 +224,11 @@ def main():
         # Inicializar engine
         init_db_engine()
         
-        # Criar sessão
-        db = SessionLocal()
+        # Importar get_db após inicialização
+        from src.database import get_db
+        
+        # Criar sessão usando o generator
+        db = next(get_db())
         
         try:
             # Popular estados
