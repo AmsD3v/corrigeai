@@ -24,6 +24,16 @@ class User(Base):
     birth_date = Column(String, nullable=True)  # Data de nascimento (YYYY-MM-DD)
     reset_token = Column(String, nullable=True)  # Token de recuperação de senha
     reset_token_expires = Column(DateTime, nullable=True)  # Expiração do token
+    
+    # Complementary Information Fields (Analytics)
+    school_level = Column(String, nullable=True)  # Nível escolar
+    intended_course = Column(String, nullable=True)  # Curso pretendido
+    state = Column(String, nullable=True)  # Estado
+    city = Column(String, nullable=True)  # Cidade
+    enem_attempts = Column(String, nullable=True)  # Tentativas ENEM
+    previous_scores = Column(String, nullable=True)  # Notas anteriores
+    main_goal = Column(String, nullable=True)  # Objetivo principal
+    study_method = Column(String, nullable=True)  # Método de estudo
 
     submissions = relationship("Submission", back_populates="owner")
 
@@ -86,8 +96,8 @@ class Transaction(Base):
     
     # Mercado Pago data
     payment_id = Column(String, unique=True, nullable=True)  # MP payment ID
-    preference_id = Column(String, nullable=True)  # MP preference ID
-    external_reference = Column(String, nullable=True)  # Our reference
+    preference_id = Column(String, nullable= True)  # MP preference ID
+    external_reference = Column(String, nullable=True) # Our reference
     
     # Transaction details
     package_id = Column(String, nullable=False)  # Package identifier
