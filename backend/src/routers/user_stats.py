@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from ..database import get_db
 from ..models import User
-from ..routers.auth import get_current_admin_user
+from ..dependencies import get_current_admin_user
 from typing import Dict, Any, List
     total_users = db.query(User).count()
     
