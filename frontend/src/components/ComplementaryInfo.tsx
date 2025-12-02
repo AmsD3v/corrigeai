@@ -96,25 +96,29 @@ const ComplementaryInfo: React.FC<ComplementaryInfoProps> = ({ user, onUpdate })
     };
 
     const loadCities = async (stateCode: string) => {
+        console.log('[ComplementaryInfo] Loading cities for state:', stateCode);
         try {
             const response = await apiClient.get(`/api/locations/cities?state=${stateCode}`);
+            console.log('[ComplementaryInfo] Cities loaded:', response.data.length, 'cities');
             setCities(response.data);
         } catch (error) {
-            console.error('Error loading cities:', error);
+            console.error('[ComplementaryInfo] Error loading cities:', error);
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        console.log('[ComplementaryInfo] Saving data:', formData);
 
         try {
-            await apiClient.put('/users/me/profile', formData);
+            const response = await apiClient.put('/users/me/profile', formData);
+            console.log('[ComplementaryInfo] Save successful:', response.data);
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
             onUpdate();
         } catch (error) {
-            console.error('Error saving complementary info:', error);
+            console.error('[ComplementaryInfo] Error saving:', error);
             alert('Erro ao salvar informações complementares');
         } finally {
             setLoading(false);
