@@ -38,17 +38,16 @@ class DropdownOption(DropdownOptionBase):
 @router.get("/api/dropdown-options", response_model=List[DropdownOption])
 def get_dropdown_options(category: str | None = None, db: Session = Depends(get_db)):
     """Retorna opções ativas de dropdown para usuários"""
-    query = db.query(models.DropdownOption).filter(
-        models.DropdownOption.is_active == True
+    from ..models_complementary import DropdownOption as DBDropdownOption
+    
+    query = db.query(DBDropdownOption).filter(
+        DBDropdownOption.is_active == True
     )
     
     if category:
-        query = query.filter(models.DropdownOption.category == category)
+        query = query.filter(DBDropdownOption.category == category)
     
-    options = query.order_by(models.DropdownOption.order).all()
-    
-    # Import the model from models_complementary
-    from ..models_complementary import DropdownOption as DBDropdownOption
+    options = query.order_by(DBDropdownOption.order).all()
     
     return options
 
