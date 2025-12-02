@@ -393,31 +393,15 @@ const LandingPage = () => {
           borderBottom: '1px solid rgba(255,255,255,0.1)'
         }}>
           <div className="container flex-between" style={{ height: '70px' }}>
-            {/* Mobile Menu Button (Moved to left) */}
-            <button
-              className="mobile-menu-btn"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              style={{ zIndex: 1002, position: 'relative' }}
-            >
-              {mobileMenuOpen ? '✕' : '☰'}
-            </button>
-
-            {/* Logo */}
+            {/* Logo - Icon LEFT, Text RIGHT */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
               cursor: 'pointer',
-              flexDirection: 'row', /* Force row */
-              flexWrap: 'nowrap'    /* Prevent wrapping */
+              flexDirection: 'row',
+              flexWrap: 'nowrap'
             }} onClick={() => navigate('/')}>
-              <span style={{
-                fontSize: '24px',
-                fontWeight: '800',
-                color: '#fff',
-                letterSpacing: '-0.5px',
-                whiteSpace: 'nowrap' /* Prevent text wrapping */
-              }}>CorrigeAI</span>
               <div style={{
                 width: '40px',
                 height: '40px',
@@ -428,11 +412,27 @@ const LandingPage = () => {
                 justifyContent: 'center',
                 fontSize: '24px',
                 boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-                flexShrink: 0 /* Prevent icon shrinking */
+                flexShrink: 0
               }}>
                 🦉
               </div>
+              <span style={{
+                fontSize: '24px',
+                fontWeight: '800',
+                color: '#fff',
+                letterSpacing: '-0.5px',
+                whiteSpace: 'nowrap'
+              }}>CorrigeAI</span>
             </div>
+
+            {/* Mobile Menu Button (Moved to RIGHT) */}
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              style={{ zIndex: 1002, position: 'relative' }}
+            >
+              {mobileMenuOpen ? '✕' : '☰'}
+            </button>
 
             {/* Nav Links */}
             <nav className={`nav-links ${mobileMenuOpen ? 'open' : ''}`}>
@@ -446,7 +446,6 @@ const LandingPage = () => {
                 borderBottom: '1px solid rgba(255,255,255,0.1)',
                 width: '100%'
               }} className="mobile-only">
-                <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px' }}>CorrigeAI</span>
                 <div style={{
                   width: '32px',
                   height: '32px',
@@ -459,6 +458,7 @@ const LandingPage = () => {
                 }}>
                   🦉
                 </div>
+                <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px' }}>CorrigeAI</span>
               </div>
 
               <a href="#como-funciona" onClick={() => setMobileMenuOpen(false)}>Como funciona</a>
@@ -1434,7 +1434,6 @@ const LandingPage = () => {
         <footer style={{ padding: '40px 0', background: '#1a1f2e', borderTop: '1px solid #334155' }}>
           <div className="container footer-content">
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '18px', fontWeight: '700', color: '#fff' }}>CorrigeAI</span>
               <div style={{
                 width: '40px',
                 height: '40px',
@@ -1447,6 +1446,7 @@ const LandingPage = () => {
               }}>
                 🦉
               </div>
+              <span style={{ fontSize: '18px', fontWeight: '700', color: '#fff' }}>CorrigeAI</span>
             </div>
 
             <div style={{ display: 'flex', gap: '32px', fontSize: '14px', color: '#94a3b8' }}>
