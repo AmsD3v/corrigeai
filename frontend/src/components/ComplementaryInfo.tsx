@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import apiClient from '../../services/api';
 
 interface ComplementaryInfoProps {
     user: any;
@@ -61,10 +61,10 @@ const ComplementaryInfo: React.FC<ComplementaryInfoProps> = ({ user, onUpdate })
     const loadDropdownOptions = async () => {
         try {
             const [schoolLevel, enemAttempts, mainGoal, studyMethod] = await Promise.all([
-                api.get('/api/dropdown-options?category=school_level'),
-                api.get('/api/dropdown-options?category=enem_attempts'),
-                api.get('/api/dropdown-options?category=main_goal'),
-                api.get('/api/dropdown-options?category=study_method')
+                apiClient.get('/api/dropdown-options?category=school_level'),
+                apiClient.get('/api/dropdown-options?category=enem_attempts'),
+                apiClient.get('/api/dropdown-options?category=main_goal'),
+                apiClient.get('/api/dropdown-options?category=study_method')
             ]);
 
             setSchoolLevelOptions(schoolLevel.data);
@@ -78,7 +78,7 @@ const ComplementaryInfo: React.FC<ComplementaryInfoProps> = ({ user, onUpdate })
 
     const loadStates = async () => {
         try {
-            const response = await api.get('/api/locations/states');
+            const response = await apiClient.get('/api/locations/states');
             setStates(response.data);
         } catch (error) {
             console.error('Error loading states:', error);
@@ -87,7 +87,7 @@ const ComplementaryInfo: React.FC<ComplementaryInfoProps> = ({ user, onUpdate })
 
     const loadCities = async (stateCode: string) => {
         try {
-            const response = await api.get(`/api/locations/cities?state=${stateCode}`);
+            const response = await apiClient.get(`/api/locations/cities?state=${stateCode}`);
             setCities(response.data);
         } catch (error) {
             console.error('Error loading cities:', error);
@@ -99,7 +99,7 @@ const ComplementaryInfo: React.FC<ComplementaryInfoProps> = ({ user, onUpdate })
         setLoading(true);
 
         try {
-            await api.put('/users/me/profile', formData);
+            await apiClient.put('/users/me/profile', formData);
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
             onUpdate();
