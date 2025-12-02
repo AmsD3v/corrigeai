@@ -15,6 +15,7 @@ const AdminSidebar = ({ activePage }: AdminSidebarProps) => {
         { path: '/admin/usuarios', label: 'Usuários', icon: '👥' },
         { path: '/admin/redacoes', label: 'Redações', icon: '📝' },
         { path: '/admin/transacoes', label: 'Transações', icon: '💰' },
+        { path: '/admin/dropdown-options', label: 'Opções Dropdown', icon: '📋' },
         { path: '/admin/configuracoes', label: 'Configurações', icon: '⚙️' },
         { path: '/admin/analytics', label: 'Analytics', icon: '📈' },
     ];
