@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from .core.logging_config import setup_logging
 from .core.config import settings
-from .routers import auth, users, submissions, admin, payments, packages, settings as settings_router, feedback, gemini, password_reset, dropdown_options, locations, user_stats
+from .routers import auth, users, submissions, admin, payments, packages, settings as settings_router, feedback, gemini, password_reset, dropdown_options, locations  # , user_stats - TEMPORARILY DISABLED DUE TO SYNTAX ERROR
 
 app = FastAPI()
 
@@ -147,4 +147,4 @@ app.include_router(gemini.router, tags=["gemini"])
 app.include_router(password_reset.router, tags=["password-reset"])
 app.include_router(dropdown_options.router, tags=["dropdown-options"])
 app.include_router(locations.router, tags=["locations"])
-app.include_router(user_stats.router, tags=["user-stats"])
+# app.include_router(user_stats.router, tags=["user-stats"])  # TEMPORARILY DISABLED
