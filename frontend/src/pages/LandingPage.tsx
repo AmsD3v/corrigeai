@@ -256,6 +256,28 @@ const LandingPage = () => {
           display: none;
         }
 
+        /* Mobile Logo - Ensure horizontal layout */
+        @media (max-width: 768px) {
+          .logo-container {
+            flex-direction: row !important;
+            gap: 12px !important;
+          }
+          
+          .logo-container div {
+            width: 36px !important;
+            height: 36px !important;
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%) !important;
+            border-radius: 10px !important;
+            font-size: 20px !important;
+            flex-shrink: 0 !important;
+          }
+          
+          .logo-container span {
+            font-size: 20px !important;
+            white-space: nowrap !important;
+          }
+        }
+
         /* MEDIA QUERIES */
         @media (max-width: 768px) {
           .mobile-only {
@@ -435,7 +457,7 @@ const LandingPage = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '24px',
-                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
                 flexShrink: 0
               }}>
                 🦉
@@ -469,22 +491,9 @@ const LandingPage = () => {
                 marginBottom: '32px',
                 paddingBottom: '24px',
                 borderBottom: '1px solid rgba(255,255,255,0.1)',
+                justifyContent: 'center',
                 width: '100%'
               }} className="mobile-only">
-                <div style={{
-                  width: '32px',
-                  height: '32px',
-                  background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '18px',
-                  flexShrink: 0
-                }}>
-                  🦉
-                </div>
-                <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>CorrigeAI</span>
               </div>
 
               <a href="#como-funciona" onClick={() => setMobileMenuOpen(false)}>Como funciona</a>
@@ -514,9 +523,10 @@ const LandingPage = () => {
                   color: '#fff',
                   fontSize: '14px',
                   fontWeight: '600',
-                  padding: '10px 20px',
+                  padding: '10px 30px',
                   borderRadius: '8px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
                 }}
               >
                 Começar correção grátis
