@@ -477,7 +477,7 @@ const DropdownOptionsAdmin = () => {
                                     )}
 
                                     <ToggleSwitch
-                                        checked={option.is_active}
+                                        enabled={option.is_active}
                                         onChange={() => handleToggleActive(option.id, option.is_active)}
                                     />
 
