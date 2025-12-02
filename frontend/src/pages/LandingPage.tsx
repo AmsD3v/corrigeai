@@ -403,8 +403,21 @@ const LandingPage = () => {
             </button>
 
             {/* Logo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => navigate('/')}>
-              <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px' }}>CorrigeAI</span>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              cursor: 'pointer',
+              flexDirection: 'row', /* Force row */
+              flexWrap: 'nowrap'    /* Prevent wrapping */
+            }} onClick={() => navigate('/')}>
+              <span style={{
+                fontSize: '24px',
+                fontWeight: '800',
+                color: '#fff',
+                letterSpacing: '-0.5px',
+                whiteSpace: 'nowrap' /* Prevent text wrapping */
+              }}>CorrigeAI</span>
               <div style={{
                 width: '40px',
                 height: '40px',
@@ -414,7 +427,8 @@ const LandingPage = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '24px',
-                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)'
+                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                flexShrink: 0 /* Prevent icon shrinking */
               }}>
                 🦉
               </div>
