@@ -91,13 +91,48 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
     allow_origin_regex=None,
-    expose_headers=["Access-Control-Allow-Origin"],
+    expose_headers=["*"],
+    max_age=3600,  # Cache preflight requests for 1 hour
 )
 
 # Rota de Health Check para diagnóstico
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+# Endpoint de diagnóstico de CORS
+@app.get("/cors-test")
+def cors_test(request: Request):
+    """Endpoint para testar se o CORS está funcionando"""
+    return {
+        "status": "ok",
+        "message": "Se você está vendo isso, CORS está funcionando!",
+        "origin": request.headers.get("origin", "N/A"),
+        "allowed_origins": origins,
+    }
+
+# Handler explícito para OPTIONS (preflight) - FALLBACK CRÍTICO
+@app.options("/{full_path:path}")
+async def options_handler(request: Request):
+    """Handler explícito para requisições OPTIONS (preflight CORS)"""
+    origin = request.headers.get("origin", "*")
+    
+    # Verifica se a origem é permitida
+    if origin in origins or "*" in origins:
+        return JSONResponse(
+            content={"status": "ok"},
+            headers={
+                "Access-Control-Allow-Origin": origin,
+                "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Max-Age": "3600",
+            }
+        )
+    return JSONResponse(
+        content={"error": "Origin not allowed"},
+        status_code=403
+    )
 
 # Include Routers
 app.include_router(auth.router, tags=["auth"])
