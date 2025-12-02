@@ -82,10 +82,20 @@ class UserUpdate(BaseModel):
 
 class UserProfileUpdate(BaseModel):
     """Schema for user to update their own profile"""
-    full_name: Optional[str] = None
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = None
-    birth_date: Optional[str] = None
+    full_name: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    birth_date: str | None = None
+    
+    # Informações Complementares (opcionais)
+    school_level: str | None = None
+    intended_course: str | None = None
+    state: str | None = None
+    city: str | None = None
+    enem_attempts: str | None = None
+    previous_scores: str | None = None
+    main_goal: str | None = None
+    study_method: str | None = None
     
     @field_validator('phone')
     @classmethod
