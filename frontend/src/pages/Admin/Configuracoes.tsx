@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import AdminLayout from '../../components/AdminLayout';
+import ToggleSwitch from '../../components/ToggleSwitch';
 
 interface Settings {
     siteName: string;
@@ -21,6 +22,8 @@ interface Settings {
         discount_percentage: number;
         discount_text: string | null;
         bonus: number;
+        is_active: boolean;
+        is_popular: boolean;
         feature1: string;
         feature2: string;
         feature3: string;
@@ -72,7 +75,7 @@ const Configuracoes = () => {
 
     const fetchPackages = async () => {
         try {
-            const response = await api.get('/api/packages');
+            const response = await api.get('/api/packages/all');
             const apiPackages = response.data.map((pkg: any) => ({
                 id: pkg.id,
                 name: pkg.name,
@@ -81,6 +84,8 @@ const Configuracoes = () => {
                 discount_percentage: pkg.discount_percentage || 0,
                 discount_text: pkg.discount_text || null,
                 bonus: pkg.bonus,
+                is_active: pkg.is_active !== undefined ? pkg.is_active : true,
+                is_popular: pkg.is_popular || false,
                 feature1: pkg.feature1 || '',
                 feature2: pkg.feature2 || '',
                 feature3: pkg.feature3 || '',
@@ -116,6 +121,8 @@ const Configuracoes = () => {
                     discount_percentage: pkg.discount_percentage,
                     discount_text: pkg.discount_text,
                     bonus: pkg.bonus,
+                    is_active: pkg.is_active,
+                    is_popular: pkg.is_popular,
                     feature1: pkg.feature1,
                     feature2: pkg.feature2,
                     feature3: pkg.feature3,
@@ -549,11 +556,50 @@ const Configuracoes = () => {
                             key={pkg.id}
                             style={{
                                 background: '#0f1419',
-                                border: '1px solid #334155',
+                                border: `1px solid ${pkg.is_active ? '#4ade80' : '#334155'}`,
                                 borderRadius: '8px',
-                                padding: '16px'
+                                padding: '16px',
+                                opacity: pkg.is_active ? 1 : 0.6
                             }}
                         >
+                            {/* Toggle Header */}
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginBottom: '16px',
+                                paddingBottom: '12px',
+                                borderBottom: '1px solid #334155'
+                            }}>
+                                <div style={{
+                                    fontSize: '16px',
+                                    fontWeight: '700',
+                                    color: '#fff',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
+                                }}>
+                                    {pkg.name}
+                                    {pkg.is_popular && (
+                                        <span style={{
+                                            padding: '4px 8px',
+                                            background: '#ef4444',
+                                            borderRadius: '4px',
+                                            fontSize: '11px',
+                                            fontWeight: '700',
+                                            color: '#fff'
+                                        }}>
+                                            POPULAR
+                                        </span>
+                                    )}
+                                </div>
+                                <ToggleSwitch
+                                    enabled={pkg.is_active}
+                                    onChange={(enabled) => handleUpdatePackage(pkg.id, 'is_active', enabled)}
+                                    label={pkg.is_active ? 'Ativo' : 'Inativo'}
+                                />
+                            </div>
+
                             <div style={{
                                 display: 'grid',
                                 gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr',
