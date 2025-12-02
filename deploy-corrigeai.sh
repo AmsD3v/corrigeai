@@ -42,6 +42,11 @@ echo ""
 # ============================================================
 echo "🧹 [2/8] Limpando Docker..."
 
+# Reiniciar serviço Docker para limpar processos travados
+echo "   → Reiniciando serviço Docker (correção de permissão)..."
+sudo systemctl restart docker
+sleep 5
+
 cd ~/corrigeai
 
 # Parar e remover containers na força bruta (evita erro de permissão)
