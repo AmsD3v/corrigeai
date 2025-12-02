@@ -295,17 +295,18 @@ const LandingPage = () => {
             display: flex !important;
             position: fixed;
             top: 0;
-            left: 0;
+            right: 0; /* Position on right */
+            left: auto; /* Reset left */
             bottom: 0;
             width: 100%;
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
             flex-direction: column;
             padding: 80px 24px 24px;
-            border-right: none;
+            border-left: none; /* Was border-right */
             gap: 20px;
             z-index: 999;
-            transform: translateX(-100%);
+            transform: translateX(100%); /* Start from right */
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           }
           
