@@ -70,6 +70,16 @@ class User(UserBase):
     is_admin: bool = False
     phone: Optional[str] = None
     birth_date: Optional[str] = None
+    
+    # Complementary Info Fields
+    school_level: Optional[str] = None
+    intended_course: Optional[str] = None
+    state: Optional[str] = None
+    city: Optional[str] = None
+    enem_attempts: Optional[str] = None
+    previous_scores: Optional[str] = None
+    main_goal: Optional[str] = None
+    study_method: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True) # Usa ConfigDict
 
