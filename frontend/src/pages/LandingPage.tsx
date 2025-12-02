@@ -297,12 +297,12 @@ const LandingPage = () => {
             top: 0;
             left: 0;
             bottom: 0;
-            width: 280px;
-            background: rgba(26, 31, 46, 0.98);
+            width: 85%;
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(10px);
             flex-direction: column;
             padding: 80px 24px 24px;
-            border-right: 1px solid #334155;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
             gap: 20px;
             z-index: 999;
             transform: translateX(-100%);
