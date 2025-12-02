@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../../services/api';
+import api from '../../services/api';
+
+const apiClient = api;
 
 interface ComplementaryInfoProps {
     user: any;
