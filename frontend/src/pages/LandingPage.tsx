@@ -115,8 +115,14 @@ const LandingPage = () => {
 
         .nav-links {
           display: flex;
-          gap: 32px;
+          gap: 20px;
           align-items: center;
+          flex-wrap: nowrap;
+        }
+
+        .nav-links a {
+          white-space: nowrap;
+          font-size: 14px;
         }
 
         .hero-title {
@@ -394,12 +400,21 @@ const LandingPage = () => {
           top: 0,
           left: 0,
           right: 0,
-          zIndex: 1000,
-          background: 'rgba(26, 31, 46, 0.95)',
+          width: '100%',
           backdropFilter: 'blur(10px)',
+          backgroundColor: 'rgba(26, 31, 46, 0.8)',
+          zIndex: 1000,
           borderBottom: '1px solid rgba(255,255,255,0.1)'
         }}>
-          <div className="container flex-between" style={{ height: '70px' }}>
+          <div style={{
+            maxWidth: '100%',
+            margin: '0 auto',
+            padding: '0 24px',
+            height: '70px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
             {/* Logo - Icon LEFT, Text RIGHT */}
             <div
               className="logo-container"
@@ -445,9 +460,10 @@ const LandingPage = () => {
 
             {/* Nav Links */}
             <nav className={`nav-links ${mobileMenuOpen ? 'open' : ''}`}>
-              {/* Mobile Header inside Menu */}
+              {/* Mobile Header inside Menu - Horizontal Layout */}
               <div style={{
                 display: 'flex',
+                flexDirection: 'row',
                 alignItems: 'center',
                 gap: '12px',
                 marginBottom: '32px',
@@ -463,11 +479,12 @@ const LandingPage = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '18px'
+                  fontSize: '18px',
+                  flexShrink: 0
                 }}>
                   🦉
                 </div>
-                <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px' }}>CorrigeAI</span>
+                <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>CorrigeAI</span>
               </div>
 
               <a href="#como-funciona" onClick={() => setMobileMenuOpen(false)}>Como funciona</a>
