@@ -5,8 +5,8 @@ Script para popular o banco de dados com dados iniciais:
 - Opções de dropdown para informações complementares (22)
 """
 import sys
-from database import SessionLocal, init_db_engine
-from models_complementary import BrazilState, BrazilCity, DropdownOption
+from src.database import SessionLocal, init_db_engine
+from src.models_complementary import BrazilState, BrazilCity, DropdownOption
 
 def populate_states(db):
     """Popula tabela de estados brasileiros"""
