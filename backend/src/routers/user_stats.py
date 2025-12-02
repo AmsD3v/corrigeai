@@ -1,14 +1,28 @@
 """
 Router para estatísticas e exportação de dados de usuários (Admin)
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from ..database import get_db
 from ..models import User
 from ..dependencies import get_current_admin_user
-from typing import Dict, Any, List
+from typing import Dict, Any
+import io
+import csv
+from datetime import datetime
+
+router = APIRouter()
+
+
+@router.get("/admin/user-profile-stats")
+def get_user_profile_stats(
+    current_user: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+) -> Dict[str, Any]:
+    """Retorna estatísticas agregadas das informações complementares dos usuários"""
+    
     total_users = db.query(User).count()
     
     # Contar usuários que preencheram pelo menos um campo complementar
