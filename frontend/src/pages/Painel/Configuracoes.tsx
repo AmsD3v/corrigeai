@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext'; 
 import apiClient from '../../services/api';
 import ConfirmModal from '../../components/ConfirmModal';
+import ComplementaryInfo from '../../components/ComplementaryInfo';
 
 // Phone mask helper
 const formatPhone = (value: string) => {
@@ -27,15 +28,12 @@ const Configuracoes = () => {
     // Form State
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [birthDate, setBirthDate] = useState('');
+    const [userData, setUserData] = useState<any>(null);
 
     // Loading & Feedback State
     const [loading, setLoading] = useState(true);
     const [savingPersonal, setSavingPersonal] = useState(false);
-    const [savingComplementary, setSavingComplementary] = useState(false);
     const [personalSuccess, setPersonalSuccess] = useState(false);
-    const [complementarySuccess, setComplementarySuccess] = useState(false);
     const [error, setError] = useState('');
 
     // Delete account modal state
@@ -49,10 +47,9 @@ const Configuracoes = () => {
                 const response = await apiClient.get('/users/me');
                 const user = response.data;
 
+                setUserData(user);
                 setFullName(user.full_name || '');
                 setEmail(user.email || '');
-                setPhone(user.phone ? formatPhone(user.phone) : '');
-                setBirthDate(user.birth_date || '');
             } catch (err) {
                 console.error('Error loading user data:', err);
                 setError('Erro ao carregar dados do usuário');
@@ -84,28 +81,6 @@ const Configuracoes = () => {
         }
     };
 
-    const handleSaveComplementaryInfo = async () => {
-        setSavingComplementary(true);
-        setError('');
-        setComplementarySuccess(false);
-
-        try {
-            const phoneNumbers = phone.replace(/\D/g, '');
-
-            await apiClient.put('/users/me/profile', {
-                phone: phoneNumbers || null,
-                birth_date: birthDate || null
-            });
-
-            setComplementarySuccess(true);
-            setTimeout(() => setComplementarySuccess(false), 3000);
-        } catch (err: any) {
-            setError(err.response?.data?.detail || 'Erro ao salvar informações');
-        } finally {
-            setSavingComplementary(false);
-        }
-    };
-
     const handleLogout = () => {
         logout();
         navigate('/login');
@@ -129,6 +104,18 @@ const Configuracoes = () => {
             setShowDeleteModal(false);
         } finally {
             setDeleting(false);
+        }
+    };
+
+    const handleComplementaryInfoUpdate = async () => {
+        try {
+            const response = await apiClient.get('/users/me');
+            const user = response.data;
+            setUserData(user);
+            setFullName(user.full_name || '');
+            setEmail(user.email || '');
+        } catch (err) {
+            console.error('Error reloading user data:', err);
         }
     };
 
@@ -329,93 +316,15 @@ const Configuracoes = () => {
                     </span>
                 </button>
 
-                {complementaryInfoOpen && (
+                {complementaryInfoOpen && userData && (
                     <div style={{
                         padding: '0 24px 24px',
                         borderTop: '1px solid #334155'
                     }}>
-                        <div style={{ marginTop: '20px' }}>
-                            <label style={{
-                                display: 'block',
-                                fontSize: '13px',
-                                fontWeight: '600',
-                                color: '#94a3b8',
-                                marginBottom: '8px'
-                            }}>
-                                Telefone
-                            </label>
-                            <input
-                                type="tel"
-                                value={phone}
-                                onChange={(e) => setPhone(formatPhone(e.target.value))}
-                                placeholder="(00) 00000-0000"
-                                maxLength={15}
-                                style={{
-                                    width: '100%',
-                                    padding: '12px 16px',
-                                    background: '#0f1419',
-                                    border: '1px solid #334155',
-                                    borderRadius: '8px',
-                                    color: '#fff',
-                                    fontSize: '14px',
-                                    marginBottom: '16px'
-                                }}
-                            />
-
-                            <label style={{
-                                display: 'block',
-                                fontSize: '13px',
-                                fontWeight: '600',
-                                color: '#94a3b8',
-                                marginBottom: '8px'
-                            }}>
-                                Data de Nascimento
-                            </label>
-                            <input
-                                type="date"
-                                value={birthDate}
-                                onChange={(e) => setBirthDate(e.target.value)}
-                                style={{
-                                    width: '100%',
-                                    padding: '12px 16px',
-                                    background: '#0f1419',
-                                    border: '1px solid #334155',
-                                    borderRadius: '8px',
-                                    color: '#fff',
-                                    fontSize: '14px',
-                                    marginBottom: '16px',
-                                    colorScheme: 'dark'
-                                }}
-                            />
-
-                            <button
-                                onClick={handleSaveComplementaryInfo}
-                                disabled={savingComplementary}
-                                style={{
-                                    padding: '10px 24px',
-                                    background: complementarySuccess ? '#10b981' : '#4F46E5',
-                                    color: '#fff',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-                                    cursor: savingComplementary ? 'not-allowed' : 'pointer',
-                                    transition: 'all 0.2s',
-                                    opacity: savingComplementary ? 0.7 : 1
-                                }}
-                                onMouseEnter={(e) => {
-                                    if (!savingComplementary && !complementarySuccess) {
-                                        e.currentTarget.style.background = '#4338ca';
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (!complementarySuccess) {
-                                        e.currentTarget.style.background = '#4F46E5';
-                                    }
-                                }}>
-                                {savingComplementary ? 'Salvando...' : complementarySuccess ? '✓ Salvo!' : 'Salvar Alterações'}
-                            </button>
-                        </div>
+                        <ComplementaryInfo 
+                            user={userData}
+                            onUpdate={handleComplementaryInfoUpdate}
+                        />
                     </div>
                 )}
             </div>
@@ -549,4 +458,3 @@ const Configuracoes = () => {
 };
 
 export default Configuracoes;
-
