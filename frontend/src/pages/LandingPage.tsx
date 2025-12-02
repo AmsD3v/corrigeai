@@ -432,7 +432,7 @@ const LandingPage = () => {
                 borderBottom: '1px solid rgba(255,255,255,0.1)',
                 width: '100%'
               }} className="mobile-only">
-                <span style={{ fontSize: '18px', fontWeight: '800', color: '#fff' }}>Menu</span>
+                <span style={{ fontSize: '24px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px' }}>CorrigeAI</span>
                 <div style={{
                   width: '32px',
                   height: '32px',
@@ -441,8 +441,7 @@ const LandingPage = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '18px',
-                  marginLeft: 'auto'
+                  fontSize: '18px'
                 }}>
                   🦉
                 </div>
@@ -1421,6 +1420,7 @@ const LandingPage = () => {
         <footer style={{ padding: '40px 0', background: '#1a1f2e', borderTop: '1px solid #334155' }}>
           <div className="container footer-content">
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '18px', fontWeight: '700', color: '#fff' }}>CorrigeAI</span>
               <div style={{
                 width: '40px',
                 height: '40px',
@@ -1433,7 +1433,6 @@ const LandingPage = () => {
               }}>
                 🦉
               </div>
-              <span style={{ fontSize: '18px', fontWeight: '700', color: '#fff' }}>CorrigeAI</span>
             </div>
 
             <div style={{ display: 'flex', gap: '32px', fontSize: '14px', color: '#94a3b8' }}>
