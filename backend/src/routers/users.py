@@ -31,6 +31,18 @@ async def update_profile(
     if profile_data.full_name is not None:
         current_user.full_name = profile_data.full_name
     if profile_data.email is not None:
+        current_user.email = profile_data.email
+    if profile_data.phone is not None:
+        current_user.phone = profile_data.phone if profile_data.phone.strip() else None
+    if profile_data.birth_date is not None:
+        current_user.birth_date = profile_data.birth_date if profile_data.birth_date.strip() else None
+    
+    db.commit()
+    db.refresh(current_user)
+    
+    return current_user
+
+@router.delete("/users/me")
 async def delete_my_account(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
