@@ -37,6 +37,24 @@ async def update_profile(
     if profile_data.birth_date is not None:
         current_user.birth_date = profile_data.birth_date if profile_data.birth_date.strip() else None
     
+    # Update complementary info fields
+    if profile_data.school_level is not None:
+        current_user.school_level = profile_data.school_level if profile_data.school_level.strip() else None
+    if profile_data.intended_course is not None:
+        current_user.intended_course = profile_data.intended_course if profile_data.intended_course.strip() else None
+    if profile_data.state is not None:
+        current_user.state = profile_data.state if profile_data.state.strip() else None
+    if profile_data.city is not None:
+        current_user.city = profile_data.city if profile_data.city.strip() else None
+    if profile_data.enem_attempts is not None:
+        current_user.enem_attempts = profile_data.enem_attempts if profile_data.enem_attempts.strip() else None
+    if profile_data.previous_scores is not None:
+        current_user.previous_scores = profile_data.previous_scores if profile_data.previous_scores.strip() else None
+    if profile_data.main_goal is not None:
+        current_user.main_goal = profile_data.main_goal if profile_data.main_goal.strip() else None
+    if profile_data.study_method is not None:
+        current_user.study_method = profile_data.study_method if profile_data.study_method.strip() else None
+    
     db.commit()
     db.refresh(current_user)
     
