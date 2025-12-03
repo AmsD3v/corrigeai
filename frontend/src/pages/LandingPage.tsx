@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import Header from '../components/Header';
 
 interface Package {
   id: string;
@@ -417,130 +418,7 @@ const LandingPage = () => {
 
       <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%)' }}>
 
-        {/* Mobile Menu Overlay */}
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.6)',
-            zIndex: 999,
-            backdropFilter: 'blur(4px)',
-            opacity: mobileMenuOpen ? 1 : 0,
-            pointerEvents: mobileMenuOpen ? 'auto' : 'none',
-            transition: 'opacity 0.3s ease'
-          }}
-          onClick={() => setMobileMenuOpen(false)}
-        />
-
-        {/* HEADER */}
-        <header style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          width: '100%',
-          backdropFilter: 'blur(10px)',
-          backgroundColor: 'rgba(26, 31, 46, 0.8)',
-          zIndex: 1000,
-          borderBottom: '1px solid rgba(255,255,255,0.1)'
-        }}>
-          <div style={{
-            maxWidth: '100%',
-            margin: '0 auto',
-            padding: '0 24px',
-            height: '70px',
-            display: 'grid',
-            gridTemplateColumns: '1fr auto 1fr',
-            alignItems: 'center',
-            gap: '20px'
-          }}>
-            {/* Logo - Left */}
-            <div
-              onClick={() => navigate('/')}
-              className="flex items-center gap-3 cursor-pointer group"
-            >
-              <div className="w-5 h-10 rounded-xl bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center shadow-lg group-hover:shadow-brand-primary/50 transition-all duration-300">
-                <span className="text-2xl">🦉</span>
-              </div>
-              <span className="text-xl md:text-2xl font-bold text-white tracking-tight">
-                Corrige<span className="text-brand-accent">AI</span>
-              </span>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="mobile-menu-btn"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              style={{ zIndex: 1002, position: 'relative', paddingRight: '27px', gridColumn: '3', justifySelf: 'end' }}
-            >
-              {mobileMenuOpen ? '✕' : '☰'}
-            </button>
-
-            {/* Nav Links - Centered */}
-            <nav className={`nav-links ${mobileMenuOpen ? 'open' : ''}`} style={{
-              gridColumn: '2',
-              justifySelf: 'center'
-            }}>
-              {/* Mobile Header inside Menu - Horizontal Layout */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: '12px',
-                marginBottom: '32px',
-                paddingBottom: '24px',
-                borderBottom: '1px solid rgba(255,255,255,0.1)',
-                justifyContent: 'center',
-                width: '100%'
-              }} className="mobile-only">
-              </div>
-
-              <a href="#como-funciona" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Como funciona</a>
-              <a href="#correcao" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Correção</a>
-              <a href="#objetivos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Objetivos</a>
-              <a href="#relatos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Relatos</a>
-              <a href="#precos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Preços</a>
-              <button
-                onClick={() => navigate('/login')}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  padding: '8px 16px'
-                }}
-              >
-                Entrar
-              </button>
-            </nav>
-
-            {/* CTA Button - Right (Desktop only) */}
-            <button
-              className="desktop-only-btn"
-              onClick={() => navigate('/register')}
-              style={{
-                gridColumn: '3',
-                justifySelf: 'end',
-                background: '#4F46E5',
-                border: 'none',
-                color: '#fff',
-                fontSize: '14px',
-                fontWeight: '600',
-                padding: '10px 30px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Começar correção grátis
-            </button>
-          </div>
-        </header>
+        <Header />
 
         {/* HERO SECTION */}
         <section style={{
