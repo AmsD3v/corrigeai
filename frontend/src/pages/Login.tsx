@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import Header from '../components/Header';
 
 type AuthMode = 'login' | 'forgot-email' | 'forgot-token' | 'new-password';
 
@@ -201,27 +202,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0B1121] flex flex-col">
-      {/* HEADER */}
-      <header className="h-20 px-6 lg:px-12 flex items-center justify-between border-b border-[#334155]">
-        <div className="flex items-center gap-2 font-extrabold text-xl cursor-pointer" onClick={() => navigate('/')}>
-          <div className="w-10 h-10 bg-gradient-to-br from-[#3B82F6] to-[#2563EB] rounded-xl flex items-center justify-center text-white shadow-lg">
-            <span className="text-2xl">🦉</span>
-          </div>
-          <span className="text-white tracking-tight text-lg">Corrige<span className="text-[#3B82F6]">AI</span></span>
-        </div>
-
-        <nav className="flex items-center gap-6 text-sm font-semibold">
-          <a href="/" className="text-[#94A3B8] hover:text-[#3B82F6] transition-colors hidden sm:block">Início</a>
-          <a href="/#como-funciona" className="text-[#94A3B8] hover:text-[#3B82F6] transition-colors hidden sm:block">Como funciona</a>
-          <a href="/#precos" className="text-[#94A3B8] hover:text-[#3B82F6] transition-colors hidden sm:block">Preços</a>
-          <button
-            onClick={() => navigate('/register')}
-            className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 py-2 rounded-lg font-bold transition-all shadow-lg"
-          >
-            Começar correção grátis
-          </button>
-        </nav>
-      </header>
+      <Header variant="auth" />
 
       {/* MAIN CONTENT */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
