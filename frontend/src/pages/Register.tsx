@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 import Header from '../components/Header';
@@ -174,19 +174,23 @@ const Register: React.FC = () => {
                     'Criar conta'
                   )}
                 </button>
-
-                <div className="text-center text-[#94A3B8] text-sm">
-                  Já tem conta?{' '}
-                  <a href="/login" className="text-[#3B82F6] font-semibold hover:underline">
-                    Entrar
-                  </a>
-                </div>
               </form>
+
+              <div className="text-center text-[#94A3B8] text-sm mt-4">
+                Já tem conta?{' '}
+                <button
+                  type="button"
+                  onClick={() => navigate('/login')}
+                  className="text-[#3B82F6] font-semibold hover:underline bg-transparent border-none cursor-pointer"
+                >
+                  Entrar
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* RIGHT: CHARACTER */}
-          <div className="order-1 lg:order-2 flex justify-start lg:justify-start relative z-20 lg:ml-[-70px]">
+          {/* RIGHT: CHARACTER - Desktop Only */}
+          <div className="hidden lg:flex order-1 lg:order-2 justify-start lg:justify-start relative z-20 lg:ml-[-70px]">
             <div className="relative">
               <img
                 src="/owl-thumbs-up.png"

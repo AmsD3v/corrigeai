@@ -216,7 +216,7 @@ const Login: React.FC = () => {
               <p className="text-[#94A3B8]">Acesse sua conta para continuar praticando suas redações.</p>
             </div>
 
-            <div className="w-160 bg-[#1E293B] border border-[#334155] rounded-2xl px-12 py-6 max-w-3xl mx-auto">
+            <div className="w-full max-w-md lg:w-160 lg:max-w-3xl bg-[#1E293B] border border-[#334155] rounded-2xl px-6 py-6 lg:px-12 mx-auto">
               {/* Título interno */}
 
               {/* ============================================ */}
@@ -276,9 +276,7 @@ const Login: React.FC = () => {
 
                   <div className="text-center text-[#94A3B8] text-sm">
                     Ainda não tem conta?{' '}
-                    <a href="/register" className="text-[#3B82F6] font-semibold hover:underline">
-                      Criar conta
-                    </a>
+                    <button type="button" onClick={() => navigate('/register')} className="text-[#3B82F6] font-semibold hover:underline bg-transparent border-none cursor-pointer">`n                      Criar conta`n                    </button>
                   </div>
                 </form>
               )}
@@ -448,8 +446,8 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          {/* RIGHT: CHARACTER */}
-          <div className="order-1 lg:order-2 flex justify-start lg:justify-start relative z-20 lg:ml-[-80px]">
+          {/* RIGHT: CHARACTER - Desktop Only */}
+          <div className="hidden lg:flex order-1 lg:order-2 justify-start lg:justify-start relative z-20 lg:ml-[-80px]">
             <div className="relative">
               <img
                 src="/owl-thumbs-up.png"

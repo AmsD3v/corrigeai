@@ -7,7 +7,7 @@ interface Package {
   id: string;
   name: string;
   credits: number;
-  price: number; // in cents
+  price: number;
   discount_percentage: number;
   discount_text: string | null;
   bonus: number;
@@ -21,12 +21,10 @@ const LandingPage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  // Detect screen size changes
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -38,44 +36,32 @@ const LandingPage = () => {
           if (entry.isIntersecting) {
             entry.target.classList.add('revealed');
           } else {
-            // Remove revealed class when element exits viewport to allow re-animation
             entry.target.classList.remove('revealed');
           }
         });
       },
-      {
-        threshold: 0.1,
-        rootMargin: '0px 0px -100px 0px' // Trigger when element is 100px into viewport
-      }
+      { threshold: 0.1, rootMargin: '0px 0px -100px 0px' }
     );
 
     const elements = document.querySelectorAll('.reveal-on-scroll, .slide-left, .slide-right, .scale-in');
     elements.forEach((el) => observer.observe(el));
-
     return () => observer.disconnect();
   }, []);
 
-  // Fetch packages from API
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        console.log('[LandingPage] Fetching packages from API...');
         const response = await api.get('/api/packages');
-        console.log('[LandingPage] API Response:', response.data);
-        // Filter only active packages and sort by credits
         const activePackages = response.data
           .filter((pkg: any) => pkg.is_active)
           .sort((a: any, b: any) => a.credits - b.credits);
-        console.log('[LandingPage] Active packages:', activePackages);
         setPackages(activePackages);
       } catch (error) {
         console.error('[LandingPage] Error fetching packages:', error);
       } finally {
         setLoading(false);
-        console.log('[LandingPage] Loading set to false');
       }
     };
-
     fetchPackages();
   }, []);
 
@@ -83,7 +69,11 @@ const LandingPage = () => {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        
+
+        * {
+          box-sizing: border-box;
+        }
+
         body {
           margin: 0;
           padding: 0;
@@ -93,7 +83,9 @@ const LandingPage = () => {
           overflow-x: hidden;
         }
 
-        /* Responsive Utilities */
+        /* ========================================
+           CONTAINER & GRIDS - DESKTOP (padrão)
+        ======================================== */
         .container {
           max-width: 1200px;
           margin: 0 auto;
@@ -125,6 +117,9 @@ const LandingPage = () => {
           align-items: center;
         }
 
+        /* ========================================
+           NAV DESKTOP
+        ======================================== */
         .nav-links {
           display: flex;
           gap: 20px;
@@ -135,35 +130,128 @@ const LandingPage = () => {
         .nav-links a {
           white-space: nowrap;
           font-size: 14px;
+          color: #94a3b8;
+          text-decoration: none;
+          font-weight: 500;
+          transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+          color: #fff;
+        }
+
+        /* ========================================
+           HERO
+        ======================================== */
+        .hero-section {
+          padding-top: 140px;
+          padding-bottom: 80px;
+          position: relative;
+          overflow: hidden;
         }
 
         .hero-title {
-          fontSize: 56px;
-          fontWeight: 800;
-          lineHeight: 1.1;
-          marginBottom: 24px;
-          background: linear-gradient(135deg, #fff 0%, #818cf8 100%);
+          font-size: 56px;
+          font-weight: 800;
+          line-height: 1.1;
+          margin-bottom: 24px;
+          background: linear-gradient(to right, #fff, #94a3b8);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
         }
-        
+
         .hero-buttons {
           display: flex;
           gap: 16px;
           margin-bottom: 24px;
+          flex-wrap: wrap;
         }
-        
+
+        .hero-image {
+          width: 400px;
+          max-width: 100%;
+          height: auto;
+          animation: breathe 8s ease-in-out infinite;
+          filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3));
+        }
+
+        /* ========================================
+           BUTTONS
+        ======================================== */
+        .btn-primary {
+          background: #4F46E5;
+          border: none;
+          color: #fff;
+          font-size: 16px;
+          font-weight: 600;
+          padding: 16px 32px;
+          border-radius: 12px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.3s ease;
+          white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-outline {
+          background: transparent;
+          border: 2px solid #334155;
+          color: #fff;
+          font-size: 16px;
+          font-weight: 600;
+          padding: 16px 32px;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+          border-color: #4F46E5;
+        }
+
+        /* ========================================
+           MOBILE MENU BUTTON
+        ======================================== */
         .mobile-menu-btn {
           display: none;
           background: transparent;
           border: none;
           color: white;
-          font-size: 24px;
+          font-size: 28px;
           cursor: pointer;
+          padding: 8px;
+          z-index: 1001;
         }
 
-        /* Scroll Reveal Animations */
+        /* ========================================
+           STEP CARDS - SEMPRE EM LINHA
+        ======================================== */
+        .step-card {
+          display: flex !important;
+          flex-direction: row !important;
+          align-items: flex-start !important;
+          gap: 16px !important;
+        }
+
+        .step-card-badge {
+          flex-shrink: 0 !important;
+        }
+
+        .step-card-content {
+          flex: 1 !important;
+          min-width: 0 !important;
+        }
+
+        /* ========================================
+           ANIMATIONS
+        ======================================== */
         .reveal-on-scroll {
           opacity: 0;
           transform: translateY(40px);
@@ -176,7 +264,6 @@ const LandingPage = () => {
           transform: translateY(0);
         }
 
-        /* Slide from left */
         .slide-left {
           opacity: 0;
           transform: translateX(-60px);
@@ -189,7 +276,6 @@ const LandingPage = () => {
           transform: translateX(0);
         }
 
-        /* Slide from right */
         .slide-right {
           opacity: 0;
           transform: translateX(60px);
@@ -202,13 +288,6 @@ const LandingPage = () => {
           transform: translateX(0);
         }
 
-        /* Stagger delays for multiple items */
-        .delay-1 { transition-delay: 0.1s; }
-        .delay-2 { transition-delay: 0.2s; }
-        .delay-3 { transition-delay: 0.3s; }
-        .delay-4 { transition-delay: 0.4s; }
-
-        /* Scale animation */
         .scale-in {
           opacity: 0;
           transform: scale(0.9);
@@ -221,7 +300,11 @@ const LandingPage = () => {
           transform: scale(1);
         }
 
-        /* Continuous animations */
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+        .delay-4 { transition-delay: 0.4s; }
+
         @keyframes breathe {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.03); }
@@ -237,7 +320,9 @@ const LandingPage = () => {
           50% { transform: translateY(-10px); }
         }
 
-        /* Hover effects */
+        /* ========================================
+           HOVER EFFECTS
+        ======================================== */
         .hover-lift {
           transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
                       box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -248,6 +333,9 @@ const LandingPage = () => {
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
+        /* ========================================
+           CTA BOX & FOOTER
+        ======================================== */
         .cta-box {
           background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
           border: 1px solid rgba(79, 70, 229, 0.3);
@@ -256,53 +344,114 @@ const LandingPage = () => {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          gap: 24px;
         }
 
         .footer-content {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          flex-wrap: wrap;
+          gap: 24px;
         }
 
+        /* ========================================
+           VISIBILITY CLASSES
+        ======================================== */
         .desktop-only {
           display: block;
         }
 
         .mobile-only {
-          display: none;
+          display: none !important;
         }
 
-        .desktop-only-btn {
-          display: block;
+        /* ========================================
+           TIMELINE STEPS
+        ======================================== */
+        .timeline-steps {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-around;
+          align-items: center;
+          gap: 20px;
+          flex-wrap: nowrap;
+          position: relative;
+          z-index: 1;
         }
 
-        /* Mobile Logo - Ensure horizontal layout */
-        @media (max-width: 768px) {
-          .desktop-only-btn {
-            display: none !important;
+        /* ========================================
+           STATS GRID
+        ======================================== */
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 40px;
+        }
+
+        /* ========================================
+           LOGO CONTAINER
+        ======================================== */
+        .logo-container {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          cursor: pointer;
+          flex-direction: row;
+          flex-wrap: nowrap;
+        }
+
+        /* ========================================
+           COMO FUNCIONA SECTION
+        ======================================== */
+        .como-funciona-section {
+          padding: 80px 0;
+          background: #1a1f2e;
+        }
+
+        /* ========================================
+           TABLET (max-width: 1024px)
+        ======================================== */
+        @media (max-width: 1024px) {
+          .grid-2 {
+            grid-template-columns: 1fr;
+            gap: 40px;
           }
-          
-          .logo-container {
-            flex-direction: row !important;
-            gap: 12px !important;
+
+          .grid-3 {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
           }
-          
-          .logo-container div {
-            width: 36px !important;
-            height: 36px !important;
-            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%) !important;
-            borderRadius: 10px !important;
-            fontSize: 20px !important;
-            flexShrink: 0 !important;
+
+          .grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
           }
-          
-          .logo-container span {
-            fontSize: 20px !important;
-            whiteSpace: 'nowrap' !important;
+
+          .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+          }
+
+          .hero-title {
+            font-size: 42px;
+          }
+
+          .hero-section {
+            padding-top: 100px;
+            padding-bottom: 60px;
+          }
+
+          .cta-box {
+            flex-direction: column;
+            text-align: center;
+            padding: 40px 32px;
           }
         }
 
-        /* MEDIA QUERIES */
+        /* ========================================
+           MOBILE (max-width: 768px)
+        ======================================== */
         @media (max-width: 768px) {
           .desktop-only {
             display: none !important;
@@ -312,123 +461,269 @@ const LandingPage = () => {
             display: flex !important;
           }
 
-          /* Force container padding */
           .container {
             padding: 0 16px !important;
           }
 
-          /* Force all grids to single column */
-          .grid-2 {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 24px !important;
-          }
-
-          .grid-3 {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 24px !important;
-          }
-
-          /* Keep timeline badges horizontal */
-          .timeline-steps {
-            display: flex !important;
-            flex-direction: row !important;
-            justify-content: space-around !important;
-            flex-wrap: nowrap !important;
-          }
-
+          /* Grids viram coluna única */
+          .grid-2,
+          .grid-3,
           .grid-4 {
             display: flex !important;
             flex-direction: column !important;
             gap: 24px !important;
           }
-          
+
           .stats-grid {
             display: grid !important;
             grid-template-columns: 1fr 1fr !important;
             gap: 20px !important;
           }
 
+          /* Hero - REDUZIDO padding inferior */
+          .hero-section {
+            padding-top: 100px !important;
+            padding-bottom: 20px !important;
+          }
+
+          /* Como Funciona - REDUZIDO padding superior */
+          .como-funciona-section {
+            padding-top: 32px !important;
+            padding-bottom: 60px !important;
+          }
+
           .hero-title {
-            font-size: 36px !important;
+            font-size: 32px !important;
+            text-align: center;
           }
-          
-          /* Hide desktop nav */
-          .nav-links {
-            display: flex !important;
-            position: fixed;
-            top: 0;
-            right: 0; /* Position on right */
-            left: auto; /* Reset left */
-            bottom: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
-            flex-direction: column;
-            padding: 80px 24px 24px;
-            border-left: none; /* Was border-right */
-            gap: 20px;
-            z-index: 999;
-            transform: translateX(100%); /* Start from right */
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          }
-          
-          /* Show nav when open */
-          .nav-links.open {
-            transform: translateX(0);
-          }
-          
-          /* Show hamburger menu */
-          .mobile-menu-btn {
-            display: block !important;
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 28px;
-            cursor: pointer;
-            padding: 8px;
-          }
-          
+
           .hero-buttons {
             flex-direction: column !important;
             width: 100% !important;
           }
-          
-          .hero-buttons button {
+
+          .hero-buttons button,
+          .btn-primary,
+          .btn-outline {
             width: 100% !important;
             justify-content: center !important;
           }
-          
+
           .hero-image {
             width: 100% !important;
-            max-width: 300px !important;
+            max-width: 280px !important;
+            margin: 0 auto;
           }
 
+          /* Nav Mobile */
+          .nav-links {
+            display: flex !important;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: auto;
+            bottom: 0;
+            width: 100%;
+            max-width: 320px;
+            background: rgba(15, 20, 25, 0.98);
+            backdrop-filter: blur(16px);
+            flex-direction: column;
+            padding: 100px 24px 40px;
+            gap: 20px;
+            z-index: 999;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 1px solid #334155;
+          }
+
+          .nav-links.open {
+            transform: translateX(0);
+          }
+
+          .nav-links a {
+            font-size: 18px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+          }
+
+          .mobile-menu-btn {
+            display: block !important;
+          }
+
+          /* STEP CARDS - Badge à esquerda, texto à direita */
+          .step-card {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: flex-start !important;
+            gap: 16px !important;
+          }
+
+          .step-card-badge {
+            flex-shrink: 0 !important;
+            width: 40px !important;
+            height: 40px !important;
+          }
+
+          .step-card-content {
+            flex: 1 !important;
+            min-width: 0 !important;
+          }
+
+          .step-card-content h3 {
+            font-size: 16px !important;
+            margin-bottom: 8px !important;
+          }
+
+          .step-card-content p {
+            font-size: 13px !important;
+          }
+
+          /* CTA Box */
           .cta-box {
             flex-direction: column !important;
             text-align: center !important;
             gap: 24px !important;
-            padding: 32px 24px !important;
+            padding: 32px 20px !important;
           }
 
+          .cta-box h2 {
+            font-size: 24px !important;
+          }
+
+          /* Footer */
           .footer-content {
             flex-direction: column !important;
             gap: 24px !important;
             text-align: center !important;
           }
 
-          /* Force sections padding */
+          /* Sections */
           section {
             padding-left: 16px !important;
             padding-right: 16px !important;
           }
 
-          /* Force logo row layout */
+          /* Timeline horizontal em mobile */
+          .timeline-steps {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-around !important;
+            flex-wrap: nowrap !important;
+            gap: 12px !important;
+          }
+
+          .timeline-steps > div {
+            flex: 1;
+            min-width: 0;
+          }
+
+          /* Logo sempre horizontal */
           .logo-container {
             flex-direction: row !important;
             flex-wrap: nowrap !important;
           }
+
+          .logo-container div {
+            width: 36px !important;
+            height: 36px !important;
+            font-size: 20px !important;
+            flex-shrink: 0 !important;
+          }
+
+          .logo-container span {
+            font-size: 18px !important;
+            white-space: nowrap !important;
+          }
+
+          /* Títulos menores */
+          h2 {
+            font-size: 28px !important;
+          }
+
+          /* Texto gratuito - sem margem extra */
+          .hero-note {
+            margin-bottom: 0 !important;
+          }
+        }
+
+        /* ========================================
+           MOBILE PEQUENO (max-width: 480px)
+        ======================================== */
+        @media (max-width: 480px) {
+          .hero-title {
+            font-size: 28px !important;
+          }
+
+          .hero-section {
+            padding-bottom: 50px !important;
+          }
+
+          .como-funciona-section {
+            padding-top: 24px !important;
+          }
+
+          .stats-grid {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+
+          .stats-grid > div {
+            padding: 20px !important;
+          }
+
+          .cta-box {
+            padding: 24px 16px !important;
+          }
+
+          h2 {
+            font-size: 24px !important;
+          }
+
+          .container {
+            padding: 0 12px !important;
+          }
+
+          /* Step cards ainda menores */
+          .step-card {
+            padding: 16px !important;
+            gap: 12px !important;
+          }
+
+          .step-card-badge {
+            width: 36px !important;
+            height: 36px !important;
+          }
+
+          .step-card-content h3 {
+            font-size: 15px !important;
+          }
+
+          .step-card-content p {
+            font-size: 12px !important;
+          }
+        }
+
+        /* ========================================
+           TELAS GRANDES (min-width: 1440px)
+        ======================================== */
+        @media (min-width: 1440px) {
+          .container {
+            max-width: 1320px;
+          }
+
+          .hero-title {
+            font-size: 64px;
+          }
+
+          .hero-section {
+            padding-top: 160px;
+            padding-bottom: 100px;
+          }
+        }
+        /* Força layout horizontal nos cards */
+          .grid-3 > div > div:first-child {
+            display: flex !important;
+            flex-direction: row !important;
         }
       `}</style>
 
@@ -437,12 +732,7 @@ const LandingPage = () => {
         <Header />
 
         {/* HERO SECTION */}
-        <section style={{
-          paddingTop: '140px',
-          paddingBottom: '80px',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
+        <section className="hero-section">
           {/* Background glow */}
           <div style={{
             position: 'absolute',
@@ -457,7 +747,7 @@ const LandingPage = () => {
 
           <div className="container grid-2">
             {/* Left side - Text */}
-            <div className="slide-left">
+            <div className="slide-left" style={{ textAlign: isMobile ? 'center' : 'left' }}>
               <div style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -472,16 +762,7 @@ const LandingPage = () => {
                 <span style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600' }}>CORREÇÃO COM INTELIGÊNCIA ARTIFICIAL</span>
               </div>
 
-              <h1 className="hero-title" style={{
-                fontSize: '64px',
-                fontWeight: '800',
-                lineHeight: '1.1',
-                marginBottom: '24px',
-                background: 'linear-gradient(to right, #fff, #94a3b8)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}>
+              <h1 className="hero-title">
                 Nota 1000<br />
                 começa com feedback<br />
                 inteligente
@@ -492,102 +773,47 @@ const LandingPage = () => {
                 color: '#94a3b8',
                 lineHeight: '1.6',
                 marginBottom: '32px',
-                maxWidth: '500px'
+                maxWidth: isMobile ? '100%' : '500px'
               }}>
                 Receba nota e feedback detalhado da sua redação do Enem em segundos. Correção com IA alinhada aos critérios oficiais do Enem.
               </p>
 
               <div className="hero-buttons">
                 <button
+                  className="btn-primary"
                   onClick={() => navigate('/register')}
-                  style={{
-                    background: '#4F46E5',
-                    border: 'none',
-                    color: '#fff',
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    padding: '16px 32px',
-                    borderRadius: '12px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(79, 70, 229, 0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
                 >
                   Começar de graça →
                 </button>
                 <button
+                  className="btn-outline"
                   onClick={() => navigate('/login')}
-                  style={{
-                    background: 'transparent',
-                    border: '2px solid #334155',
-                    color: '#fff',
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    padding: '16px 32px',
-                    borderRadius: '12px',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#4F46E5';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#334155';
-                  }}
                 >
                   Já tenho conta
                 </button>
               </div>
 
-              <p style={{ fontSize: '14px', color: '#64748b' }}>
+              <p className="hero-note" style={{ fontSize: '14px', color: '#64748b', marginBottom: isMobile ? '0' : '24px' }}>
                 Gratuito • Sem cartão de crédito • Feedback imediato
               </p>
             </div>
 
-            {/* Right side - Character */}
+            {/* Right side - Character (Desktop Only) */}
             <div className="slide-right desktop-only" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
               <img
                 src="/owl-thumbs-up-plate.png"
                 alt="Character"
                 className="hero-image"
-                style={{
-                  width: '400px',
-                  height: 'auto',
-                  animation: 'breathe 8s ease-in-out infinite',
-                  filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.3))'
-                }}
               />
-              {/* Score badge */}
-              <div className="scale-in delay-2" style={{
-                position: 'absolute',
-                top: '0px',
-                right: '0px',
-                background: '#ffffffff',
-                borderRadius: '16px',
-                padding: '0px 0px',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-                animation: 'float 3s ease-in-out infinite'
-              }}>
-              </div>
             </div>
           </div>
         </section>
 
         {/* COMO FUNCIONA */}
-        <section id="como-funciona" style={{ padding: '80px 0', background: '#1a1f2e' }}>
+        <section id="como-funciona" className="como-funciona-section">
           <div className="container">
             {/* Timeline Header */}
-            <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
+            <div style={{ textAlign: 'center', marginBottom: '80px' }} className="reveal-on-scroll">
               <p style={{ color: '#64748b', fontSize: '13px', fontWeight: '600', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Transparente e didático
               </p>
@@ -601,10 +827,10 @@ const LandingPage = () => {
               </p>
             </div>
 
-            {/* Timeline Steps - Desktop Only */}
+            {/* Timeline Steps */}
             <div className="desktop-only" style={{ position: 'relative', marginBottom: '60px' }}>
               {/* Connecting Line */}
-              <div className="desktop-only" style={{
+              <div style={{
                 position: 'absolute',
                 top: '32px',
                 left: '20%',
@@ -615,206 +841,32 @@ const LandingPage = () => {
               }} className="reveal-on-scroll" />
 
               {/* Steps Container */}
-              <div className="timeline-steps" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', gap: '20px', flexWrap: 'nowrap', position: 'relative', zIndex: 1 }}>
-                {/* Step 1 - Envio */}
-                <div className="scale-in delay-1" style={{ textAlign: 'center' }}>
-                  <div style={{
-                    width: '64px',
-                    height: '64px',
-                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 16px',
-                    boxShadow: '0 8px 24px rgba(79, 70, 229, 0.3)',
-                    border: '4px solid #1a1f2e'
-                  }}>
-                    <span style={{ fontSize: '28px' }}>📤</span>
+              <div className="timeline-steps">
+                {[
+                  { icon: '📤', label: 'Envio' },
+                  { icon: '🔍', label: 'Análise' },
+                  { icon: '📊', label: 'Resultado' }
+                ].map((step, i) => (
+                  <div key={i} className={`scale-in delay-${i + 1}`} style={{ textAlign: 'center' }}>
+                    <div style={{
+                      width: '64px',
+                      height: '64px',
+                      background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 16px',
+                      boxShadow: '0 8px 24px rgba(79, 70, 229, 0.3)',
+                      border: '4px solid #1a1f2e'
+                    }}>
+                      <span style={{ fontSize: '28px' }}>{step.icon}</span>
+                    </div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#94a3b8' }}>{step.label}</div>
                   </div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#94a3b8', marginBottom: '4px' }}>Envio</div>
-                </div>
-
-                {/* Step 2 - Análise */}
-                <div className="scale-in delay-2" style={{ textAlign: 'center' }}>
-                  <div style={{
-                    width: '64px',
-                    height: '64px',
-                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 16px',
-                    boxShadow: '0 8px 24px rgba(79, 70, 229, 0.3)',
-                    border: '4px solid #1a1f2e'
-                  }}>
-                    <span style={{ fontSize: '28px' }}>🔍</span>
-                  </div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#94a3b8', marginBottom: '4px' }}>Análise</div>
-                </div>
-
-                {/* Step 3 - Resultado */}
-                <div className="scale-in delay-3" style={{ textAlign: 'center' }}>
-                  <div style={{
-                    width: '64px',
-                    height: '64px',
-                    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 16px',
-                    boxShadow: '0 8px 24px rgba(79, 70, 229, 0.3)',
-                    border: '4px solid #1a1f2e'
-                  }}>
-                    <span style={{ fontSize: '28px' }}>📊</span>
-                  </div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#94a3b8', marginBottom: '4px' }}>Resultado</div>
-                </div>
+                ))}
               </div>
             </div>
-
-            {/* Mobile-Only Vertical Cards */}
-            <div className="mobile-only" style={{ display: 'none', flexDirection: 'column', gap: '20px', maxWidth: '600px', margin: '0 auto' }}>
-              {/* Card 1 */}
-              <div className="reveal-on-scroll delay-1" style={{
-                background: 'rgba(15, 23, 42, 0.6)',
-                border: '1px solid rgba(148, 163, 184, 0.1)',
-                borderRadius: '20px',
-                padding: '24px',
-                display: 'flex',
-                gap: '16px',
-                alignItems: 'flex-start'
-              }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  background: '#4F46E5',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  fontSize: '20px',
-                  fontWeight: '700',
-                  color: '#fff'
-                }}>
-                  1
-                </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '8px' }}>
-                    Envie sua redação
-                  </h3>
-                  <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>
-                    Use um tema sugerido ou escolha um tema livre. Envie colando o texto ou anexando um arquivo.
-                  </p>
-                </div>
-              </div>
-
-              {/* Card 2 */}
-              <div className="reveal-on-scroll delay-2" style={{
-                background: 'rgba(15, 23, 42, 0.6)',
-                border: '1px solid rgba(148, 163, 184, 0.1)',
-                borderRadius: '20px',
-                padding: '24px',
-                display: 'flex',
-                gap: '16px',
-                alignItems: 'flex-start'
-              }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  background: '#4F46E5',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  fontSize: '20px',
-                  fontWeight: '700',
-                  color: '#fff'
-                }}>
-                  2
-                </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '8px' }}>
-                    Correção por 3 avaliadores
-                  </h3>
-                  <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', marginBottom: '12px' }}>
-                    Três avaliadores digitais analisam sua redação de forma independente, como no processo do Enem.
-                  </p>
-                  <p style={{
-                    fontSize: '12px',
-                    color: '#64748b',
-                    background: 'rgba(79, 70, 229, 0.1)',
-                    padding: '6px 10px',
-                    borderRadius: '6px',
-                    display: 'inline-block',
-                    marginBottom: '10px'
-                  }}>
-                    Padrão Enem (5 competências × 200 pts)
-                  </p>
-                  <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', marginBottom: '8px', flexWrap: 'nowrap' }}>
-                    {['A', 'B', 'C'].map((letter) => (
-                      <div key={letter} style={{
-                        width: '36px',
-                        height: '36px',
-                        background: '#4F46E5',
-                        borderRadius: '8px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#fff',
-                        fontSize: '14px',
-                        fontWeight: '700'
-                      }}>
-                        {letter}
-                      </div>
-                    ))}
-                  </div>
-                  <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>
-                    IA calibrada e validada para o formato do Enem.
-                  </p>
-                </div>
-              </div>
-
-              {/* Card 3 */}
-              <div className="reveal-on-scroll delay-3" style={{
-                background: 'rgba(15, 23, 42, 0.6)',
-                border: '1px solid rgba(148, 163, 184, 0.1)',
-                borderRadius: '20px',
-                padding: '24px',
-                display: 'flex',
-                gap: '16px',
-                alignItems: 'flex-start'
-              }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  background: '#4F46E5',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  fontSize: '20px',
-                  fontWeight: '700',
-                  color: '#fff'
-                }}>
-                  3
-                </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '8px' }}>
-                    Feedback claro + nota final
-                  </h3>
-                  <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>
-                    Receba o resumo com pontos fortes, o que melhorar e suas notas por competência (I a V), cada uma valendo até <strong style={{ color: '#fff' }}>200 pontos</strong>.
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* Detail Cards */}
             <div className="grid-3">
               {/* Card 1 */}
@@ -824,22 +876,26 @@ const LandingPage = () => {
                 borderRadius: '16px',
                 padding: '24px'
               }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  background: 'rgba(79, 70, 229, 0.1)',
-                  borderRadius: '10px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '16px'
-                }}>
-                  <span style={{ fontSize: '20px' }}>1️⃣</span>
+                {/* Linha do título com badge */}
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+                  <div style={{
+                    width: '40px',
+                    minWidth: '40px',
+                    height: '40px',
+                    background: 'rgba(79, 70, 229, 0.1)',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <span style={{ fontSize: '20px' }}>1️⃣</span>
+                  </div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', margin: 0 }}>
+                    Envie sua redação
+                  </h3>
                 </div>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '12px' }}>
-                  Envie sua redação
-                </h3>
-                <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', marginBottom: '12px' }}>
+                {/* Conteúdo abaixo */}
+                <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>
                   Use um tema sugerido ou escolha o tema livre. Envie copiando o texto ou anexando um arquivo.
                 </p>
               </div>
@@ -851,28 +907,32 @@ const LandingPage = () => {
                 borderRadius: '16px',
                 padding: '24px'
               }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  background: 'rgba(79, 70, 229, 0.1)',
-                  borderRadius: '10px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '16px'
-                }}>
-                  <span style={{ fontSize: '20px' }}>2️⃣</span>
+                {/* Linha do título com badge */}
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+                  <div style={{
+                    width: '40px',
+                    minWidth: '40px',
+                    height: '40px',
+                    background: 'rgba(79, 70, 229, 0.1)',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <span style={{ fontSize: '20px' }}>2️⃣</span>
+                  </div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', margin: 0 }}>
+                    Correção por 3 avaliadores
+                  </h3>
                 </div>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '12px' }}>
-                  Correção por 3 avaliadores
-                </h3>
+                {/* Conteúdo abaixo */}
                 <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', marginBottom: '12px' }}>
                   Três avaliadores digitais analisam sua redação de forma independente, como no processo do Enem.
                 </p>
-                <p style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic' }}>
+                <p style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', margin: 0 }}>
                   Padrão Enem (3 corretores) • +200 pts
                 </p>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                <div style={{ display: 'inline-flex', flexDirection: 'row', gap: '8px', marginTop: '12px' }}>
                   {['A', 'B', 'C'].map((letter, i) => (
                     <div key={i} style={{
                       width: '32px',
@@ -890,7 +950,7 @@ const LandingPage = () => {
                     </div>
                   ))}
                 </div>
-                <p style={{ fontSize: '12px', color: '#64748b', marginTop: '8px' }}>
+                <p style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', marginBottom: 0 }}>
                   Já calibrados e validados para o formato do Enem
                 </p>
               </div>
@@ -902,25 +962,29 @@ const LandingPage = () => {
                 borderRadius: '16px',
                 padding: '24px'
               }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  background: 'rgba(79, 70, 229, 0.1)',
-                  borderRadius: '10px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '16px'
-                }}>
-                  <span style={{ fontSize: '20px' }}>3️⃣</span>
+                {/* Linha do título com badge */}
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+                  <div style={{
+                    width: '40px',
+                    minWidth: '40px',
+                    height: '40px',
+                    background: 'rgba(79, 70, 229, 0.1)',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <span style={{ fontSize: '20px' }}>3️⃣</span>
+                  </div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', margin: 0 }}>
+                    Feedback claro + nota final
+                  </h3>
                 </div>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '12px' }}>
-                  Feedback claro + nota final
-                </h3>
+                {/* Conteúdo abaixo */}
                 <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', marginBottom: '12px' }}>
                   Receba o resumo em pontos fortes, o que melhorar e sua nota por competência (I, II, III, IV, V), cada uma valendo até 200 pontos.
                 </p>
-                <div style={{ display: 'flex', gap: '6px', marginTop: '12px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', flexWrap: 'wrap' }}>
                   {['I', 'II', 'III', 'IV', 'V'].map((num, i) => (
                     <div key={i} style={{
                       padding: '6px 12px',
@@ -939,29 +1003,79 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
+        {/* RELATOS / TESTIMONIALS */}
+        <section id="relatos" style={{ padding: '80px 0', background: '#1a1f2e' }}>
+          <div className="container">
+            <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
+              <p style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>DEPOIMENTOS</p>
+              <h2 style={{ fontSize: '42px', fontWeight: '800', color: '#fff', marginBottom: '16px' }}>O que nossos usuários dizem</h2>
+              <p style={{ fontSize: '18px', color: '#94a3b8' }}>Resultados reais de quem usa o CorrigeAI</p>
+            </div>
 
-        {/* STATISTICS */}
-        <section style={{ padding: '60px 0', background: '#1a1f2e' }}>
-          <div className="container stats-grid grid-4">
-            <div className="scale-in delay-1" style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', fontWeight: '800', color: '#4F46E5', marginBottom: '8px' }}>+300</div>
-              <div style={{ fontSize: '14px', color: '#94a3b8' }}>redações corrigidas</div>
+            {/* Stats Cards */}
+            <div className="reveal-on-scroll grid-3" style={{ marginBottom: '48px', maxWidth: '900px', margin: '0 auto 48px' }}>
+              {[
+                { value: '+300', label: 'redações corrigidas' },
+                { value: '+25 pts', label: 'média de melhoria por redação' },
+                { value: '2 minutos', label: 'feedback imediato' }
+              ].map((stat, i) => (
+                <div key={i} style={{
+                  background: '#0f1419',
+                  border: '1px solid #334155',
+                  borderRadius: '16px',
+                  padding: '32px 24px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '48px', fontWeight: '800', color: '#4F46E5', marginBottom: '8px' }}>{stat.value}</div>
+                  <p style={{ fontSize: '14px', color: '#94a3b8', margin: 0 }}>{stat.label}</p>
+                </div>
+              ))}
             </div>
-            <div className="scale-in delay-2" style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', fontWeight: '800', color: '#4F46E5', marginBottom: '8px' }}>+25 pts</div>
-              <div style={{ fontSize: '14px', color: '#94a3b8' }}>média de melhora</div>
-            </div>
-            <div className="scale-in delay-3" style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', fontWeight: '800', color: '#4F46E5', marginBottom: '8px' }}>2 min</div>
-              <div style={{ fontSize: '14px', color: '#94a3b8' }}>feedback imediato</div>
-            </div>
-            <div className="scale-in delay-4" style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', fontWeight: '800', color: '#4F46E5', marginBottom: '8px' }}>5 comp.</div>
-              <div style={{ fontSize: '14px', color: '#94a3b8' }}>critérios do Enem</div>
+
+            {/* Testimonial Card */}
+            <div className="reveal-on-scroll" style={{
+              background: '#0f1419',
+              border: '1px solid #334155',
+              borderRadius: '16px',
+              padding: isMobile ? '24px' : '40px',
+              maxWidth: '900px',
+              margin: '0 auto'
+            }}>
+              <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', flexDirection: isMobile ? 'column' : 'row' }}>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  background: 'linear-gradient(135deg, #4F46E5 0%, #818cf8 100%)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  fontSize: '24px',
+                  fontWeight: '700',
+                  flexShrink: 0
+                }}>
+                  M
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{
+                    fontSize: '16px',
+                    color: '#e6edf3',
+                    lineHeight: '1.7',
+                    marginBottom: '16px',
+                    fontStyle: 'italic'
+                  }}>
+                    "Usei o CorrigeAI por 3 semanas. O feedback por competência ajudou muito. Passei de 840 pontos para 920 na última redação. Recomendo!"
+                  </p>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#fff' }}>Marina, estudante</div>
+                    <div style={{ fontSize: '13px', color: '#64748b' }}>São Paulo, Brasil</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
-
         {/* CORREÇÃO ENEM */}
         <section id="correcao" style={{ padding: '80px 0', background: '#1a1f2e' }}>
           <div className="container">
@@ -972,7 +1086,7 @@ const LandingPage = () => {
             </div>
 
             <div className="grid-2">
-              {/* Competências (sem timeline) */}
+              {/* Competências */}
               <div className="slide-left" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {[
                   'Domínio da norma culta',
@@ -1000,27 +1114,27 @@ const LandingPage = () => {
                       justifyContent: 'center',
                       color: '#fff',
                       fontWeight: '700',
-                      fontSize: '18px'
+                      fontSize: '18px',
+                      flexShrink: 0
                     }}>
                       {['I', 'II', 'III', 'IV', 'V'][i]}
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ color: '#fff', fontWeight: '600', fontSize: '16px' }}>{comp}</div>
-                    </div>
+                    <div style={{ flex: 1, color: '#fff', fontWeight: '600', fontSize: '16px' }}>{comp}</div>
                     <div style={{
                       color: '#4F46E5',
                       fontWeight: '700',
                       fontSize: '14px',
                       background: 'rgba(79, 70, 229, 0.1)',
                       padding: '6px 12px',
-                      borderRadius: '6px'
+                      borderRadius: '6px',
+                      whiteSpace: 'nowrap'
                     }}>200 pts</div>
                   </div>
                 ))}
               </div>
 
-              {/* Processo COM TIMELINE */}
-              <div className="slide-right desktop-only" style={{
+              {/* Processo (Desktop Only) */}
+              <div /*className="slide-right desktop-only"*/ style={{
                 background: '#1a1f2e',
                 border: '1px solid #334155',
                 borderRadius: '16px',
@@ -1029,14 +1143,12 @@ const LandingPage = () => {
               }}>
                 <h3 style={{ fontSize: '22px', fontWeight: '700', color: '#fff', marginBottom: '24px' }}>Como corrigimos</h3>
 
-                {/* Container com timeline */}
                 <div style={{ position: 'relative' }}>
-                  {/* Linha vertical da timeline passando pelo centro das esferas */}
                   <div style={{
                     position: 'absolute',
-                    left: '15px', // Centro da esfera (32px/2 = 16px)
+                    left: '15px',
                     top: '16px',
-                    bottom: '16px',
+                    bottom: '35px',
                     width: '2px',
                     background: 'linear-gradient(180deg, #4F46E5 0%, rgba(79, 70, 229, 0.3) 100%)'
                   }}></div>
@@ -1048,7 +1160,7 @@ const LandingPage = () => {
                       { title: 'Identificação de erros', desc: 'Detectamos problemas de gramática, coesão e argumentação' },
                       { title: 'Sugestões de melhoria', desc: 'Receba feedback detalhado com pontos fortes e áreas a melhorar' }
                     ].map((step, i) => (
-                      <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', position: 'relative' }}>
+                      <div key={i} style={{ display: 'inline-flex', gap: '16px', alignItems: 'flex-start', position: 'relative' }}>
                         <div style={{
                           width: '32px',
                           height: '32px',
@@ -1062,14 +1174,13 @@ const LandingPage = () => {
                           fontSize: '14px',
                           flexShrink: 0,
                           border: '3px solid #1a1f2e',
-                          zIndex: 1,
-                          position: 'relative'
+                          zIndex: 1
                         }}>
                           {i + 1}
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{ color: '#fff', fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>{step.title}</div>
-                          <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: '1.5' }}>{step.desc}</p>
+                          <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: '1.5', margin: 0 }}>{step.desc}</p>
                         </div>
                       </div>
                     ))}
@@ -1079,7 +1190,6 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
-
         {/* OBJETIVOS */}
         <section id="objetivos" style={{ padding: '80px 0', background: '#1a1f2e' }}>
           <div className="container">
@@ -1097,9 +1207,11 @@ const LandingPage = () => {
                   { icon: '🛡️', title: 'Transparência', desc: 'Mostrar claramente os critérios de avaliação' },
                   { icon: '📚', title: 'Autonomia', desc: 'Permitir que estudantes pratiquem de forma independente' }
                 ].map((obj, i) => (
-                  <div key={i} style={{ display: 'flex', gap: '16px' }}>
+                  <div key={i} style={{ display: 'inline-flex', gap: '16px', alignItems: 'flex-start' }}>
+                    {/* Badge à esquerda */}
                     <div style={{
                       width: '48px',
+                      minWidth: '48px',
                       height: '48px',
                       background: 'rgba(79, 70, 229, 0.1)',
                       borderRadius: '12px',
@@ -1111,121 +1223,42 @@ const LandingPage = () => {
                     }}>
                       {obj.icon}
                     </div>
-                    <div>
-                      <h4 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>{obj.title}</h4>
-                      <p style={{ fontSize: '15px', color: '#94a3b8', lineHeight: '1.6' }}>{obj.desc}</p>
+                    {/* Título + texto à direita */}
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', margin: 0, marginBottom: '6px' }}>
+                        {obj.title}
+                      </h4>
+                      <p style={{ fontSize: '15px', color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>
+                        {obj.desc}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Image */}
-              <div className="reveal-on-scroll" style={{ display: 'flex', justifyContent: 'center' }}>
-                <img src="/owl-desk.png" alt="Owl at desk" style={{ width: '100%', maxWidth: '400px', height: 'auto' }} />
+              {/* Imagem do mascote logo ao lado / abaixo em mobile */}
+              <div className="reveal-on-scroll" style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: '24px'
+              }}>
+                <img
+                  src="/owl-desk.png"  // coloque aqui o path estático do mascote (por ex: /mascote-corrigeai.png)
+                  alt="Mascote CorrigeAI"
+                  style={{
+                    width: '100%',
+                    maxWidth: '420px',
+                    height: 'auto',
+                    borderRadius: '18px',
+                    boxShadow: '0 18px 40px rgba(15,23,42,0.7)',
+                    objectFit: 'cover'
+                  }}
+                />
               </div>
             </div>
           </div>
         </section>
-
-        {/* PREÇOS */}
-
-
-        {/* RELATOS / TESTIMONIALS */}
-        <section id="relatos" style={{ padding: '80px 0', background: '#1a1f2e' }}>
-          <div className="container">
-            <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
-              <p style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>DEPOIMENTOS</p>
-              <h2 style={{ fontSize: '42px', fontWeight: '800', color: '#fff', marginBottom: '16px' }}>O que nossos usuários dizem</h2>
-              <p style={{ fontSize: '18px', color: '#94a3b8' }}>Resultados reais de quem usa o CorrigeAI</p>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="reveal-on-scroll grid-3" style={{
-              marginBottom: '48px',
-              maxWidth: '900px',
-              margin: '0 auto 48px'
-            }}>
-              <div style={{
-                background: '#0f1419',
-                border: '1px solid #334155',
-                borderRadius: '16px',
-                padding: '32px 24px',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '48px', fontWeight: '800', color: '#4F46E5', marginBottom: '8px' }}>+300</div>
-                <p style={{ fontSize: '14px', color: '#94a3b8' }}>redações corrigidas</p>
-              </div>
-              <div style={{
-                background: '#0f1419',
-                border: '1px solid #334155',
-                borderRadius: '16px',
-                padding: '32px 24px',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '48px', fontWeight: '800', color: '#4F46E5', marginBottom: '8px' }}>+25 pts</div>
-                <p style={{ fontSize: '14px', color: '#94a3b8' }}>média de melhoria por redação</p>
-              </div>
-              <div style={{
-                background: '#0f1419',
-                border: '1px solid #334155',
-                borderRadius: '16px',
-                padding: '32px 24px',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '48px', fontWeight: '800', color: '#4F46E5', marginBottom: '8px' }}>2 minutos</div>
-                <p style={{ fontSize: '14px', color: '#94a3b8' }}>feedback imediato</p>
-              </div>
-            </div>
-
-            {/* Testimonial Card */}
-            <div className="reveal-on-scroll" style={{
-              background: '#0f1419',
-              border: '1px solid #334155',
-              borderRadius: '16px',
-              padding: '40px',
-              maxWidth: '900px',
-              margin: '0 auto'
-            }}>
-              <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                {/* Avatar */}
-                <div style={{
-                  width: '56px',
-                  height: '56px',
-                  background: 'linear-gradient(135deg, #4F46E5 0%, #818cf8 100%)',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  fontSize: '24px',
-                  fontWeight: '700',
-                  flexShrink: 0
-                }}>
-                  M
-                </div>
-                {/* Content */}
-                <div id="relatos" style={{ flex: 1 }}>
-                  <p style={{
-                    fontSize: '16px',
-                    color: '#e6edf3',
-                    lineHeight: '1.7',
-                    marginBottom: '16px',
-                    fontStyle: 'italic'
-                  }}>
-                    "Usei o CorrigeAI por 3 semanas. O feedback por competência ajudou muito. Passei de 840 pontos para 920 na última redação. Recomendo!"
-                  </p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: '600', color: '#fff' }}>Marina, estudante</div>
-                      <div style={{ fontSize: '13px', color: '#64748b' }}>São Paulo, Brasil</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* PREÇOS */}
         <section id="precos" style={{ padding: '80px 0', background: '#1a1f2e' }}>
           <div className="container">
@@ -1237,19 +1270,16 @@ const LandingPage = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', maxWidth: '1000px', margin: '0 auto', justifyItems: 'center' }}>
               {loading ? (
-                // Loading state
                 <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
                   Carregando pacotes...
                 </div>
               ) : packages.length === 0 ? (
-                // Empty state
                 <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
                   Nenhum pacote disponível no momento.
                 </div>
               ) : (
-                // Dynamic package cards
                 packages.map((pkg, index) => {
-                  const isPopular = pkg.is_popular || index === 1; // Middle card or marked as popular
+                  const isPopular = pkg.is_popular || index === 1;
                   const priceInReais = (pkg.price / 100).toFixed(2).replace('.', ',');
                   const pricePerCredit = (pkg.price / 100 / pkg.credits).toFixed(2).replace('.', ',');
 
@@ -1269,7 +1299,6 @@ const LandingPage = () => {
                         position: 'relative'
                       }}
                     >
-                      {/* Discount badge */}
                       {pkg.discount_text && (
                         <div style={{
                           position: 'absolute',
@@ -1281,7 +1310,8 @@ const LandingPage = () => {
                           padding: '4px 16px',
                           borderRadius: '12px',
                           fontSize: '11px',
-                          fontWeight: '700'
+                          fontWeight: '700',
+                          whiteSpace: 'nowrap'
                         }}>
                           {pkg.discount_text}
                         </div>
@@ -1298,16 +1328,10 @@ const LandingPage = () => {
                         }}
                       />
 
-                      <h3 style={{
-                        fontSize: '16px',
-                        fontWeight: '600',
-                        color: '#fff',
-                        marginBottom: '8px'
-                      }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#fff', marginBottom: '8px' }}>
                         Pacote de {pkg.credits} Créditos
                       </h3>
 
-                      {/* Show original price if there's a discount */}
                       {pkg.discount_percentage > 0 && (
                         <div style={{
                           fontSize: '18px',
@@ -1320,28 +1344,15 @@ const LandingPage = () => {
                         </div>
                       )}
 
-                      <div style={{
-                        fontSize: '32px',
-                        fontWeight: '800',
-                        color: '#4F46E5',
-                        marginBottom: '2px'
-                      }}>
+                      <div style={{ fontSize: '32px', fontWeight: '800', color: '#4F46E5', marginBottom: '2px' }}>
                         R$ {priceInReais}
                       </div>
 
-                      <p style={{
-                        fontSize: '13px',
-                        color: '#64748b',
-                        marginBottom: '16px'
-                      }}>
+                      <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
                         {pkg.credits} créditos para correção de redações
                       </p>
 
-                      <p style={{
-                        fontSize: '12px',
-                        color: '#64748b',
-                        marginBottom: '16px'
-                      }}>
+                      <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>
                         ({pkg.credits} Redações = R$ {pricePerCredit}/crédito)
                       </p>
 
@@ -1367,16 +1378,16 @@ const LandingPage = () => {
               )}
             </div>
 
-            {/* Disclaimer */}
             <div className="reveal-on-scroll" style={{
               textAlign: 'center',
               marginTop: '32px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '16px'
+              gap: '16px',
+              flexWrap: 'wrap'
             }}>
-              <p style={{ fontSize: '13px', color: '#64748b', maxWidth: '600px' }}>
+              <p style={{ fontSize: '13px', color: '#64748b', maxWidth: '600px', margin: 0 }}>
                 Valores e formas ilustrativas para didática. Você pode ajustar quantidades, formas e regras a qualquer momento.
               </p>
               <img src="/corricoin.png" alt="Coin" style={{ width: '64px', height: '64px', opacity: 0.6 }} />
@@ -1385,17 +1396,14 @@ const LandingPage = () => {
         </section>
 
         {/* CTA SECTION */}
-        <section style={{
-          padding: '60px 0',
-          background: '#1a1f2e'
-        }}>
+        <section style={{ padding: '60px 0', background: '#1a1f2e' }}>
           <div className="container">
             <div className="cta-box">
-              <div>
+              <div style={{ textAlign: isMobile ? 'center' : 'left' }}>
                 <h2 style={{ fontSize: '32px', fontWeight: '800', color: '#fff', marginBottom: '12px' }}>
                   Pronto para corrigir sua redação?
                 </h2>
-                <p style={{ fontSize: '16px', color: '#94a3b8' }}>
+                <p style={{ fontSize: '16px', color: '#94a3b8', margin: 0 }}>
                   Crie sua conta gratuita e comece a corrigir agora.
                 </p>
               </div>
@@ -1422,7 +1430,7 @@ const LandingPage = () => {
         {/* FOOTER */}
         <footer style={{ padding: '40px 0', background: '#1a1f2e', borderTop: '1px solid #334155' }}>
           <div className="container footer-content">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="logo-container">
               <div style={{
                 width: '40px',
                 height: '40px',
@@ -1438,12 +1446,12 @@ const LandingPage = () => {
               <span style={{ fontSize: '18px', fontWeight: '700', color: '#fff' }}>CorrigeAI</span>
             </div>
 
-            <div style={{ display: 'flex', gap: '32px', fontSize: '14px', color: '#94a3b8' }}>
+            <div style={{ display: 'inline-flex', gap: '32px', fontSize: '14px', color: '#94a3b8' }}>
               <a href="#" style={{ color: '#94a3b8', textDecoration: 'none' }}>Privacidade</a>
               <a href="#" style={{ color: '#94a3b8', textDecoration: 'none' }}>Termos</a>
             </div>
 
-            <p style={{ fontSize: '14px', color: '#64748b' }}>© 2025 CorrigeAI. Todos os direitos reservados.</p>
+            <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>© 2025 CorrigeAI. Todos os direitos reservados.</p>
           </div>
         </footer>
 
