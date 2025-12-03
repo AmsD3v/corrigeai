@@ -607,8 +607,8 @@ const LandingPage = () => {
               </p>
             </div>
 
-            {/* Timeline Steps */}
-            <div style={{ position: 'relative', marginBottom: '60px' }}>
+            {/* Timeline Steps - Desktop Only */}
+            <div className="desktop-only" style={{ position: 'relative', marginBottom: '60px' }}>
               {/* Connecting Line */}
               <div className="desktop-only" style={{
                 position: 'absolute',
@@ -821,8 +821,8 @@ const LandingPage = () => {
               </div>
             </div>
 
-            {/* Desktop Detail Cards */}
-            <div className="grid-3 desktop-only">
+            {/* Detail Cards */}
+            <div className="grid-3">
               {/* Card 1 */}
               <div className="slide-left delay-1 hover-lift" style={{
                 background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(30, 41, 59, 0.8) 100%)',
