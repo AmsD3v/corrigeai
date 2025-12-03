@@ -65,8 +65,8 @@ const Header = () => {
             backdrop-filter: blur(12px);
             display: flex !important;
             flex-direction: column;
-            padding: 100px 32px 32px;
-            gap: 28px;
+            padding: 100px 24px 32px;
+            gap: 24px;
             z-index: 1000;
             transform: translateX(100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -76,15 +76,14 @@ const Header = () => {
           .nav-links a {
             font-size: 18px !important;
             color: #fff !important;
-            padding: 16px 20px;
-            background: rgba(79, 70, 229, 0.1);
-            border-radius: 12px;
-            border: 1px solid rgba(79, 70, 229, 0.2);
+            padding: 12px 0;
+            background: transparent;
+            border: none;
             transition: all 0.2s ease;
           }
 
           .nav-links a:hover {
-            background: rgba(79, 70, 229, 0.2);
+            color: #818cf8 !important;
             transform: translateX(4px);
           }
 
@@ -152,7 +151,7 @@ const Header = () => {
                     <button
                         className="mobile-menu-btn"
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        style={{ zIndex: 1001, position: 'relative', paddingRight: '27px', gridColumn: '3', justifySelf: 'end' }}
+                        style={{ zIndex: 1001, position: 'relative', gridColumn: '3', justifySelf: 'end' }}
                     >
                         {mobileMenuOpen ? '✕' : '☰'}
                     </button>
