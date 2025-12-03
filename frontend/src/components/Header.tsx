@@ -54,20 +54,38 @@ const Header = () => {
           }
 
           .nav-links {
-            display: flex !important;
             position: fixed;
             top: 0;
             right: 0;
             bottom: 0;
+            left: 0;
             width: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
+            height: 100vh;
+            background: rgba(10, 15, 30, 0.98);
+            backdrop-filter: blur(12px);
+            display: flex !important;
             flex-direction: column;
-            padding: 80px 24px 24px;
-            gap: 20px;
-            z-index: 999;
+            padding: 100px 32px 32px;
+            gap: 28px;
+            z-index: 1000;
             transform: translateX(100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+          }
+
+          .nav-links a {
+            font-size: 18px !important;
+            color: #fff !important;
+            padding: 16px 20px;
+            background: rgba(79, 70, 229, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            transition: all 0.2s ease;
+          }
+
+          .nav-links a:hover {
+            background: rgba(79, 70, 229, 0.2);
+            transform: translateX(4px);
           }
 
           .nav-links.open {
@@ -84,12 +102,13 @@ const Header = () => {
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    zIndex: 998,
-                    background: 'rgba(0, 0, 0, 0.5)',
-                    backdropFilter: 'blur(4px)',
+                    zIndex: 999,
+                    background: 'rgba(0, 0, 0, 0.6)',
+                    backdropFilter: 'blur(6px)',
                     opacity: mobileMenuOpen ? 1 : 0,
                     pointerEvents: mobileMenuOpen ? 'auto' : 'none',
-                    transition: 'opacity 0.3s ease'
+                    transition: 'opacity 0.3s ease',
+                    display: mobileMenuOpen ? 'block' : 'none'
                 }}
                 onClick={() => setMobileMenuOpen(false)}
             />
@@ -133,7 +152,7 @@ const Header = () => {
                     <button
                         className="mobile-menu-btn"
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        style={{ zIndex: 1002, position: 'relative', paddingRight: '27px', gridColumn: '3', justifySelf: 'end' }}
+                        style={{ zIndex: 1001, position: 'relative', paddingRight: '27px', gridColumn: '3', justifySelf: 'end' }}
                     >
                         {mobileMenuOpen ? '✕' : '☰'}
                     </button>
