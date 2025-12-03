@@ -276,7 +276,13 @@ const Login: React.FC = () => {
 
                   <div className="text-center text-[#94A3B8] text-sm">
                     Ainda não tem conta?{' '}
-                    <button type="button" onClick={() => navigate('/register')} className="text-[#3B82F6] font-semibold hover:underline bg-transparent border-none cursor-pointer">`n                      Criar conta`n                    </button>
+                                    <button
+                  type="button"
+                  onClick={() => navigate('/register')}
+                  className="text-[#3B82F6] font-semibold hover:underline bg-transparent border-none cursor-pointer"
+                >
+                  Criar conta
+                </button>
                   </div>
                 </form>
               )}
