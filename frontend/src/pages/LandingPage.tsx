@@ -267,8 +267,16 @@ const LandingPage = () => {
           display: none;
         }
 
+        .desktop-only-btn {
+          display: block;
+        }
+
         /* Mobile Logo - Ensure horizontal layout */
         @media (max-width: 768px) {
+          .desktop-only-btn {
+            display: none !important;
+          }
+          
           .logo-container {
             flex-direction: row !important;
             gap: 12px !important;
@@ -278,14 +286,14 @@ const LandingPage = () => {
             width: 36px !important;
             height: 36px !important;
             background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%) !important;
-            border-radius: 10px !important;
-            font-size: 20px !important;
-            flex-shrink: 0 !important;
+            borderRadius: 10px !important;
+            fontSize: 20px !important;
+            flexShrink: 0 !important;
           }
           
           .logo-container span {
-            font-size: 20px !important;
-            white-space: nowrap !important;
+            fontSize: 20px !important;
+            whiteSpace: 'nowrap' !important;
           }
         }
 
@@ -444,55 +452,38 @@ const LandingPage = () => {
             margin: '0 auto',
             padding: '0 24px',
             height: '70px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
+            display: 'grid',
+            gridTemplateColumns: '1fr auto 1fr',
+            alignItems: 'center',
+            gap: '20px'
           }}>
-            {/* Logo - Icon LEFT, Text RIGHT */}
+            {/* Logo - Left */}
             <div
-              className="logo-container"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: isMobile ? '8px' : '12px',
-                cursor: 'pointer',
-                flexDirection: 'row',
-                flexWrap: 'nowrap'
-              }} onClick={() => navigate('/')}>
-              <div style={{
-                width: isMobile ? '36px' : '40px',
-                height: isMobile ? '36px' : '40px',
-                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
-                borderRadius: isMobile ? '10px' : '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: isMobile ? '20px' : '24px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                flexShrink: 0
-              }}>
-                🦉
+              onClick={() => navigate('/')}
+              className="flex items-center gap-3 cursor-pointer group"
+            >
+              <div className="w-5 h-10 rounded-xl bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center shadow-lg group-hover:shadow-brand-primary/50 transition-all duration-300">
+                <span className="text-2xl">🦉</span>
               </div>
-              <span style={{
-                fontSize: isMobile ? '20px' : '24px',
-                fontWeight: '800',
-                color: '#fff',
-                letterSpacing: '-0.5px',
-                whiteSpace: 'nowrap'
-              }}>CorrigeAI</span>
+              <span className="text-xl md:text-2xl font-bold text-white tracking-tight">
+                Corrige<span className="text-brand-accent">AI</span>
+              </span>
             </div>
 
-            {/* Mobile Menu Button (Moved to RIGHT) */}
+            {/* Mobile Menu Button */}
             <button
               className="mobile-menu-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              style={{ zIndex: 1002, position: 'relative', paddingRight: '12px' }}
+              style={{ zIndex: 1002, position: 'relative', paddingRight: '27px', gridColumn: '3', justifySelf: 'end' }}
             >
               {mobileMenuOpen ? '✕' : '☰'}
             </button>
 
-            {/* Nav Links */}
-            <nav className={`nav-links ${mobileMenuOpen ? 'open' : ''}`}>
+            {/* Nav Links - Centered */}
+            <nav className={`nav-links ${mobileMenuOpen ? 'open' : ''}`} style={{
+              gridColumn: '2',
+              justifySelf: 'center'
+            }}>
               {/* Mobile Header inside Menu - Horizontal Layout */}
               <div style={{
                 display: 'flex',
@@ -508,9 +499,8 @@ const LandingPage = () => {
               </div>
 
               <a href="#como-funciona" onClick={() => setMobileMenuOpen(false)}>Como funciona</a>
-              <a href="#correcao" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Correção do Enem</a>
+              <a href="#correcao" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Correção</a>
               <a href="#objetivos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Objetivos</a>
-              <a href="#relatos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Relatos</a>
               <a href="#precos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Preços</a>
               <button
                 onClick={() => navigate('/login')}
@@ -526,23 +516,28 @@ const LandingPage = () => {
               >
                 Entrar
               </button>
-              <button
-                onClick={() => navigate('/register')}
-                style={{
-                  background: '#4F46E5',
-                  border: 'none',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  padding: '10px 30px',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                Começar correção grátis
-              </button>
             </nav>
+
+            {/* CTA Button - Right (Desktop only) */}
+            <button
+              className="desktop-only-btn"
+              onClick={() => navigate('/register')}
+              style={{
+                gridColumn: '3',
+                justifySelf: 'end',
+                background: '#4F46E5',
+                border: 'none',
+                color: '#fff',
+                fontSize: '14px',
+                fontWeight: '600',
+                padding: '10px 30px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Começar correção grátis
+            </button>
           </div>
         </header>
 
