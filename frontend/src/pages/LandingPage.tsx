@@ -815,8 +815,8 @@ const LandingPage = () => {
               </div>
             </div>
 
-            {/* Detail Cards */}
-            <div className="grid-3">
+            {/* Detail Cards - Desktop Only */}
+            <div className="grid-3 desktop-only">
               {/* Card 1 */}
               <div className="slide-left delay-1 hover-lift" style={{
                 background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(30, 41, 59, 0.8) 100%)',
