@@ -18,6 +18,17 @@ const LandingPage = () => {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  // Detect screen size changes
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -443,27 +454,27 @@ const LandingPage = () => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
+                gap: isMobile ? '8px' : '12px',
                 cursor: 'pointer',
                 flexDirection: 'row',
                 flexWrap: 'nowrap'
               }} onClick={() => navigate('/')}>
               <div style={{
-                width: '40px',
-                height: '40px',
+                width: isMobile ? '36px' : '40px',
+                height: isMobile ? '36px' : '40px',
                 background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
-                borderRadius: '12px',
+                borderRadius: isMobile ? '10px' : '12px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '24px',
+                fontSize: isMobile ? '20px' : '24px',
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
                 flexShrink: 0
               }}>
                 🦉
               </div>
               <span style={{
-                fontSize: '24px',
+                fontSize: isMobile ? '20px' : '24px',
                 fontWeight: '800',
                 color: '#fff',
                 letterSpacing: '-0.5px',
