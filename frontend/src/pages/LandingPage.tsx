@@ -613,7 +613,7 @@ const LandingPage = () => {
               }} className="reveal-on-scroll" />
 
               {/* Steps Container */}
-              <div className="grid-3" style={{ position: 'relative', zIndex: 1 }}>
+              <div className="timeline-steps" style={{ position: 'relative', zIndex: 1 }}>
                 {/* Step 1 - Envio */}
                 <div className="scale-in delay-1" style={{ textAlign: 'center' }}>
                   <div style={{
