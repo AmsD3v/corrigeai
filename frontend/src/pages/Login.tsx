@@ -202,7 +202,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0B1121] flex flex-col">
-      <Header variant="auth" />
+      <Header />
 
       {/* MAIN CONTENT */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
