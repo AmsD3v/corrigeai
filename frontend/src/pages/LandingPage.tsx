@@ -264,6 +264,10 @@ const LandingPage = () => {
           align-items: center;
         }
 
+        .desktop-only {
+          display: block;
+        }
+
         .mobile-only {
           display: none;
         }
@@ -300,6 +304,10 @@ const LandingPage = () => {
 
         /* MEDIA QUERIES */
         @media (max-width: 768px) {
+          .desktop-only {
+            display: none !important;
+          }
+
           .mobile-only {
             display: flex !important;
           }
