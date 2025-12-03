@@ -498,9 +498,10 @@ const LandingPage = () => {
               }} className="mobile-only">
               </div>
 
-              <a href="#como-funciona" onClick={() => setMobileMenuOpen(false)}>Como funciona</a>
+              <a href="#como-funciona" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Como funciona</a>
               <a href="#correcao" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Correção</a>
               <a href="#objetivos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Objetivos</a>
+              <a href="#relatos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Relatos</a>
               <a href="#precos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Preços</a>
               <button
                 onClick={() => navigate('/login')}
@@ -690,93 +691,8 @@ const LandingPage = () => {
 
         {/* COMO FUNCIONA */}
         <section id="como-funciona" style={{
-          padding: '80px 0',
-          background: '#0f1419'
+
         }}>
-          <div className="container">
-            <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
-              <p style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>SIMPLES E RÁPIDO</p>
-              <h2 style={{ fontSize: '42px', fontWeight: '800', color: '#fff', marginBottom: '16px' }}>Como funciona</h2>
-              <p style={{ fontSize: '18px', color: '#94a3b8' }}>Em apenas 3 passos você recebe feedback completo da sua redação</p>
-            </div>
-
-            <div className="grid-3">
-              {/* Card 1 */}
-              <div className="reveal-on-scroll delay-1 hover-lift" style={{
-                background: '#1a1f2e',
-                border: '1px solid #334155',
-                borderRadius: '16px',
-                padding: '32px',
-                textAlign: 'center'
-              }}>
-                <div style={{
-                  width: '64px',
-                  height: '64px',
-                  background: 'rgba(79, 70, 229, 0.1)',
-                  borderRadius: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 24px',
-                  fontSize: '32px'
-                }}>
-                  📤
-                </div>
-                <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#fff', marginBottom: '12px' }}>Envie sua redação</h3>
-                <p style={{ fontSize: '15px', color: '#94a3b8', lineHeight: '1.6' }}>Faça upload do texto ou digite diretamente na plataforma</p>
-              </div>
-
-              {/* Card 2 */}
-              <div className="reveal-on-scroll delay-2 hover-lift" style={{
-                background: '#1a1f2e',
-                border: '1px solid #334155',
-                borderRadius: '16px',
-                padding: '32px',
-                textAlign: 'center'
-              }}>
-                <div style={{
-                  width: '64px',
-                  height: '64px',
-                  background: 'rgba(79, 70, 229, 0.1)',
-                  borderRadius: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 24px',
-                  fontSize: '32px'
-                }}>
-                  ✨
-                </div>
-                <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#fff', marginBottom: '12px' }}>Correção por IA</h3>
-                <p style={{ fontSize: '15px', color: '#94a3b8', lineHeight: '1.6' }}>Nossa IA analisa seu texto seguindo os critérios do Enem</p>
-              </div>
-
-              {/* Card 3 */}
-              <div className="reveal-on-scroll delay-3 hover-lift" style={{
-                background: '#1a1f2e',
-                border: '1px solid #334155',
-                borderRadius: '16px',
-                padding: '32px',
-                textAlign: 'center'
-              }}>
-                <div style={{
-                  width: '64px',
-                  height: '64px',
-                  background: 'rgba(79, 70, 229, 0.1)',
-                  borderRadius: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 24px',
-                  fontSize: '32px'
-                }}>
-                  📝
-                </div>
-                <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#fff', marginBottom: '12px' }}>Feedback + nota final</h3>
-                <p style={{ fontSize: '15px', color: '#94a3b8', lineHeight: '1.6' }}>Receba análise detalhada e nota por competência</p>
-              </div>
-            </div>
-          </div>
         </section>
 
         {/* TIMELINE */}
@@ -1183,6 +1099,163 @@ const LandingPage = () => {
           </div>
         </section>
 
+        {/* PREÇOS */}
+        <section id="precos" style={{ padding: '80px 0', background: '#0f1419' }}>
+          <div className="container">
+            <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
+              <p style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>PLANOS E PREÇOS</p>
+              <h2 style={{ fontSize: '42px', fontWeight: '800', color: '#fff', marginBottom: '16px' }}>Escolha seu pacote</h2>
+              <p style={{ fontSize: '18px', color: '#94a3b8' }}>Créditos que nunca expiram. Use quando quiser!</p>
+            </div>
+
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '60px 0' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
+                <p style={{ color: '#94a3b8' }}>Carregando pacotes...</p>
+              </div>
+            ) : (
+              <div className="grid-3">
+                {packages.map((pkg) => (
+                  <div
+                    key={pkg.id}
+                    className="reveal-on-scroll hover-lift"
+                    style={{
+                      background: pkg.is_popular ? 'linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%)' : '#1a1f2e',
+                      border: pkg.is_popular ? '2px solid #4F46E5' : '1px solid #334155',
+                      borderRadius: '20px',
+                      padding: '40px',
+                      position: 'relative',
+                      textAlign: 'center'
+                    }}
+                  >
+                    {/* Popular Badge */}
+                    {pkg.is_popular && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '-12px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                        color: '#fff',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        padding: '6px 20px',
+                        borderRadius: '20px',
+                        boxShadow: '0 4px 12px rgba(79, 70, 229, 0.4)'
+                      }}>
+                        MAIS POPULAR
+                      </div>
+                    )}
+
+                    {/* Discount Badge */}
+                    {pkg.discount_text && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '20px',
+                        right: '20px',
+                        background: '#10b981',
+                        color: '#fff',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        padding: '4px 12px',
+                        borderRadius: '12px'
+                      }}>
+                        {pkg.discount_text}
+                      </div>
+                    )}
+
+                    {/* Package Name */}
+                    <h3 style={{
+                      fontSize: '24px',
+                      fontWeight: '800',
+                      color: '#fff',
+                      marginBottom: '8px',
+                      marginTop: pkg.is_popular ? '12px' : '0'
+                    }}>
+                      {pkg.name}
+                    </h3>
+
+                    {/* Credits */}
+                    <div style={{
+                      fontSize: '48px',
+                      fontWeight: '800',
+                      background: 'linear-gradient(135deg, #fff 0%, #818cf8 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      marginBottom: '8px'
+                    }}>
+                      {pkg.credits + pkg.bonus}
+                    </div>
+                    <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '24px' }}>
+                      {pkg.credits} créditos{pkg.bonus > 0 && ` + ${pkg.bonus} bônus`}
+                    </p>
+
+                    {/* Price */}
+                    <div style={{ marginBottom: '32px' }}>
+                      <div style={{
+                        fontSize: '36px',
+                        fontWeight: '800',
+                        color: '#fff',
+                        marginBottom: '4px'
+                      }}>
+                        R$ {(pkg.price / 100).toFixed(2).replace('.', ',')}
+                      </div>
+                      <p style={{ color: '#64748b', fontSize: '13px' }}>
+                        {(pkg.price / (pkg.credits + pkg.bonus) / 100).toFixed(2).replace('.', ',')} por crédito
+                      </p>
+                    </div>
+
+                    {/* Button */}
+                    <button
+                      onClick={() => navigate('/register')}
+                      style={{
+                        width: '100%',
+                        background: pkg.is_popular ? 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)' : 'transparent',
+                        border: pkg.is_popular ? 'none' : '2px solid #4F46E5',
+                        color: '#fff',
+                        fontSize: '15px',
+                        fontWeight: '700',
+                        padding: '14px 24px',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        boxShadow: pkg.is_popular ? '0 4px 16px rgba(79, 70, 229, 0.3)' : 'none'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.02)';
+                        e.currentTarget.style.boxShadow = '0 8px 24px rgba(79, 70, 229, 0.4)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = pkg.is_popular ? '0 4px 16px rgba(79, 70, 229, 0.3)' : 'none';
+                      }}
+                    >
+                      Comprar agora
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Info adicional */}
+            <div style={{
+              marginTop: '60px',
+              textAlign: 'center',
+              padding: '32px',
+              background: 'rgba(79, 70, 229, 0.05)',
+              borderRadius: '16px',
+              border: '1px solid rgba(79, 70, 229, 0.2)'
+            }} className="reveal-on-scroll">
+              <p style={{ color: '#818cf8', fontSize: '15px', marginBottom: '8px' }}>
+                ✨ <strong>Créditos não expiram</strong> - Use quando quiser, sem pressa
+              </p>
+              <p style={{ color: '#94a3b8', fontSize: '14px' }}>
+                Pagamento 100% seguro via MercadoPago • Suporte via WhatsApp
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* RELATOS / TESTIMONIALS */}
         <section id="relatos" style={{ padding: '80px 0', background: '#1a1f2e' }}>
           <div className="container">
@@ -1257,7 +1330,7 @@ const LandingPage = () => {
                   M
                 </div>
                 {/* Content */}
-                <div style={{ flex: 1 }}>
+                <div id="relatos" style={{ flex: 1 }}>
                   <p style={{
                     fontSize: '16px',
                     color: '#e6edf3',
