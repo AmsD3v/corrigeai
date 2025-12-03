@@ -10,8 +10,8 @@ import os
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from database import SessionLocal
-from models import Package
+from src.database import SessionLocal
+from src.models import Package
 from datetime import datetime
 
 def seed_packages():
