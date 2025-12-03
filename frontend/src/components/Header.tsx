@@ -33,7 +33,7 @@ const Header = () => {
         }
 
         .desktop-only-btn {
-          display: block;
+          display: flex;
         }
 
         .mobile-only {
@@ -161,42 +161,58 @@ const Header = () => {
                         <a href="/#objetivos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Objetivos</a>
                         <a href="/#relatos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Relatos</a>
                         <a href="/#precos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Preços</a>
+                    </nav>
+
+                    {/* Right Buttons - Desktop */}
+                    <div style={{
+                        gridColumn: '3',
+                        justifySelf: 'end',
+                        display: 'flex',
+                        gap: '12px',
+                        alignItems: 'center'
+                    }} className="desktop-only-btn">
                         <button
                             onClick={() => navigate('/login')}
                             style={{
                                 background: 'transparent',
-                                border: 'none',
+                                border: '1px solid rgba(255,255,255,0.2)',
                                 color: '#fff',
                                 fontSize: '14px',
                                 fontWeight: '600',
+                                padding: '10px 24px',
+                                borderRadius: '8px',
                                 cursor: 'pointer',
-                                padding: '8px 16px'
+                                whiteSpace: 'nowrap',
+                                transition: 'all 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
                             }}
                         >
                             Entrar
                         </button>
-                    </nav>
-
-                    {/* CTA Button - Right (Desktop only) */}
-                    <button
-                        className="desktop-only-btn"
-                        onClick={() => navigate('/register')}
-                        style={{
-                            gridColumn: '3',
-                            justifySelf: 'end',
-                            background: '#4F46E5',
-                            border: 'none',
-                            color: '#fff',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            padding: '10px 30px',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            whiteSpace: 'nowrap'
-                        }}
-                    >
-                        Começar correção grátis
-                    </button>
+                        <button
+                            onClick={() => navigate('/register')}
+                            style={{
+                                background: '#4F46E5',
+                                border: 'none',
+                                color: '#fff',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                padding: '10px 30px',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            Começar correção grátis
+                        </button>
+                    </div>
                 </div>
             </header>
         </>
