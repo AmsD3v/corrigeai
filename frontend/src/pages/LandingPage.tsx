@@ -547,7 +547,7 @@ const LandingPage = () => {
             </div>
 
             {/* Right side - Character */}
-            <div className="slide-right" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
+            <div className="slide-right desktop-only" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
               <img
                 src="/owl-thumbs-up-plate.png"
                 alt="Character"
@@ -878,7 +878,7 @@ const LandingPage = () => {
               </div>
 
               {/* Processo COM TIMELINE */}
-              <div className="slide-right" style={{
+              <div className="slide-right desktop-only" style={{
                 background: '#1a1f2e',
                 border: '1px solid #334155',
                 borderRadius: '16px',
