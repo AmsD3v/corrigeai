@@ -761,7 +761,7 @@ const LandingPage = () => {
                   }}>
                     Padrão Enem (5 competências × 200 pts)
                   </p>
-                  <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', marginBottom: '8px', flexWrap: 'nowrap' }}>
                     {['A', 'B', 'C'].map((letter) => (
                       <div key={letter} style={{
                         width: '36px',
