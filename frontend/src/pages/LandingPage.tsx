@@ -584,12 +584,6 @@ const LandingPage = () => {
         </section>
 
         {/* COMO FUNCIONA */}
-        <section id="como-funciona" style={{
-
-        }}>
-        </section>
-
-        {/* TIMELINE */}
         <section style={{ padding: '80px 0', background: '#1a1f2e' }}>
           <div className="container">
             {/* Timeline Header */}
