@@ -791,7 +791,7 @@ const LandingPage = () => {
         </section>
 
         {/* STATISTICS */}
-        <section style={{ padding: '60px 0', background: '#0B1121' }}>
+        <section style={{ padding: '60px 0', background: '#1a1f2e' }}>
           <div className="container stats-grid grid-4">
             <div className="scale-in delay-1" style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '48px', fontWeight: '800', color: '#4F46E5', marginBottom: '8px' }}>+300</div>
@@ -813,7 +813,7 @@ const LandingPage = () => {
         </section>
 
         {/* CORREÇÃO ENEM */}
-        <section id="correcao" style={{ padding: '80px 0', background: '#0f1419' }}>
+        <section id="correcao" style={{ padding: '80px 0', background: '#1a1f2e' }}>
           <div className="container">
             <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
               <p style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>CRITÉRIOS OFICIAIS</p>
@@ -1077,7 +1077,7 @@ const LandingPage = () => {
         </section>
 
         {/* PREÇOS */}
-        <section id="precos" style={{ padding: '80px 0', background: '#0f1419' }}>
+        <section id="precos" style={{ padding: '80px 0', background: '#1a1f2e' }}>
           <div className="container">
             <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
               <p style={{ color: '#818cf8', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>PLANOS FLEXÍVEIS</p>
