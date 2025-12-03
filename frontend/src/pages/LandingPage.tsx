@@ -584,7 +584,7 @@ const LandingPage = () => {
         </section>
 
         {/* COMO FUNCIONA */}
-        <section style={{ padding: '80px 0', background: '#1a1f2e' }}>
+        <section id="como-funciona" style={{ padding: '80px 0', background: '#1a1f2e' }}>
           <div className="container">
             {/* Timeline Header */}
             <div style={{ textAlign: 'center', marginBottom: '60px' }} className="reveal-on-scroll">
