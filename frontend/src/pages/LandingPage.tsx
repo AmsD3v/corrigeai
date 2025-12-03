@@ -602,7 +602,7 @@ const LandingPage = () => {
             {/* Timeline Steps */}
             <div style={{ position: 'relative', marginBottom: '60px' }}>
               {/* Connecting Line */}
-              <div style={{
+              <div className="desktop-only" style={{
                 position: 'absolute',
                 top: '32px',
                 left: '20%',
