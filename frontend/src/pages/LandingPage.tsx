@@ -330,6 +330,14 @@ const LandingPage = () => {
             gap: 24px !important;
           }
 
+          /* Keep timeline badges horizontal */
+          .timeline-steps {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-around !important;
+            flex-wrap: nowrap !important;
+          }
+
           .grid-4 {
             display: flex !important;
             flex-direction: column !important;
