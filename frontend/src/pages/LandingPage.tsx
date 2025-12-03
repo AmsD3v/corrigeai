@@ -681,8 +681,148 @@ const LandingPage = () => {
               </div>
             </div>
 
-            {/* Detail Cards */}
-            <div className="grid-3">
+            {/* Mobile-Only Vertical Cards */}
+            <div className="mobile-only" style={{ display: 'none', flexDirection: 'column', gap: '20px', maxWidth: '600px', margin: '0 auto' }}>
+              {/* Card 1 */}
+              <div className="reveal-on-scroll delay-1" style={{
+                background: 'rgba(15, 23, 42, 0.6)',
+                border: '1px solid rgba(148, 163, 184, 0.1)',
+                borderRadius: '20px',
+                padding: '24px',
+                display: 'flex',
+                gap: '16px',
+                alignItems: 'flex-start'
+              }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: '#4F46E5',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  fontSize: '20px',
+                  fontWeight: '700',
+                  color: '#fff'
+                }}>
+                  1
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '8px' }}>
+                    Envie sua redação
+                  </h3>
+                  <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>
+                    Use um tema sugerido ou escolha um tema livre. Envie colando o texto ou anexando um arquivo.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div className="reveal-on-scroll delay-2" style={{
+                background: 'rgba(15, 23, 42, 0.6)',
+                border: '1px solid rgba(148, 163, 184, 0.1)',
+                borderRadius: '20px',
+                padding: '24px',
+                display: 'flex',
+                gap: '16px',
+                alignItems: 'flex-start'
+              }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: '#4F46E5',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  fontSize: '20px',
+                  fontWeight: '700',
+                  color: '#fff'
+                }}>
+                  2
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '8px' }}>
+                    Correção por 3 avaliadores
+                  </h3>
+                  <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', marginBottom: '12px' }}>
+                    Três avaliadores digitais analisam sua redação de forma independente, como no processo do Enem.
+                  </p>
+                  <p style={{
+                    fontSize: '12px',
+                    color: '#64748b',
+                    background: 'rgba(79, 70, 229, 0.1)',
+                    padding: '6px 10px',
+                    borderRadius: '6px',
+                    display: 'inline-block',
+                    marginBottom: '10px'
+                  }}>
+                    Padrão Enem (5 competências × 200 pts)
+                  </p>
+                  <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+                    {['A', 'B', 'C'].map((letter) => (
+                      <div key={letter} style={{
+                        width: '36px',
+                        height: '36px',
+                        background: '#4F46E5',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#fff',
+                        fontSize: '14px',
+                        fontWeight: '700'
+                      }}>
+                        {letter}
+                      </div>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>
+                    IA calibrada e validada para o formato do Enem.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div className="reveal-on-scroll delay-3" style={{
+                background: 'rgba(15, 23, 42, 0.6)',
+                border: '1px solid rgba(148, 163, 184, 0.1)',
+                borderRadius: '20px',
+                padding: '24px',
+                display: 'flex',
+                gap: '16px',
+                alignItems: 'flex-start'
+              }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: '#4F46E5',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  fontSize: '20px',
+                  fontWeight: '700',
+                  color: '#fff'
+                }}>
+                  3
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '8px' }}>
+                    Feedback claro + nota final
+                  </h3>
+                  <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>
+                    Receba o resumo com pontos fortes, o que melhorar e suas notas por competência (I a V), cada uma valendo até <strong style={{ color: '#fff' }}>200 pontos</strong>.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Detail Cards */}
+            <div className="grid-3 desktop-only">
               {/* Card 1 */}
               <div className="slide-left delay-1 hover-lift" style={{
                 background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(30, 41, 59, 0.8) 100%)',
