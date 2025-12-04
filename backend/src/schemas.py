@@ -76,7 +76,7 @@ class User(UserBase):
     intended_course: Optional[str] = None
     state: Optional[str] = None
     city: Optional[str] = None
-    enem_attempts: Optional[str] = None
+    enem_attempts: Optional[int] = None
     previous_scores: Optional[str] = None
     main_goal: Optional[str] = None
     study_method: Optional[str] = None
