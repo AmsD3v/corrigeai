@@ -177,7 +177,7 @@ def list_my_submissions(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/my-submissions/{submission_id}")
+@router.get("/{submission_id}")
 def get_my_submission_details(
     submission_id: str,  # Accept as string to handle both UUID and INT
     db: Session = Depends(get_db),
