@@ -25,11 +25,16 @@ def init_db_engine():
     
     for attempt in range(max_retries):
         try:
-            # Adiciona timeout de conexão para falhar rápido se o host não responder
-            engine = create_engine(
-                DATABASE_URL, 
-                connect_args={"connect_timeout": 10}
-            )
+            # Verifica se é PostgreSQL para adicionar connect_timeout
+            if DATABASE_URL and DATABASE_URL.startswith('postgresql'):
+                engine = create_engine(
+                    DATABASE_URL, 
+                    connect_args={"connect_timeout": 10}
+                )
+            else:
+                # SQLite e outros bancos
+                engine = create_engine(DATABASE_URL)
+            
             # Testa a conexão
             with engine.connect() as conn:
                 pass

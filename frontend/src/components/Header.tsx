@@ -5,211 +5,153 @@ const Header = () => {
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+    const scrollToSection = (id: string) => {
+        const el = document.getElementById(id);
+        if (el) {
+            const y = el.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+        setMobileMenuOpen(false);
+    };
+
     return (
         <>
-            <style>{`
-        .mobile-menu-btn {
-          display: none;
-          background: transparent;
-          border: none;
-          color: white;
-          font-size: 24px;
-          cursor: pointer;
-        }
+            {/* Backdrop com fade in/out */}
+            {mobileMenuOpen && (
+                <div
+                    onClick={() => setMobileMenuOpen(false)}
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        background: 'rgba(15, 23, 42, 0.7)',
+                        backdropFilter: 'blur(8px)',
+                        zIndex: 999,
+                        animation: 'fadeIn 0.3s ease-out',
+                    }}
+                />
+            )}
 
-        .nav-links {
-          display: flex;
-          gap: 20px;
-          align-items: center;
-          flex-wrap: nowrap;
-        }
-
-        .nav-links a {
-          white-space: nowrap;
-          font-size: 14px;
-          color: #94a3b8;
-          text-decoration: none;
-          font-weight: 500;
-        }
-
-        .desktop-only-btn {
-          display: flex;
-        }
-
-        .mobile-only {
-          display: none;
-        }
-
-        @media (max-width: 768px) {
-          .desktop-only-btn {
-            display: none !important;
-          }
-
-          .mobile-only {
-            display: flex !important;
-          }
-
-          .mobile-menu-btn {
-            display: block !important;
-          }
-
-          .nav-links {
-            position: fixed;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: rgba(10, 15, 30, 0.98);
-            backdrop-filter: blur(12px);
-            display: flex !important;
-            flex-direction: column;
-            padding: 100px 24px 32px;
-            gap: 24px;
-            z-index: 1000;
-            transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow-y: auto;
-          }
-
-          .nav-links a {
-            font-size: 18px !important;
-            color: #fff !important;
-            padding: 12px 0;
-            background: transparent;
-            border: none;
-            transition: all 0.2s ease;
-          }
-
-          .nav-links a:hover {
-            color: #818cf8 !important;
-            transform: translateX(4px);
-          }
-
-          .nav-links.open {
-            transform: translateX(0);
-          }
-        }
-      `}</style>
-
-            {/* Mobile Menu Backdrop */}
-            <div
+            {/* Header */}
+            <header
                 style={{
                     position: 'fixed',
                     top: 0,
                     left: 0,
                     right: 0,
-                    bottom: 0,
-                    zIndex: 999,
-                    background: 'rgba(0, 0, 0, 0.6)',
-                    backdropFilter: 'blur(6px)',
-                    opacity: mobileMenuOpen ? 1 : 0,
-                    pointerEvents: mobileMenuOpen ? 'auto' : 'none',
-                    transition: 'opacity 0.3s ease',
-                    display: mobileMenuOpen ? 'block' : 'none'
+                    zIndex: mobileMenuOpen ? 1002 : 1000,
+                    borderBottom: '1px solid rgba(148, 163, 184, 0.12)',
+                    background: 'rgba(15, 23, 42, 0.9)',
+                    backdropFilter: 'blur(18px)',
                 }}
-                onClick={() => setMobileMenuOpen(false)}
-            />
-
-            {/* HEADER */}
-            <header style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                width: '100%',
-                backdropFilter: 'blur(10px)',
-                backgroundColor: 'rgba(26, 31, 46, 0.8)',
-                zIndex: 1000,
-                borderBottom: '1px solid rgba(255,255,255,0.1)'
-            }}>
-                <div style={{
-                    maxWidth: '100%',
-                    margin: '0 auto',
-                    padding: '0 24px',
-                    height: '70px',
-                    display: 'grid',
-                    gridTemplateColumns: '1fr auto 1fr',
-                    alignItems: 'center',
-                    gap: '20px'
-                }}>
-                    {/* Logo - Left */}
-                    <div
-                        onClick={() => navigate('/')}
-                        className="flex items-center gap-3 cursor-pointer group"
-                    >
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center shadow-lg group-hover:shadow-brand-primary/50 transition-all duration-300">
-                            <span className="text-2xl">🦉</span>
-                        </div>
-                        <span className="text-xl md:text-2xl font-bold text-white tracking-tight">
-                            Corrige<span className="text-brand-accent">AI</span>
-                        </span>
-                    </div>
-
-                    {/* Mobile Menu Button */}
+            >
+                <div
+                    style={{
+                        maxWidth: 1200,
+                        margin: '0 auto',
+                        padding: '14px 20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    {/* ESQUERDA: Logo */}
                     <button
-                        className="mobile-menu-btn"
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        style={{ zIndex: 1001, position: 'relative', gridColumn: '3', justifySelf: 'end' }}
-                    >
-                        {mobileMenuOpen ? '✕' : '☰'}
-                    </button>
-
-                    {/* Nav Links - Centered */}
-                    <nav className={`nav-links ${mobileMenuOpen ? 'open' : ''}`} style={{
-                        gridColumn: '2',
-                        justifySelf: 'center'
-                    }}>
-                        <div style={{
-                            display: 'flex',
+                        onClick={() => {
+                            navigate('/');
+                            setMobileMenuOpen(false);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        style={{
+                            display: 'inline-flex',
                             flexDirection: 'row',
                             alignItems: 'center',
-                            gap: '12px',
-                            marginBottom: '32px',
-                            paddingBottom: '24px',
-                            borderBottom: '1px solid rgba(255,255,255,0.1)',
-                            justifyContent: 'center',
-                            width: '100%'
-                        }} className="mobile-only">
+                            gap: 12,
+                            cursor: 'pointer',
+                            background: 'transparent',
+                            border: 'none',
+                            padding: 0,
+                        }}
+                    >
+                        {/* Ícone */}
+                        <div
+                            style={{
+                                width: 36,
+                                height: 36,
+                                minWidth: 36,
+                                flexShrink: 0,
+                                borderRadius: 10,
+                                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: 22,
+                            }}
+                        >
+                            🦉
                         </div>
+                        {/* Texto */}
+                        <span
+                            style={{
+                                color: '#ffffff',
+                                fontWeight: 700,
+                                fontSize: 19,
+                                whiteSpace: 'nowrap',
+                                display: 'inline-block',
+                            }}
+                        >
+                            CorrigeAI
+                        </span>
+                    </button>
 
-                        <a href="/#como-funciona" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Como funciona</a>
-                        <a href="/#correcao" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Correção</a>
-                        <a href="/#objetivos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Objetivos</a>
-                        <a href="/#relatos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Relatos</a>
-                        <a href="/#precos" style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }} onClick={() => setMobileMenuOpen(false)}>Preços</a>
+                    {/* CENTRO: Nav Desktop (apenas links) */}
+                    <nav
+                        className="nav-links-desktop"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 28,
+                            position: 'absolute',
+                            left: '45%',
+                            transform: 'translateX(-50%)',
+                        }}
+                    >
+                        <button onClick={() => scrollToSection('como-funciona')} style={navItemStyle}>
+                            Como funciona
+                        </button>
+                        <button onClick={() => scrollToSection('correcao')} style={navItemStyle}>
+                            Correção Enem
+                        </button>
+                        <button onClick={() => scrollToSection('objetivos')} style={navItemStyle}>
+                            Objetivos
+                        </button>
+                        <button onClick={() => scrollToSection('relatos')} style={navItemStyle}>
+                            Relatos
+                        </button>
+                        <button onClick={() => scrollToSection('precos')} style={navItemStyle}>
+                            Preços
+                        </button>
                     </nav>
 
-                    {/* Right Buttons - Desktop */}
-                    <div style={{
-                        gridColumn: '3',
-                        justifySelf: 'end',
-                        display: 'flex',
-                        gap: '12px',
-                        alignItems: 'center'
-                    }} className="desktop-only-btn">
+                    {/* DIREITA: Botões Desktop */}
+                    <div
+                        className="desktop-buttons"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 12,
+                        }}
+                    >
                         <button
                             onClick={() => navigate('/login')}
                             style={{
                                 background: 'transparent',
-                                border: '1px solid rgba(255,255,255,0.2)',
-                                color: '#fff',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                padding: '10px 24px',
-                                borderRadius: '8px',
+                                border: '1px solid #4b5563',
+                                borderRadius: 999,
+                                padding: '8px 16px',
+                                color: '#e5e7eb',
+                                fontSize: 14,
                                 cursor: 'pointer',
-                                whiteSpace: 'nowrap',
-                                transition: 'all 0.2s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.background = 'transparent';
-                                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+                                transition: 'all 0.2s ease',
                             }}
                         >
                             Entrar
@@ -219,22 +161,321 @@ const Header = () => {
                             style={{
                                 background: '#4F46E5',
                                 border: 'none',
+                                borderRadius: 999,
+                                padding: '8px 20px',
                                 color: '#fff',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                padding: '10px 30px',
-                                borderRadius: '8px',
+                                fontSize: 14,
+                                fontWeight: 600,
                                 cursor: 'pointer',
-                                whiteSpace: 'nowrap'
+                                transition: 'all 0.2s ease',
                             }}
                         >
                             Começar correção grátis
                         </button>
                     </div>
+
+                    {/* DIREITA: Hambúrguer com rotação */}
+                    <button
+                        className="mobile-menu-btn"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#ffffff',
+                            fontSize: 28,
+                            cursor: 'pointer',
+                            padding: '8px 30px',
+                            marginRight: 0,
+                            display: 'none',
+                            transition: 'transform 0.3s ease',
+                            transform: mobileMenuOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                        }}
+                    >
+                        {mobileMenuOpen ? '✕' : '☰'}
+                    </button>
                 </div>
+
+                {/* Menu Mobile com slide in/out */}
+                {mobileMenuOpen && (
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100vh',
+                            background: 'rgba(15, 23, 42, 0.98)',
+                            backdropFilter: 'blur(18px)',
+                            zIndex: 1001,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            padding: '24px 32px 32px',
+                            gap: 20,
+                            overflowY: 'auto',
+                            animation: 'slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        }}
+                    >
+                        {/* Topo: Logo à esquerda e X à direita */}
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginBottom: 16,
+                                animation: 'fadeIn 0.3s ease-out',
+                            }}
+                        >
+                            {/* Logo clicável */}
+                            <button
+                                onClick={() => {
+                                    navigate('/');
+                                    setMobileMenuOpen(false);
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                style={{
+                                    display: 'inline-flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    gap: 12,
+                                    cursor: 'pointer',
+                                    background: 'transparent',
+                                    border: 'none',
+                                    padding: 0,
+                                }}
+                            >
+                                {/* Ícone */}
+                                <div
+                                    style={{
+                                        width: 36,
+                                        height: 36,
+                                        minWidth: 36,
+                                        flexShrink: 0,
+                                        borderRadius: 10,
+                                        background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: 22,
+                                    }}
+                                >
+                                    🦉
+                                </div>
+                                {/* Texto */}
+                                <span
+                                    style={{
+                                        color: '#ffffff',
+                                        fontWeight: 700,
+                                        fontSize: 19,
+                                        whiteSpace: 'nowrap',
+                                        display: 'inline-block',
+                                    }}
+                                >
+                                    CorrigeAI
+                                </span>
+                            </button>
+
+                            {/* Botão X para fechar */}
+                            <button
+                                onClick={() => setMobileMenuOpen(false)}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#ffffff',
+                                    fontSize: 32,
+                                    cursor: 'pointer',
+                                    padding: 8,
+                                }}
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Links de navegação */}
+                        <button
+                            onClick={() => scrollToSection('como-funciona')}
+                            style={{
+                                ...mobileItemStyle,
+                                animation: 'fadeInUp 0.4s ease-out 0.1s both',
+                            }}
+                        >
+                            Como funciona
+                        </button>
+                        <button
+                            onClick={() => scrollToSection('correcao')}
+                            style={{
+                                ...mobileItemStyle,
+                                animation: 'fadeInUp 0.4s ease-out 0.15s both',
+                            }}
+                        >
+                            Correção Enem
+                        </button>
+                        <button
+                            onClick={() => scrollToSection('objetivos')}
+                            style={{
+                                ...mobileItemStyle,
+                                animation: 'fadeInUp 0.4s ease-out 0.2s both',
+                            }}
+                        >
+                            Objetivos
+                        </button>
+                        <button
+                            onClick={() => scrollToSection('relatos')}
+                            style={{
+                                ...mobileItemStyle,
+                                animation: 'fadeInUp 0.4s ease-out 0.25s both',
+                            }}
+                        >
+                            Relatos
+                        </button>
+                        <button
+                            onClick={() => scrollToSection('precos')}
+                            style={{
+                                ...mobileItemStyle,
+                                animation: 'fadeInUp 0.4s ease-out 0.3s both',
+                            }}
+                        >
+                            Preços
+                        </button>
+
+                        {/* Botões - FORÇAR CENTRALIZAÇÃO */}
+                        <div
+                            style={{
+                                width: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 10,
+                                marginTop: 24,
+                                animation: 'fadeInUp 0.4s ease-out 0.35s both',
+                            }}
+                        >
+                            <button
+                                onClick={() => {
+                                    navigate('/login');
+                                    setMobileMenuOpen(false);
+                                }}
+                                style={{
+                                    width: '85%',
+                                    maxWidth: '260px',
+                                    background: 'transparent',
+                                    border: '2px solid #4b5563',
+                                    borderRadius: 999,
+                                    padding: '10px',
+                                    color: '#ffffff',
+                                    fontSize: 14,
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                    margin: '0 auto',
+                                }}
+                            >
+                                Entrar
+                            </button>
+                            <button
+                                onClick={() => {
+                                    navigate('/register');
+                                    setMobileMenuOpen(false);
+                                }}
+                                style={{
+                                    width: '85%',
+                                    maxWidth: '260px',
+                                    background: '#4F46E5',
+                                    border: 'none',
+                                    borderRadius: 999,
+                                    padding: '11px',
+                                    color: '#fff',
+                                    fontSize: 14,
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                    margin: '0 auto',
+                                }}
+                            >
+                                Criar conta
+                            </button>
+                        </div>
+                    </div>
+                )}
             </header>
+
+            <style>{`
+        /* Forçar logo horizontal */
+        button[style*="inline-flex"] {
+          display: inline-flex !important;
+          flex-direction: row !important;
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes slideInFromRight {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @media (max-width: 768px) {
+          .nav-links-desktop,
+          .desktop-buttons {
+            display: none !important;
+          }
+          .mobile-menu-btn {
+            display: block !important;
+          }
+        }
+        @media (min-width: 769px) {
+          .mobile-menu-btn {
+            display: none !important;
+          }
+        }
+      `}</style>
         </>
     );
+};
+
+const navItemStyle: React.CSSProperties = {
+    background: 'none',
+    border: 'none',
+    color: '#e5e7eb',
+    fontSize: 14,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+};
+
+const mobileItemStyle: React.CSSProperties = {
+    textAlign: 'left',
+    background: 'none',
+    border: 'none',
+    borderBottom: '1px solid rgba(255,255,255,0.08)',
+    paddingBottom: 16,
+    color: '#e5e7eb',
+    fontSize: 16,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
 };
 
 export default Header;
