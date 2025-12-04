@@ -118,36 +118,40 @@ const RedigirRedacao = () => {
       return;
     }
 
-    // Generate UUID for the essay
-    const essayId = generateUUID();
+    try {
+      // Submit to backend first to get numeric ID
+      const { essayService } = await import('../../services/essayService');
 
-    // Clean up old essays from localStorage (keep only last 5)
-    const allKeys = Object.keys(localStorage);
-    const essayKeys = allKeys.filter(key => key.startsWith('essay_')).sort().reverse();
-    const correctionKeys = allKeys.filter(key => key.startsWith('correction_')).sort().reverse();
+      // Submit essay - backend returns with numeric ID
+      const response = await apiClient.post('/submit', {
+        title: title || 'Sem título',
+        theme: theme || 'Tema livre',
+        content: content,
+        correction_type: correctionType,
+        exam_type: examType
+      });
 
-    // Remove old essays (keep only 5 most recent)
-    if (essayKeys.length > 5) {
-      essayKeys.slice(5).forEach(key => localStorage.removeItem(key));
+      const essayId = response.data.id; // Use numeric ID from backend
+
+      // Save essay data to localStorage for the processing page
+      const essayData = {
+        id: essayId,
+        title,
+        theme,
+        content,
+        correction_type: correctionType,
+        exam_type: examType
+      };
+
+      localStorage.setItem(`essay_${essayId}`, JSON.stringify(essayData));
+
+      // Navigate to processing page with numeric ID
+      navigate(`/painel/redacao/${essayId}/corrigindo`);
+
+    } catch (error) {
+      console.error('Erro ao enviar redação:', error);
+      alert('Erro ao enviar redação. Tente novamente.');
     }
-    if (correctionKeys.length > 5) {
-      correctionKeys.slice(5).forEach(key => localStorage.removeItem(key));
-    }
-
-    // Save essay data to localStorage for the processing page
-    const essayData = {
-      id: essayId,
-      title,
-      theme,
-      content,
-      correction_type: correctionType,
-      exam_type: examType // NOVO - incluir tipo de vestibular
-    };
-
-    localStorage.setItem(`essay_${essayId}`, JSON.stringify(essayData));
-
-    // Navigate to processing page
-    navigate(`/painel/redacao/${essayId}/corrigindo`);
   };
 
   return (
