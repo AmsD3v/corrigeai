@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     CORRECTION_SERVICE_URL: str
     CORS_ORIGINS: str = ""
     GEMINI_API_KEY: str  # API key for Gemini AI
+    GROQ_API_KEY: str = ""  # API key for Groq AI
 
 
     class Config:

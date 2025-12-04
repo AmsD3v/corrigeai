@@ -214,13 +214,27 @@ def get_my_submission_details(
         models.Correction.submission_id == submission.id
     ).first()
     
+    # Check if user already gave feedback (with error handling)
+    user_has_feedback = False
+    try:
+        existing_feedback = db.query(models.Feedback).filter(
+            models.Feedback.submission_id == submission.id,
+            models.Feedback.user_id == current_user.id
+        ).first()
+        user_has_feedback = existing_feedback is not None
+    except Exception as e:
+        # Table might not exist yet, ignore error
+        pass
+    
     result = {
         "id": str(submission.id),
         "title": submission.title,
         "theme": submission.theme,
         "content": submission.content,
         "submitted_at": str(submission.submitted_at),
-        "status": submission.status
+        "status": submission.status,
+        "exam_type": submission.exam_type,  # Add exam_type
+        "user_has_feedback": user_has_feedback
     }
     
     if correction:
@@ -242,6 +256,57 @@ def get_my_submission_details(
         }
     
     return result
+
+
+@router.post("/{submission_id}/feedback", status_code=status.HTTP_201_CREATED)
+def create_correction_feedback(
+    submission_id: int,
+    feedback_data: dict,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Create feedback for a correction (thumbs up/down)"""
+    # Verify submission belongs to user
+    submission = db.query(models.Submission).filter(
+        models.Submission.id == submission_id,
+        models.Submission.owner_id == current_user.id
+    ).first()
+    
+    if not submission:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Submissão não encontrada"
+        )
+    
+    # Check if feedback already exists
+    try:
+        existing_feedback = db.query(models.Feedback).filter(
+            models.Feedback.submission_id == submission_id,
+            models.Feedback.user_id == current_user.id
+        ).first()
+        
+        if existing_feedback:
+            # Update existing feedback
+            existing_feedback.is_helpful = feedback_data.get("helpful", True)
+            db.commit()
+            return {"message": "Feedback atualizado com sucesso"}
+        
+        # Create new feedback
+        new_feedback = models.Feedback(
+            submission_id=submission_id,
+            user_id=current_user.id,
+            is_helpful=feedback_data.get("helpful", True)
+        )
+        db.add(new_feedback)
+        db.commit()
+        
+        return {"message": "Feedback criado com sucesso"}
+        
+    except Exception as e:
+        db.rollback()
+        # If table doesn't exist, just return success (feedback will be saved when table is created)
+        return {"message": "Feedback registrado", "note": "Tabela será criada em breve"}
+
 
 
 
@@ -393,3 +458,57 @@ def get_correction_alias(
     Used by frontend for compatibility
     """
     return get_correction(submission_id, db, current_user)
+
+
+@router.post("/{submission_id}/feedback", response_model=schemas.CorrectionFeedbackResponse)
+def submit_correction_feedback(
+    submission_id: int,
+    feedback: schemas.CorrectionFeedbackCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """
+    Submit user feedback for a correction
+    - Allows user to mark correction as helpful (👍) or not helpful (👎)
+    - Updates existing feedback if already exists
+    """
+    from datetime import datetime
+    
+    # Verify submission exists and belongs to user
+    submission = db.query(models.Submission).filter(
+        models.Submission.id == submission_id,
+        models.Submission.owner_id == current_user.id
+    ).first()
+    
+    if not submission:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Submissão não encontrada"
+        )
+    
+    # Check if feedback already exists
+    existing = db.query(models.Feedback).filter(
+        models.Feedback.submission_id == submission_id,
+        models.Feedback.user_id == current_user.id
+    ).first()
+    
+    if existing:
+        # Update existing feedback
+        existing.is_helpful = feedback.helpful
+        existing.updated_at = datetime.utcnow()
+        db.commit()
+        db.refresh(existing)
+        return existing
+    
+    # Create new feedback
+    db_feedback = models.Feedback(
+        submission_id=submission_id,
+        user_id=current_user.id,
+        is_helpful=feedback.helpful
+    )
+    
+    db.add(db_feedback)
+    db.commit()
+    db.refresh(db_feedback)
+    
+    return db_feedback

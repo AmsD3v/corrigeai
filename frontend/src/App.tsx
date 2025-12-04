@@ -26,6 +26,7 @@ import Transacoes from './pages/Admin/Transacoes';
 import ConfiguracoesAdmin from './pages/Admin/Configuracoes';
 import Analytics from './pages/Admin/Analytics';
 import DropdownOptions from './pages/Admin/DropdownOptions';
+import FeedbackStats from './pages/Admin/FeedbackStats';
 import PagamentoSucesso from './pages/Painel/PagamentoSucesso';
 import PagamentoFalha from './pages/Painel/PagamentoFalha';
 import PagamentoPendente from './pages/Painel/PagamentoPendente';
@@ -74,6 +75,7 @@ function App() {
           <Route path="/admin/configuracoes" element={<ConfiguracoesAdmin />} />
           <Route path="/admin/analytics" element={<Analytics />} />
           <Route path="/admin/dropdown-options" element={<DropdownOptions />} />
+          <Route path="/admin/feedback-stats" element={<FeedbackStats />} />
         </Route>
 
       </Routes>

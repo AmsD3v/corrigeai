@@ -9,7 +9,7 @@ const Sidebar = ({ activePage }: SidebarProps) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const menuItems = [
-        { path: '/painel', icon: '🏠', label: 'Página Inicial' },
+        { path: '/painel', icon: '🏠', label: 'Painel' },
         { path: '/painel/minhas-redacoes', icon: '📄', label: 'Minhas Redações' },
         { path: '/painel/redigir-redacao', icon: '✍️', label: 'Redigir Redação' },
         { path: '/painel/desenvolvimento', icon: '📊', label: 'Meu Desenvolvimento' },
@@ -24,21 +24,7 @@ const Sidebar = ({ activePage }: SidebarProps) => {
             {/* Mobile Menu Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                style={{
-                    position: 'fixed',
-                    top: '16px',
-                    left: '16px',
-                    zIndex: 1001,
-                    display: 'none',
-                    padding: '12px',
-                    background: '#1a1f2e',
-                    border: '1px solid #334155',
-                    borderRadius: '8px',
-                    color: '#fff',
-                    cursor: 'pointer',
-                    fontSize: '20px'
-                }}
-                className="mobile-menu-btn"
+                className="lg:hidden fixed top-4 left-4 z-[1001] p-3 bg-[#1a1f2e] border border-[#334155] rounded-lg text-white text-xl"
             >
                 {isOpen ? '✕' : '☰'}
             </button>
@@ -47,36 +33,17 @@ const Sidebar = ({ activePage }: SidebarProps) => {
             {isOpen && (
                 <div
                     onClick={() => setIsOpen(false)}
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(0, 0, 0, 0.5)',
-                        zIndex: 999,
-                        display: 'none'
-                    }}
-                    className="mobile-overlay"
+                    className="lg:hidden fixed inset-0 bg-black/50 z-[999]"
                 />
             )}
 
             {/* Sidebar */}
             <div
-                style={{
-                    width: '280px',
-                    background: '#1a1f2e',
-                    borderRight: '1px solid #334155',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'fixed',
-                    top: '64px',
-                    left: 0,
-                    bottom: 0,
-                    zIndex: 999,
-                    transition: 'transform 0.3s ease'
-                }}
-                className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}
+                className={`fixed left-0 bottom-0 w-[280px] bg-[#1a1f2e] border-r border-[#334155] flex flex-col z-[999] transition-transform duration-300 top-0 lg:top-16 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+                    }`}
             >
                 {/* Menu */}
-                <nav style={{ marginTop: '24px', flex: 1, overflowY: 'auto', padding: '0 12px' }}>
+                <nav className="mt-16 lg:mt-6 flex-1 overflow-y-auto px-3">
                     {menuItems.map((item) => {
                         const isActive = activePage === item.path;
                         return (
@@ -84,31 +51,10 @@ const Sidebar = ({ activePage }: SidebarProps) => {
                                 key={item.path}
                                 to={item.path}
                                 onClick={() => setIsOpen(false)}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    padding: '12px 24px',
-                                    color: isActive ? '#fff' : '#94a3b8',
-                                    textDecoration: 'none',
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    background: isActive ? '#334155' : 'transparent',
-                                    borderLeft: isActive ? '3px solid #4F46E5' : '3px solid transparent',
-                                    transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={(e) => {
-                                    if (!isActive) {
-                                        e.currentTarget.style.background = '#334155';
-                                        e.currentTarget.style.color = '#fff';
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (!isActive) {
-                                        e.currentTarget.style.background = 'transparent';
-                                        e.currentTarget.style.color = '#94a3b8';
-                                    }
-                                }}
+                                className={`flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all border-l-[3px] ${isActive
+                                    ? 'bg-[#334155] text-white border-l-[#4F46E5]'
+                                    : 'bg-transparent text-[#94a3b8] border-l-transparent hover:bg-[#334155] hover:text-white'
+                                    } no-underline`}
                             >
                                 <span>{item.icon}</span>
                                 {item.label}
@@ -118,41 +64,10 @@ const Sidebar = ({ activePage }: SidebarProps) => {
                 </nav>
 
                 {/* Footer */}
-                <div style={{
-                    padding: '24px',
-                    borderTop: '1px solid #334155',
-                    fontSize: '12px',
-                    color: '#64748b',
-                    textAlign: 'center'
-                }}>
+                <div className="p-6 border-t border-[#334155] text-xs text-[#64748b] text-center">
                     © 2025 CorrigeAI
                 </div>
             </div>
-
-            {/* Responsive Styles */}
-            <style>{`
-        @media (max-width: 768px) {
-          .mobile-menu-btn {
-            display: block !important;
-          }
-          
-          .mobile-overlay {
-            display: block !important;
-          }
-          
-          .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            transform: translateX(-100%);
-          }
-          
-          .sidebar-open {
-            transform: translateX(0);
-          }
-        }
-      `}</style>
         </>
     );
 };

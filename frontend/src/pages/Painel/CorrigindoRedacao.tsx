@@ -79,6 +79,13 @@ const CorrigindoRedacao = () => {
           exam_type: result.essay.exam_type || essayData.exam_type || 'enem'
         }));
 
+        // Update essay data with status completed
+        localStorage.setItem(`essay_${id}`, JSON.stringify({
+          ...essayData,
+          status: 'completed',  // ✅ CRITICAL: Set status to completed!
+          exam_type: result.essay.exam_type || essayData.exam_type || 'enem'
+        }));
+
         // Complete progress
         setProgress(100);
 

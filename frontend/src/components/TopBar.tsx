@@ -38,98 +38,35 @@ const TopBar = ({ userCredits = 0, userCoins = 0 }: TopBarProps) => {
     };
 
     return (
-        <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '64px',
-            background: '#1a1f2e',
-            borderBottom: '1px solid #334155',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 24px',
-            zIndex: 1000
-        }}>
+        <div className="fixed top-0 left-0 right-0 h-16 bg-[#1a1f2e] border-b border-[#334155] flex items-center justify-between px-4 md:px-6 z-[1000]">
             {/* Logo */}
             <div
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    cursor: 'pointer'
-                }}
+                className="flex items-center gap-3 cursor-pointer"
                 onClick={() => navigate('/painel')}
             >
-                <div style={{
-                    width: '40px',
-                    height: '40px',
-                    background: 'linear-gradient(135deg, #4F46E5 0%, #818cf8 100%)',
-                    borderRadius: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '24px'
-                }}>
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#4F46E5] to-[#818cf8] rounded-lg flex items-center justify-center text-xl md:text-2xl">
                     🦉
                 </div>
-                <span style={{
-                    fontSize: '20px',
-                    fontWeight: '700',
-                    color: '#fff'
-                }}>
-                    Corrige<span style={{ color: '#4F46E5' }}>AI</span>
+                <span className="hidden sm:inline text-lg md:text-xl font-bold text-white">
+                    Corrige<span className="text-[#4F46E5]">AI</span>
                 </span>
             </div>
 
             {/* Right Side - Credits & User */}
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '20px'
-            }}>
+            <div className="flex items-center gap-2 md:gap-5">
                 {/* CorriCoins Display */}
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    background: '#0f1419',
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    border: '1px solid #334155'
-                }}>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                    }}>
-                        <span style={{ fontSize: '18px' }}>🪙</span>
-                        <span style={{
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            color: '#fbbf24'
-                        }}>
-                            CorriCoins: {credits}
+                <div className="flex items-center gap-2 md:gap-3 bg-[#0f1419] px-2 md:px-4 py-2 rounded-lg border border-[#334155]">
+                    <div className="flex items-center gap-1">
+                        <span className="text-base md:text-lg">🪙</span>
+                        <span className="text-xs md:text-sm font-semibold text-[#fbbf24]">
+                            <span className="hidden md:inline">CorriCoins: </span>{credits}
                         </span>
                     </div>
-                    <div style={{
-                        width: '1px',
-                        height: '20px',
-                        background: '#334155'
-                    }}></div>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                    }}>
-                        <span style={{ fontSize: '16px' }}>⚡</span>
-                        <span style={{
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            color: '#10b981'
-                        }}>
-                            Grátis: {freeCredits}
+                    <div className="w-px h-5 bg-[#334155] hidden md:block"></div>
+                    <div className="flex items-center gap-1">
+                        <span className="text-sm md:text-base">⚡</span>
+                        <span className="text-xs md:text-sm font-semibold text-[#10b981]">
+                            <span className="hidden md:inline">Grátis: </span>{freeCredits}
                         </span>
                     </div>
                 </div>
@@ -137,25 +74,10 @@ const TopBar = ({ userCredits = 0, userCoins = 0 }: TopBarProps) => {
                 {/* Logout Button */}
                 <button
                     onClick={handleLogout}
-                    style={{
-                        background: '#ef4444',
-                        color: '#fff',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#dc2626';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = '#ef4444';
-                    }}
+                    className="bg-[#ef4444] hover:bg-[#dc2626] text-white px-3 md:px-4 py-2 rounded-lg text-sm font-semibold transition-all"
                 >
-                    Sair
+                    <span className="hidden md:inline">Sair</span>
+                    <span className="md:hidden">🚪</span>
                 </button>
             </div>
         </div>

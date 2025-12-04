@@ -451,3 +451,87 @@ async def get_admin_analytics(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar analytics: {str(e)}")
+
+
+@router.get("/admin/feedback-stats")
+def get_feedback_stats(
+    days: Optional[int] = 30,
+    db: Session = Depends(get_db),
+    admin: models.User = Depends(get_current_admin_user)
+):
+    """Get feedback statistics for admin dashboard"""
+    from sqlalchemy import func
+    from datetime import datetime, timedelta
+    
+    try:
+        start_date = datetime.utcnow() - timedelta(days=days)
+        
+        # Total feedbacks
+        total_feedbacks = db.query(func.count(models.Feedback.id)).filter(
+            models.Feedback.created_at >= start_date
+        ).scalar() or 0
+        
+        # Positive (👍)
+        positive_count = db.query(func.count(models.Feedback.id)).filter(
+            models.Feedback.created_at >= start_date,
+            models.Feedback.is_helpful == True
+        ).scalar() or 0
+        
+        # Negative (👎)
+        negative_count = db.query(func.count(models.Feedback.id)).filter(
+            models.Feedback.created_at >= start_date,
+            models.Feedback.is_helpful == False
+        ).scalar() or 0
+        
+        # Latest feedbacks
+        latest_feedbacks = db.query(models.Feedback).filter(
+            models.Feedback.created_at >= start_date
+        ).order_by(models.Feedback.created_at.desc()).limit(10).all()
+        
+        # Daily stats
+        daily_stats = db.query(
+            func.date(models.Feedback.created_at).label('date'),
+            func.count(models.Feedback.id).label('count'),
+            func.sum(func.cast(models.Feedback.is_helpful, Integer)).label('positive')
+        ).filter(
+            models.Feedback.created_at >= start_date
+        ).group_by(func.date(models.Feedback.created_at)).all()
+        
+        return {
+            "total_feedbacks": total_feedbacks,
+            "positive_count": positive_count,
+            "negative_count": negative_count,
+            "positive_percentage": round((positive_count / total_feedbacks * 100), 1) if total_feedbacks > 0 else 0,
+            "negative_percentage": round((negative_count / total_feedbacks * 100), 1) if total_feedbacks > 0 else 0,
+            "latest_feedbacks": [
+                {
+                    "id": f.id,
+                    "submission_id": f.submission_id,
+                    "user_id": f.user_id,
+                    "is_helpful": f.is_helpful,
+                    "created_at": f.created_at.isoformat()
+                }
+                for f in latest_feedbacks
+            ],
+            "daily_stats": [
+                {
+                    "date": stat.date.isoformat(),
+                    "total": stat.count,
+                    "positive": stat.positive or 0,
+                    "negative": stat.count - (stat.positive or 0)
+                }
+                for stat in daily_stats
+            ]
+        }
+    except Exception as e:
+        # Table might not exist yet, return empty stats
+        return {
+            "total_feedbacks": 0,
+            "positive_count": 0,
+            "negative_count": 0,
+            "positive_percentage": 0,
+            "negative_percentage": 0,
+            "latest_feedbacks": [],
+            "daily_stats": []
+        }
+

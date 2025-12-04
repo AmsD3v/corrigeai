@@ -153,50 +153,23 @@ const RedigirRedacao = () => {
   return (
     <PanelLayout activePage="/painel/redigir-redacao">
       {/* Main Content */}
-      <div style={{ flex: 1, padding: '40px', maxWidth: '1200px', margin: '64px auto 0' }}>
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div style={{
-          background: '#1a1f2e',
-          border: '1px solid #334155',
-          borderRadius: '16px',
-          padding: '32px',
-          marginBottom: '32px'
-        }}>
-          <h1 style={{
-            fontSize: '32px',
-            fontWeight: '800',
-            color: '#fff',
-            marginBottom: '8px'
-          }}>
+        <div className="bg-[#1a1f2e] border border-[#334155] rounded-2xl p-6 md:p-8 mb-8">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-2">
             Redigir Redação
           </h1>
-          <p style={{
-            fontSize: '14px',
-            color: '#94a3b8'
-          }}>
+          <p className="text-sm md:text-base text-[#94a3b8]">
             Escolha seu plano, escreva sua redação e envie para correção com IA.
           </p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
-          <div style={{
-            background: '#1a1f2e',
-            border: '1px solid #334155',
-            borderRadius: '16px',
-            padding: '32px'
-          }}>
+          <div className="bg-[#1a1f2e] border border-[#334155] rounded-2xl p-6 md:p-8">
             {/* Title Input */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '13px',
-                fontWeight: '600',
-                color: '#94a3b8',
-                marginBottom: '8px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
+            <div className="mb-6">
+              <label className="block text-xs md:text-sm font-semibold text-[#94a3b8] mb-2 uppercase tracking-wide">
                 Título (Opcional)
               </label>
               <input
@@ -204,46 +177,19 @@ const RedigirRedacao = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ex: Os desafios da educação no Brasil"
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  background: '#0f1419',
-                  border: '1px solid #334155',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '14px',
-                  outline: 'none'
-                }}
+                className="w-full px-4 py-3 md:py-3.5 bg-[#0f1419] border border-[#334155] rounded-lg text-white text-sm outline-none focus:border-[#4F46E5] transition-colors"
               />
             </div>
 
             {/* Theme Category Dropdown */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '13px',
-                fontWeight: '600',
-                color: '#94a3b8',
-                marginBottom: '8px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
+            <div className="mb-6">
+              <label className="block text-xs md:text-sm font-semibold text-[#94a3b8] mb-2 uppercase tracking-wide">
                 Categoria do Tema
               </label>
               <select
                 value={themeCategory}
                 onChange={(e) => setThemeCategory(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  background: '#0f1419',
-                  border: '1px solid #334155',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '14px',
-                  outline: 'none',
-                  cursor: 'pointer'
-                }}
+                className="w-full px-4 py-3 md:py-3.5 bg-[#0f1419] border border-[#334155] rounded-lg text-white text-sm outline-none cursor-pointer"
               >
                 <option value="geral">Geral</option>
                 <option value="educacao">Educação</option>
@@ -256,62 +202,23 @@ const RedigirRedacao = () => {
 
             {/* Theme Input with AI Generation */}
 
-            <div style={{ marginBottom: '24px' }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '8px'
-              }}>
-                <label style={{
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: '#94a3b8',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
+            <div className="mb-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-2">
+                <label className="text-xs md:text-sm font-semibold text-[#94a3b8] uppercase tracking-wide">
                   Tema (Opcional)
                 </label>
                 <button
                   type="button"
                   onClick={handleGenerateTheme}
                   disabled={generatingTheme}
-                  style={{
-                    padding: '6px 12px',
-                    background: generatingTheme ? '#334155' : '#4F46E520',
-                    color: generatingTheme ? '#64748b' : '#4F46E5',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    cursor: generatingTheme ? 'not-allowed' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!generatingTheme) {
-                      e.currentTarget.style.background = '#4F46E540';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!generatingTheme) {
-                      e.currentTarget.style.background = '#4F46E520';
-                    }
-                  }}
+                  className={`px-3 py-1.5 rounded-md text-xs md:text-sm font-semibold flex items-center justify-center gap-2 transition-all ${generatingTheme
+                    ? 'bg-[#334155] text-[#64748b] cursor-not-allowed'
+                    : 'bg-[#4F46E520] text-[#4F46E5] hover:bg-[#4F46E540] cursor-pointer'
+                    }`}
                 >
                   {generatingTheme ? (
                     <>
-                      <span style={{
-                        display: 'inline-block',
-                        width: '12px',
-                        height: '12px',
-                        border: '2px solid #64748b',
-                        borderTop: '2px solid transparent',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite'
-                      }} />
+                      <span className="inline-block w-3 h-3 border-2 border-[#64748b] border-t-transparent rounded-full animate-spin" />
                       Gerando...
                     </>
                   ) : (
@@ -326,16 +233,7 @@ const RedigirRedacao = () => {
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
                 placeholder="Ex: Caminhos para combater a intolerância religiosa"
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  background: '#0f1419',
-                  border: '1px solid #334155',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '14px',
-                  outline: 'none'
-                }}
+                className="w-full px-4 py-3 md:py-3.5 bg-[#0f1419] border border-[#334155] rounded-lg text-white text-sm outline-none focus:border-[#4F46E5] transition-colors"
               />
 
               {/* Error Notification */}
@@ -359,16 +257,8 @@ const RedigirRedacao = () => {
             </div>
 
             {/* Content Textarea */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '13px',
-                fontWeight: '600',
-                color: '#94a3b8',
-                marginBottom: '8px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
+            <div className="mb-6">
+              <label className="block text-xs md:text-sm font-semibold text-[#94a3b8] mb-2 uppercase tracking-wide">
                 Sua Redação *
               </label>
               <textarea
@@ -376,60 +266,22 @@ const RedigirRedacao = () => {
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Escreva sua redação aqui..."
                 required
-                style={{
-                  width: '100%',
-                  minHeight: '400px',
-                  padding: '16px',
-                  background: '#0f1419',
-                  border: '1px solid #334155',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '14px',
-                  lineHeight: '1.8',
-                  fontFamily: 'monospace',
-                  resize: 'vertical',
-                  outline: 'none'
-                }}
+                className="w-full min-h-[300px] md:min-h-[400px] p-4 bg-[#0f1419] border border-[#334155] rounded-lg text-white text-sm leading-relaxed font-mono resize-vertical outline-none focus:border-[#4F46E5] transition-colors"
               />
-              <div style={{
-                textAlign: 'right',
-                fontSize: '12px',
-                color: '#64748b',
-                marginTop: '8px'
-              }}>
+              <div className="text-right text-xs text-[#64748b] mt-2">
                 {content.length} caracteres
               </div>
             </div>
 
             {/* Exam Type Selector (NOVO) */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '13px',
-                fontWeight: '600',
-                color: '#94a3b8',
-                marginBottom: '12px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
+            <div className="mb-6">
+              <label className="block text-xs md:text-sm font-semibold text-[#94a3b8] mb-3 uppercase tracking-wide">
                 🎓 Selecione o Vestibular/Concurso
               </label>
               <select
                 value={examType}
                 onChange={(e) => setExamType(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '16px',
-                  background: '#0f1419',
-                  border: '2px solid #3B82F6',
-                  borderRadius: '12px',
-                  color: '#fff',
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  outline: 'none',
-                  transition: 'all 0.2s'
-                }}
+                className="w-full px-4 py-3 md:py-4 bg-[#0f1419] border-2 border-[#3B82F6] rounded-xl text-white text-sm md:text-base font-semibold cursor-pointer outline-none transition-all"
               >
                 <option value="enem">📝 ENEM - Exame Nacional do Ensino Médio (0-1000)</option>
                 <option value="fuvest">🎓 FUVEST - USP (0-50)</option>
@@ -453,79 +305,52 @@ const RedigirRedacao = () => {
             </div>
 
             {/* Correction Type Selector */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '13px',
-                fontWeight: '600',
-                color: '#94a3b8',
-                marginBottom: '12px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
+            <div className="mb-6">
+              <label className="block text-xs md:text-sm font-semibold text-[#94a3b8] mb-3 uppercase tracking-wide">
                 Tipo de Correção
               </label>
-              <div style={{ display: 'flex', gap: '16px' }}>
+              <div className="flex flex-col md:flex-row gap-4">
                 {/* Advanced Option */}
-                <label style={{
-                  flex: 1,
-                  padding: '20px',
-                  border: correctionType === 'advanced' ? '2px solid #10b981' : '1px solid #334155',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  background: correctionType === 'advanced' ? '#10b98110' : '#0f1419',
-                  transition: 'all 0.2s'
-                }}>
+                <label className={`flex-1 p-5 rounded-xl cursor-pointer transition-all ${correctionType === 'advanced'
+                  ? 'border-2 border-[#10b981] bg-[#10b98110]'
+                  : 'border border-[#334155] bg-[#0f1419]'
+                  }`}>
                   <input
                     type="radio"
                     value="advanced"
                     checked={correctionType === 'advanced'}
                     onChange={(e) => setCorrectionType(e.target.value as 'advanced')}
-                    style={{ marginRight: '12px' }}
+                    className="mr-3"
                   />
-                  <div style={{ display: 'inline-block' }}>
+                  <div className="inline-block">
                     <div>
-                      <strong style={{ color: '#fff', fontSize: '15px' }}>⚡ Correção Avançada</strong>
+                      <strong className="text-white text-sm md:text-base">⚡ Correção Avançada</strong>
                     </div>
-                    <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0 0' }}>
-                      Rápida e precisa • <strong style={{ color: '#10b981' }}>1 crédito</strong>
+                    <p className="text-xs md:text-sm text-[#94a3b8] mt-1">
+                      Rápida e precisa • <strong className="text-[#10b981]">1 crédito</strong>
                     </p>
                   </div>
                 </label>
 
                 {/* Premium Option */}
-                <label style={{
-                  flex: 1,
-                  padding: '20px',
-                  border: correctionType === 'premium' ? '2px solid #f59e0b' : '1px solid #334155',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  background: correctionType === 'premium' ? '#f59e0b10' : '#0f1419',
-                  transition: 'all 0.2s',
-                  position: 'relative'
-                }}>
+                <label className={`flex-1 p-5 rounded-xl cursor-pointer transition-all relative ${correctionType === 'premium'
+                  ? 'border-2 border-[#f59e0b] bg-[#f59e0b10]'
+                  : 'border border-[#334155] bg-[#0f1419]'
+                  }`}>
                   <input
                     type="radio"
                     value="premium"
                     checked={correctionType === 'premium'}
                     onChange={(e) => setCorrectionType(e.target.value as 'premium')}
-                    style={{ marginRight: '12px' }}
+                    className="mr-3"
                   />
-                  <div style={{ display: 'inline-block' }}>
+                  <div className="inline-block">
                     <div>
-                      <strong style={{ color: '#fff', fontSize: '15px' }}>💎 Correção Premium</strong>
-                      <span style={{
-                        background: '#f59e0b',
-                        color: '#0f1419',
-                        padding: '2px 8px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        fontWeight: '700',
-                        marginLeft: '8px'
-                      }}>RECOMENDADO</span>
+                      <strong className="text-white text-sm md:text-base">💎 Correção Premium</strong>
+                      <span className="bg-[#f59e0b] text-[#0f1419] px-2 py-0.5 rounded text-[10px] md:text-xs font-bold ml-2">RECOMENDADO</span>
                     </div>
-                    <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0 0' }}>
-                      Análise profunda com insights • <strong style={{ color: '#f59e0b' }}>3 créditos</strong>
+                    <p className="text-xs md:text-sm text-[#94a3b8] mt-1">
+                      Análise profunda com insights • <strong className="text-[#f59e0b]">3 créditos</strong>
                     </p>
                   </div>
                 </label>
@@ -533,24 +358,15 @@ const RedigirRedacao = () => {
             </div>
 
             {/* Submit Button */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingTop: '24px',
-              borderTop: '1px solid #334155'
-            }}>
-              <div style={{
-                fontSize: '13px',
-                color: '#94a3b8'
-              }}>
-                <span style={{ color: '#fbbf24' }}>⚠️</span> Custo: <strong style={{ color: '#fff' }}>{correctionType === 'premium' ? '3' : '1'} crédito{correctionType === 'premium' ? 's' : ''}</strong>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6 border-t border-[#334155]">
+              <div className="text-xs md:text-sm text-[#94a3b8]">
+                <span className="text-[#fbbf24]">⚠️</span> Custo: <strong className="text-white">{correctionType === 'premium' ? '3' : '1'} crédito{correctionType === 'premium' ? 's' : ''}</strong>
                 {!loadingCredits && (
-                  <span style={{ marginLeft: '12px', color: (freeCredits + userCredits) < (correctionType === 'premium' ? 3 : 1) ? '#ef4444' : '#10b981' }}>
+                  <span className={`ml-3 ${(freeCredits + userCredits) < (correctionType === 'premium' ? 3 : 1) ? 'text-[#ef4444]' : 'text-[#10b981]'}`}>
                     (Você tem:
-                    {freeCredits > 0 && <><strong style={{ color: '#10b981' }}>{freeCredits}</strong> <span style={{ color: '#10b981' }}>grátis</span></>}
+                    {freeCredits > 0 && <><strong className="text-[#10b981]">{freeCredits}</strong> <span className="text-[#10b981]">grátis</span></>}
                     {freeCredits > 0 && userCredits > 0 && ' + '}
-                    {userCredits > 0 && <><strong style={{ color: '#fbbf24' }}>{userCredits}</strong> <span style={{ color: '#fbbf24' }}>CorriCoin{userCredits === 1 ? '' : 's'}</span></>}
+                    {userCredits > 0 && <><strong className="text-[#fbbf24]">{userCredits}</strong> <span className="text-[#fbbf24]">CorriCoin{userCredits === 1 ? '' : 's'}</span></>}
                     {freeCredits === 0 && userCredits === 0 && <strong>0</strong>}
                     )
                   </span>
@@ -559,27 +375,10 @@ const RedigirRedacao = () => {
               <button
                 type="submit"
                 disabled={!content.trim() || (freeCredits + userCredits) < (correctionType === 'premium' ? 3 : 1)}
-                style={{
-                  padding: '14px 32px',
-                  background: (content.trim() && (freeCredits + userCredits) >= (correctionType === 'premium' ? 3 : 1)) ? '#4F46E5' : '#334155',
-                  color: (content.trim() && (freeCredits + userCredits) >= (correctionType === 'premium' ? 3 : 1)) ? '#fff' : '#64748b',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  cursor: (content.trim() && (freeCredits + userCredits) >= (correctionType === 'premium' ? 3 : 1)) ? 'pointer' : 'not-allowed',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  if (content.trim() && userCredits >= (correctionType === 'premium' ? 3 : 1)) {
-                    e.currentTarget.style.background = '#4338ca';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (content.trim() && userCredits >= (correctionType === 'premium' ? 3 : 1)) {
-                    e.currentTarget.style.background = '#4F46E5';
-                  }
-                }}
+                className={`w-full sm:w-auto px-6 md:px-8 py-3 md:py-3.5 rounded-xl text-sm md:text-base font-semibold transition-all ${(content.trim() && (freeCredits + userCredits) >= (correctionType === 'premium' ? 3 : 1))
+                  ? 'bg-[#4F46E5] hover:bg-[#4338ca] text-white cursor-pointer'
+                  : 'bg-[#334155] text-[#64748b] cursor-not-allowed'
+                  }`}
               >
                 Enviar para Correção
               </button>

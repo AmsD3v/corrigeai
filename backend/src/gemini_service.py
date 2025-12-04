@@ -112,3 +112,110 @@ async def generate_theme_with_gemini(category: str) -> str:
         return response.text.strip().replace('"', '').replace("'", "")
     except:
         return "A importância da educação no Brasil"
+
+
+async def get_ai_tutor_response(
+    user_message: str,
+    submission_data: dict,
+    correction_data: dict,
+    conversation_history: list
+) -> str:
+    """
+    Get AI tutor response for essay correction questions using Groq
+    
+    Args:
+        user_message: User's question
+        submission_data: Dict with submission info (title, theme, content, exam_type)
+        correction_data: Dict with correction scores and feedback
+        conversation_history: List of previous messages [{role, content, timestamp}]
+        
+    Returns:
+        AI tutor response text
+    """
+    try:
+        # Check API key
+        groq_key = settings.GROQ_API_KEY
+        if not groq_key or groq_key == "placeholder_key":
+            logger.error("GROQ_API_KEY not configured for AI Tutor")
+            return (
+                "Desculpe, o Professor IA não está configurado no momento. "
+                "Entre em contato com o suporte. 🤖"
+            )
+        
+        logger.info(f"AI Tutor request: {user_message[:50]}...")
+        
+        # Import Groq
+        from groq import Groq
+        client = Groq(api_key=groq_key)
+        
+        # Build context
+        context = f"""
+INFORMAÇÕES DA REDAÇÃO:
+- Título: {submission_data.get('title', 'Sem título')}
+- Tema: {submission_data.get('theme', 'Não especificado')}
+- Tipo de Exame: {submission_data.get('exam_type', 'ENEM')}
+- Nota Total: {correction_data.get('total_score', 0)}/1000
+
+COMPETÊNCIAS:
+1. Domínio da Norma Culta - Nota: {correction_data.get('competence_1_score', 0)}/200
+2. Compreensão do Tema - Nota: {correction_data.get('competence_2_score', 0)}/200  
+3. Argumentação - Nota: {correction_data.get('competence_3_score', 0)}/200
+4. Coesão e Coerência - Nota: {correction_data.get('competence_4_score', 0)}/200
+5. Proposta de Intervenção - Nota: {correction_data.get('competence_5_score', 0)}/200
+"""
+
+        # Build system prompt
+        system_prompt = f"""Você é o Prof. Redi, assistente especializado em redações do ENEM e vestibulares.
+Seu objetivo é ajudar o aluno a entender melhor sua correção.
+
+REGRAS:
+- Seja amigável, encorajador e didático
+- Use exemplos concretos quando relevante
+- Máximo 250 palavras por resposta
+- Foque em ações práticas para melhorar
+- Use emojis ocasionalmente (com moderação)
+- Tom profissional mas acessível
+
+{context}"""
+
+        # Build messages for Groq
+        messages = [
+            {"role": "system", "content": system_prompt}
+        ]
+        
+        # Add recent conversation history (last 6 messages)
+        for msg in conversation_history[-6:]:
+            if msg['role'] == 'user':
+                messages.append({"role": "user", "content": msg['content']})
+            elif msg['role'] == 'assistant' and 'Olá! Sou o Prof. Redi' not in msg['content']:
+                messages.append({"role": "assistant", "content": msg['content']})
+        
+        # Add current user message
+        messages.append({"role": "user", "content": user_message})
+        
+        # Generate response with Groq
+        logger.info("Sending request to Groq...")
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",  # Fast and capable model
+            messages=messages,
+            temperature=0.7,
+            max_tokens=800,
+            top_p=0.9
+        )
+        
+        ai_response = response.choices[0].message.content
+        logger.info(f"Groq response received: {len(ai_response)} chars")
+        
+        return ai_response
+        
+    except Exception as e:
+        logger.error(f"Erro no AI tutor: {type(e).__name__}: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return (
+            "Desculpe, tive um problema ao processar sua mensagem. "
+            "Tente reformular ou aguarde um momento. 🤔"
+        )
+
+
+

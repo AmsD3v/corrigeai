@@ -7,94 +7,27 @@ const Painel = () => {
   return (
     <PanelLayout activePage="/painel">
       {/* Welcome Card */}
-      <div style={{
-        background: '#1a1f2e',
-        border: '1px solid #334155',
-        borderRadius: '16px',
-        padding: '40px',
-        marginBottom: '32px',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <div style={{
-          position: 'absolute',
-          top: '-50px',
-          right: '-50px',
-          width: '200px',
-          height: '200px',
-          background: 'radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, transparent 70%)',
-          pointerEvents: 'none'
+      <div className="bg-[#1a1f2e] border border-[#334155] rounded-2xl p-6 md:p-8 lg:p-10 mb-8 relative overflow-hidden">
+        <div className="absolute -top-12 -right-12 w-48 h-48 pointer-events-none" style={{
+          background: 'radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, transparent 70%)'
         }} />
 
-        <span style={{
-          display: 'inline-block',
-          background: '#334155',
-          color: '#94a3b8',
-          fontSize: '11px',
-          fontWeight: '700',
-          padding: '6px 12px',
-          borderRadius: '20px',
-          marginBottom: '16px',
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px'
-        }}>
+        <span className="inline-block bg-[#334155] text-[#94a3b8] text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-full mb-4 uppercase tracking-wide">
           Bem-vindo
         </span>
 
-        <h1 style={{
-          fontSize: '36px',
-          fontWeight: '800',
-          color: '#fff',
-          marginBottom: '12px',
-          letterSpacing: '-0.5px'
-        }}>
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3 tracking-tight">
           Olá, {user?.full_name || 'Estudante'}! 👋
         </h1>
 
-        <p style={{
-          fontSize: '16px',
-          color: '#94a3b8',
-          marginBottom: '32px',
-          maxWidth: '600px',
-          lineHeight: '1.6'
-        }}>
+        <p className="text-sm md:text-base text-[#94a3b8] mb-6 md:mb-8 max-w-2xl leading-relaxed">
           Que tal continuar sua jornada rumo à redação nota 1000? Escolha uma das opções abaixo para começar.
         </p>
 
-        <div style={{
-          display: 'flex',
-          gap: '12px',
-          flexWrap: 'wrap'
-        }}>
+        <div className="flex flex-col sm:flex-row gap-3">
           <a
             href="/painel/redigir-redacao"
-            style={{
-              padding: '14px 28px',
-              background: '#4F46E5',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '15px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              transition: 'all 0.2s',
-              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)'
-            }}
-
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#4338ca';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 6px 16px rgba(79, 70, 229, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#4F46E5';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.3)';
-            }}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#4F46E5] hover:bg-[#4338ca] text-white rounded-xl text-sm md:text-base font-semibold transition-all shadow-lg shadow-[rgba(79,70,229,0.3)] hover:shadow-[rgba(79,70,229,0.5)] hover:-translate-y-0.5 no-underline"
           >
             <span>✍️</span>
             Escrever Redação
@@ -102,29 +35,7 @@ const Painel = () => {
 
           <a
             href="/painel/minhas-redacoes"
-            style={{
-              padding: '14px 28px',
-              background: 'transparent',
-              color: '#94a3b8',
-              border: '1px solid #334155',
-              borderRadius: '12px',
-              fontSize: '15px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#334155';
-              e.currentTarget.style.color = '#fff';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = '#94a3b8';
-            }}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-transparent hover:bg-[#334155] text-[#94a3b8] hover:text-white border border-[#334155] rounded-xl text-sm md:text-base font-semibold transition-all no-underline"
           >
             <span>📄</span>
             Ver Minhas Redações
@@ -133,33 +44,11 @@ const Painel = () => {
       </div>
 
       {/* Quick Actions Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '24px'
-      }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Card 1 */}
         <a
           href="/painel/desenvolvimento"
-          style={{
-            background: '#1a1f2e',
-            border: '1px solid #334155',
-            borderRadius: '16px',
-            padding: '32px',
-            textDecoration: 'none',
-            transition: 'all 0.3s',
-            display: 'block'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-4px)';
-            e.currentTarget.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.3)';
-            e.currentTarget.style.borderColor = '#4F46E5';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
-            e.currentTarget.style.borderColor = '#334155';
-          }}
+          className="block bg-[#1a1f2e] border border-[#334155] rounded-2xl p-6 md:p-8 no-underline transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/30 hover:border-[#4F46E5]"
         >
           <div style={{
             width: '48px',

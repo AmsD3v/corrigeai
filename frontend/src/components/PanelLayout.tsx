@@ -9,20 +9,12 @@ interface PanelLayoutProps {
 
 const PanelLayout = ({ children, activePage }: PanelLayoutProps) => {
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: '#0f1419'
-        }}>
+        <div className="min-h-screen bg-[#0f1419]">
             <TopBar userCredits={0} userCoins={0} />
             <Sidebar activePage={activePage} />
 
             {/* Main Content */}
-            <div style={{
-                marginLeft: '280px', // Sidebar width
-                marginTop: '64px', // TopBar height
-                padding: '40px',
-                minHeight: 'calc(100vh - 64px)'
-            }}>
+            <div className="mt-16 min-h-[calc(100vh-4rem)] p-5 md:p-8 lg:p-10 lg:ml-[280px]">
                 {children}
             </div>
         </div>

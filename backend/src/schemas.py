@@ -308,3 +308,48 @@ class Package(PackageBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ========== FEEDBACK DE CORREÇÃO SCHEMAS ==========
+class CorrectionFeedbackCreate(BaseModel):
+    """Schema para criar feedback de correção"""
+    helpful: bool  # True = 👍, False = 👎
+
+class CorrectionFeedbackResponse(BaseModel):
+    """Schema de resposta do feedback de correção"""
+    id: int
+    submission_id: int
+    user_id: int
+    is_helpful: bool
+    created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ========== AI TUTOR CHAT SCHEMAS ==========
+class AIChatMessageCreate(BaseModel):
+    """Schema para criar mensagem no chat"""
+    message: str
+    
+    @field_validator('message')
+    @classmethod
+    def validate_message(cls, v):
+        v = v.strip()
+        if len(v) < 1:
+            raise ValueError('Mensagem não pode ser vazia')
+        if len(v) > 500:
+            raise ValueError('Mensagem muito longa (máx: 500 caracteres)')
+        return v
+
+class AIChatMessageResponse(BaseModel):
+    """Schema de resposta de mensagem do chat"""
+    role: str  # 'user' or 'assistant'
+    content: str
+    timestamp: str
+
+class AIChatResponse(BaseModel):
+    """Schema de resposta do chat"""
+    conversation_id: int
+    messages: List[AIChatMessageResponse]
+    messages_remaining: int
+    max_messages: int

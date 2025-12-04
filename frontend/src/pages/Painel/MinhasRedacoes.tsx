@@ -87,11 +87,7 @@ const MinhasRedacoes = () => {
         const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
 
         return (
-            <span style={{
-                padding: '4px 12px',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: '600',
+            <span className="px-3 py-1 rounded-xl text-xs font-semibold" style={{
                 background: `${config.color}20`,
                 color: config.color
             }}>
@@ -101,7 +97,7 @@ const MinhasRedacoes = () => {
     };
 
     const getCorrectionTypeBadge = (type?: string) => {
-        if (!type) return <span style={{ fontSize: '14px', color: '#64748b' }}>-</span>;
+        if (!type) return <span className="text-sm text-[#64748b]">-</span>;
 
         const typeConfig = {
             advanced: { label: 'Avançada', color: '#3b82f6' },
@@ -111,11 +107,7 @@ const MinhasRedacoes = () => {
         const config = typeConfig[type as keyof typeof typeConfig] || typeConfig.advanced;
 
         return (
-            <span style={{
-                padding: '4px 12px',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: '600',
+            <span className="px-3 py-1 rounded-xl text-xs font-semibold" style={{
                 background: `${config.color}20`,
                 color: config.color
             }}>
@@ -132,60 +124,35 @@ const MinhasRedacoes = () => {
     return (
         <PanelLayout activePage="/painel/minhas-redacoes">
             {/* Header */}
-            <div style={{
-                background: '#1a1f2e',
-                border: '1px solid #334155',
-                borderRadius: '16px',
-                padding: '32px',
-                marginBottom: '32px'
-            }}>
-                <h1 style={{
-                    fontSize: '32px',
-                    fontWeight: '800',
-                    color: '#fff',
-                    marginBottom: '8px'
-                }}>
+            <div className="bg-[#1a1f2e] border border-[#334155] rounded-2xl p-6 md:p-8 mb-8">
+                <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-2">
                     Minhas Redações
                 </h1>
-                <p style={{
-                    fontSize: '14px',
-                    color: '#94a3b8'
-                }}>
+                <p className="text-sm md:text-base text-[#94a3b8]">
                     Veja seu histórico completo de redações e acompanhe sua evolução.
                 </p>
             </div>
 
             {/* Table */}
-            <div style={{
-                background: '#1a1f2e',
-                border: '1px solid #334155',
-                borderRadius: '16px',
-                overflow: 'hidden'
-            }}>
-                {/* Table Header */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr',
-                    padding: '16px 24px',
-                    borderBottom: '1px solid #334155',
-                    background: '#0f1419'
-                }}>
-                    <div style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase' }}>
+            <div className="bg-[#1a1f2e] border border-[#334155] rounded-2xl overflow-hidden">
+                {/* Table Header - Hidden on mobile */}
+                <div className="hidden lg:grid lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] px-6 py-4 border-b border-[#334155] bg-[#0f1419]">
+                    <div className="text-xs font-semibold text-[#94a3b8] uppercase">
                         Título
                     </div>
-                    <div style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase' }}>
+                    <div className="text-xs font-semibold text-[#94a3b8] uppercase">
                         Data
                     </div>
-                    <div style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase' }}>
+                    <div className="text-xs font-semibold text-[#94a3b8] uppercase">
                         Tipo
                     </div>
-                    <div style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase' }}>
+                    <div className="text-xs font-semibold text-[#94a3b8] uppercase">
                         Status
                     </div>
-                    <div style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase' }}>
+                    <div className="text-xs font-semibold text-[#94a3b8] uppercase">
                         Nota
                     </div>
-                    <div style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase' }}>
+                    <div className="text-xs font-semibold text-[#94a3b8] uppercase">
                         Ações
                     </div>
                 </div>
@@ -204,89 +171,95 @@ const MinhasRedacoes = () => {
                         {essays.map((essay) => (
                             <div
                                 key={essay.id}
-                                style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr',
-                                    padding: '20px 24px',
-                                    borderBottom: '1px solid #334155',
-                                    alignItems: 'center',
-                                    transition: 'background 0.2s'
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = '#0f1419'}
-                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                className="p-5 lg:px-6 lg:py-5 lg:grid lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] lg:items-center border-b border-[#334155] transition-colors hover:bg-[#0f1419]"
                             >
-                                <div>
-                                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#fff', marginBottom: '4px' }}>
+                                {/* MOBILE CARD LAYOUT */}
+                                <div className="lg:hidden space-y-3">
+                                    <div>
+                                        <div className="text-sm font-semibold text-white mb-1">
+                                            {essay.title}
+                                        </div>
+                                        {essay.theme && (
+                                            <div className="text-xs text-[#64748b]">
+                                                {essay.theme}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-2 items-center text-xs text-[#94a3b8]">
+                                        <span>📅 {formatDate(essay.submitted_at)}</span>
+                                        <span>•</span>
+                                        {getCorrectionTypeBadge(essay.correction_type)}
+                                        {essay.status === 'completed' && essay.score && (
+                                            <>
+                                                <span>•</span>
+                                                <span className="px-5.5 py-1 rounded-xl text-xs font-bold bg-[#10b98120] text-[#10b981]">
+                                                    Nota: {essay.score}
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center justify-between pt-2">
+                                        <div>
+                                            {getStatusBadge(essay.status)}
+                                        </div>
+                                        <div>
+                                            {essay.status === 'completed' ? (
+                                                <button
+                                                    onClick={() => navigate(`/painel/redacao/${essay.id}`)}
+                                                    className="px-5 py-2 bg-[#4F46E5] hover:bg-[#4338ca] text-white rounded-lg text-xs font-semibold transition-all hover:-translate-y-0.5"
+                                                >
+                                                    Abrir
+                                                </button>
+                                            ) : (
+                                                <span className="px-5 py-2 bg-[#33415520] text-[#64748b] rounded-lg text-xs font-semibold inline-block">
+                                                    Aguardando
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* DESKTOP TABLE LAYOUT */}
+                                <div className="hidden lg:block">
+                                    <div className="text-sm font-semibold text-white mb-1">
                                         {essay.title}
                                     </div>
                                     {essay.theme && (
-                                        <div style={{ fontSize: '12px', color: '#64748b' }}>
+                                        <div className="text-xs text-[#64748b]">
                                             {essay.theme}
                                         </div>
                                     )}
                                 </div>
-                                <div style={{ fontSize: '14px', color: '#94a3b8' }}>
+                                <div className="hidden lg:block text-sm text-[#94a3b8]">
                                     {formatDate(essay.submitted_at)}
                                 </div>
-                                <div>
+                                <div className="hidden lg:block">
                                     {getCorrectionTypeBadge(essay.correction_type)}
                                 </div>
-                                <div>
+                                <div className="hidden lg:block">
                                     {getStatusBadge(essay.status)}
                                 </div>
-                                <div>
+                                <div className="hidden lg:block">
                                     {essay.status === 'completed' && essay.score ? (
-                                        <span style={{
-                                            padding: '4px 12px',
-                                            borderRadius: '12px',
-                                            fontSize: '12px',
-                                            fontWeight: '700',
-                                            background: '#10b98120',
-                                            color: '#10b981'
-                                        }}>
+                                        <span className="px-3 py-1 rounded-xl text-xs font-bold bg-[#10b98120] text-[#10b981]">
                                             {essay.score}
                                         </span>
                                     ) : (
-                                        <span style={{ fontSize: '14px', color: '#64748b' }}>-</span>
+                                        <span className="text-sm text-[#64748b]">-</span>
                                     )}
                                 </div>
-                                <div>
+                                <div className="hidden lg:block">
                                     {essay.status === 'completed' ? (
                                         <button
                                             onClick={() => navigate(`/painel/redacao/${essay.id}`)}
-                                            style={{
-                                                padding: '8px 20px',
-                                                background: '#4F46E5',
-                                                color: '#fff',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                fontSize: '13px',
-                                                fontWeight: '600',
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = '#4338ca';
-                                                e.currentTarget.style.transform = 'translateY(-1px)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.background = '#4F46E5';
-                                                e.currentTarget.style.transform = 'translateY(0)';
-                                            }}
+                                            className="px-5 py-2 bg-[#4F46E5] hover:bg-[#4338ca] text-white rounded-lg text-xs font-semibold transition-all hover:-translate-y-0.5"
                                         >
                                             Abrir
                                         </button>
                                     ) : (
-                                        <span style={{
-                                            padding: '8px 20px',
-                                            background: '#33415520',
-                                            color: '#64748b',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            fontSize: '13px',
-                                            fontWeight: '600',
-                                            display: 'inline-block'
-                                        }}>
+                                        <span className="px-5 py-2 bg-[#33415520] text-[#64748b] rounded-lg text-xs font-semibold inline-block">
                                             Aguardando
                                         </span>
                                     )}

@@ -148,3 +148,7 @@ app.include_router(password_reset.router, tags=["password-reset"])
 app.include_router(dropdown_options.router, tags=["dropdown-options"])
 app.include_router(locations.router, tags=["locations"])
 app.include_router(user_stats.router, tags=["user-stats"])
+
+# AI Tutor router
+from .routers import ai_tutor
+app.include_router(ai_tutor.router, tags=["ai-tutor"])

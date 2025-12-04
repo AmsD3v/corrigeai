@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PanelLayout from '../../components/PanelLayout';
+import FeedbackPopup from '../../components/FeedbackPopup';
+import AIProfessorChat from '../../components/AIProfessorChat';
 import api from '../../services/api';
 
 interface Correction {
@@ -29,6 +31,7 @@ interface Essay {
     status: string;
     correction?: Correction;
     exam_type?: string;
+    user_has_feedback?: boolean;
 }
 
 const EXAM_CRITERIA: Record<string, { name: string; max_score: number; competencies: string[]; weights: number[] }> = {
@@ -157,6 +160,7 @@ const RedacaoDetalhes = () => {
     const navigate = useNavigate();
     const [essay, setEssay] = useState<Essay | null>(null);
     const [loading, setLoading] = useState(true);
+    const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
 
     // Redirect if URL has "M" prefix (clean URL)
     useEffect(() => {
@@ -222,6 +226,17 @@ const RedacaoDetalhes = () => {
 
         fetchEssay();
     }, [id]);
+
+    // Show popup only if user hasn't given feedback yet
+    useEffect(() => {
+        if (essay?.status === 'completed' && essay.correction && !essay.user_has_feedback) {
+            const timer = setTimeout(() => {
+                setShowFeedbackPopup(true);
+            }, 3000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [essay]);
 
     if (loading) {
         return (
@@ -759,6 +774,29 @@ const RedacaoDetalhes = () => {
                         A correção para esta redação ainda não está disponível. Por favor, aguarde alguns instantes e recarregue a página.
                     </p>
                 </div>
+            )}
+
+            {/* AI Professor Chat - Show only for completed essays */}
+            {essay?.status === 'completed' && essay.correction && (
+                <AIProfessorChat submissionId={id || ''} />
+            )}
+
+            {/* Feedback Popup */}
+            {showFeedbackPopup && (
+                <FeedbackPopup
+                    onFeedback={async (isPositive) => {
+                        try {
+                            await api.post(`/submissions/${id}/feedback`, {
+                                helpful: isPositive
+                            });
+                            // Atualiza o estado para evitar mostrar popup novamente
+                            setEssay(prev => prev ? { ...prev, user_has_feedback: true } : null);
+                        } catch (error) {
+                            console.error('Erro ao enviar feedback:', error);
+                        }
+                    }}
+                    onClose={() => setShowFeedbackPopup(false)}
+                />
             )}
         </PanelLayout>
     );
