@@ -177,7 +177,7 @@ def list_my_submissions(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/{submission_id}")
+@router.get("/my-submissions/{submission_id}")
 def get_my_submission_details(
     submission_id: str,  # Accept as string to handle both UUID and INT
     db: Session = Depends(get_db),
@@ -460,7 +460,7 @@ def get_correction_alias(
     return get_correction(submission_id, db, current_user)
 
 
-@router.post("/{submission_id}/feedback", response_model=schemas.CorrectionFeedbackResponse)
+@router.post("/submissions/{submission_id}/feedback", response_model=schemas.CorrectionFeedbackResponse)
 def submit_correction_feedback(
     submission_id: int,
     feedback: schemas.CorrectionFeedbackCreate,
