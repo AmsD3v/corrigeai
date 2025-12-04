@@ -353,3 +353,20 @@ class AIChatResponse(BaseModel):
     messages: List[AIChatMessageResponse]
     messages_remaining: int
     max_messages: int
+
+
+# Correction Feedback Schemas
+class CorrectionFeedbackCreate(BaseModel):
+    """Schema for creating correction feedback"""
+    helpful: bool  # True for 👍, False for 👎
+
+
+class CorrectionFeedbackResponse(BaseModel):
+    """Schema for correction feedback response"""
+    id: int
+    submission_id: int
+    user_id: int
+    is_helpful: bool
+    created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
