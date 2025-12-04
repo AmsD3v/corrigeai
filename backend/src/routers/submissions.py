@@ -462,7 +462,7 @@ def get_correction_alias(
 
 @router.post("/submissions/{submission_id}/feedback", response_model=schemas.CorrectionFeedbackResponse)
 def submit_correction_feedback(
-    submission_id: int,
+    submission_id: str,  # Accept both UUID and INT as string
     feedback: schemas.CorrectionFeedbackCreate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
@@ -471,14 +471,27 @@ def submit_correction_feedback(
     Submit user feedback for a correction
     - Allows user to mark correction as helpful (👍) or not helpful (👎)
     - Updates existing feedback if already exists
+    - Supports both UUID (legacy) and INT (new) submission IDs
     """
     from datetime import datetime
     
-    # Verify submission exists and belongs to user
-    submission = db.query(models.Submission).filter(
-        models.Submission.id == submission_id,
-        models.Submission.owner_id == current_user.id
-    ).first()
+    # Try to find submission by UUID first, then by INT ID
+    submission = None
+    numeric_id = None
+    
+    try:
+        # Try as integer first
+        numeric_id = int(submission_id)
+        submission = db.query(models.Submission).filter(
+            models.Submission.id == numeric_id,
+            models.Submission.owner_id == current_user.id
+        ).first()
+    except ValueError:
+        # Not an integer, might be UUID - not supported in current schema
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Submissão não encontrada. IDs UUID não são mais suportados."
+        )
     
     if not submission:
         raise HTTPException(
@@ -486,23 +499,25 @@ def submit_correction_feedback(
             detail="Submissão não encontrada"
         )
     
+    # Use the numeric ID from the found submission
+    numeric_id = submission.id
+    
     # Check if feedback already exists
     existing = db.query(models.Feedback).filter(
-        models.Feedback.submission_id == submission_id,
+        models.Feedback.submission_id == numeric_id,
         models.Feedback.user_id == current_user.id
     ).first()
     
     if existing:
         # Update existing feedback
         existing.is_helpful = feedback.helpful
-        existing.updated_at = datetime.utcnow()
         db.commit()
         db.refresh(existing)
         return existing
     
     # Create new feedback
     db_feedback = models.Feedback(
-        submission_id=submission_id,
+        submission_id=numeric_id,
         user_id=current_user.id,
         is_helpful=feedback.helpful
     )
