@@ -60,6 +60,9 @@ async def chat_with_ai_tutor(
     # Get or create conversation (using in-memory for now)
     conv_key = get_conversation_key(submission_id, current_user.id)
     
+    # DEBUG: Log conversation state
+    logger.info(f"🎓 Conv key: {conv_key}, Exists: {conv_key in conversations_store}, Exam: {submission.exam_type}")
+    
     if conv_key not in conversations_store:
         # Map exam types to welcome topics
         exam_topics = {
