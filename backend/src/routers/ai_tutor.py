@@ -5,11 +5,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Dict
 from datetime import datetime
+import logging
 
 from .. import schemas, models
 from ..database import get_db
 from ..dependencies import get_current_user
 from ..gemini_service import get_ai_tutor_response
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/ai-tutor", tags=["ai-tutor"])
 
