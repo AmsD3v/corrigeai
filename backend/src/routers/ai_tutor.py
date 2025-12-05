@@ -101,6 +101,29 @@ async def chat_with_ai_tutor(
                 '• **Estrutura**: Organização impecável',
                 '• **Argumentação**: Profundidade analítica',
                 '• **Estilo**: Linguagem formal e elegante'
+            ],
+            'unesp': [
+                '• **Tema**: Compreensão e desenvolvimento do tema proposto',
+                '• **Estrutura**: Organização lógica e progressão textual',
+                '• **Expressão**: Gramática, vocabulário e clareza',
+                '• **Coesão**: Articulação entre parágrafos e períodos'
+            ],
+            'uerj': [
+                '• **Adequação ao Tema**: Compreensão e desenvolvimento',
+                '• **Adequação à Norma Culta**: Domínio gramatical',
+                '• **Estrutura Lógica**: Organização e articulação das ideias'
+            ],
+            'ufmg': [
+                '• **Tipo Textual**: Adequação ao gênero solicitado',
+                '• **Adequação ao Tema**: Compreensão da proposta',
+                '• **Articulação**: Organização lógica dos argumentos',
+                '• **Coesão e Coerência**: Progressão e conectividade textual'
+            ],
+            'afa': [
+                '• **Tema**: Compreensão e abordagem do assunto',
+                '• **Estrutura**: Organização dissertativa-argumentativa',
+                '• **Expressão**: Clareza, precisão e domínio da norma culta',
+                '• **Originalidade**: Criatividade e autoria na argumentação'
             ]
         }
         
