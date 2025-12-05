@@ -61,17 +61,62 @@ async def chat_with_ai_tutor(
     conv_key = get_conversation_key(submission_id, current_user.id)
     
     if conv_key not in conversations_store:
-        # Create new conversation with welcome message
+        # Map exam types to welcome topics
+        exam_topics = {
+            'enem': [
+                '• **Norma Culta**: Ortografia, gramática, pontuação',
+                '• **Compreensão do Tema**: Desenvolvimento adequado',
+                '• **Argumentação**: Seleção e organização de argumentos',
+                '• **Coesão e Coerência**: Conectivos e progressão',
+                '• **Proposta de Intervenção**: 5 elementos completos'
+            ],
+            'fuvest': [
+                '• **Desenvolvimento do Tema**: Abordagem crítica e autoral',
+                '• **Estrutura**: Organização dissertativa-argumentativa',
+                '• **Expressão**: Gramática, vocabulário e estilo',
+                '• **Coesão e Coerência**: Articulação das ideias'
+            ],
+            'unicamp': [
+                '• **Adequação ao Gênero**: Carta, artigo, relato, etc.',
+                '• **Desenvolvimento da Proposta**: Compreensão temática',
+                '• **Propósito Comunicativo**: Cumprimento do objetivo',
+                '• **Articulação das Ideias**: Progressão textual',
+                '• **Adequação Linguística**: Norma culta e registro'
+            ],
+            'ita': [
+                '• **Domínio do Tema**: Conhecimento técnico-científico',
+                '• **Estrutura Lógica**: Organização rigorosa',
+                '• **Precisão Linguística**: Vocabulário técnico',
+                '• **Coesão e Coerência**: Articulação precisa'
+            ],
+            'cacd': [
+                '• **Erudição**: Repertório sociocultural amplo',
+                '• **Clareza e Objetividade**: Precisão diplomática',
+                '• **Estrutura**: Organização impecável',
+                '• **Argumentação**: Profundidade analítica',
+                '• **Estilo**: Linguagem formal e elegante'
+            ]
+        }
+        
+        exam_type_lower = (submission.exam_type or 'enem').lower()
+        topics_list = exam_topics.get(exam_type_lower, exam_topics['enem'])
+        topics_text = '\n'.join(topics_list)
+        
+        exam_names = {
+            'enem': 'ENEM', 'fuvest': 'FUVEST', 'unicamp': 'UNICAMP',
+            'ita': 'ITA', 'cacd': 'CACD', 'unesp': 'UNESP',
+            'uerj': 'UERJ', 'ufmg': 'UFMG', 'afa': 'AFA', 'sisu': 'SISU'
+        }
+        exam_display = exam_names.get(exam_type_lower, exam_type_lower.upper())
+        
+        # Create new conversation with exam-specific welcome message
         welcome_msg = {
             "role": "assistant",
             "content": (
-                "Olá! Sou o Prof. Redi - seu assistente de redação. "
+                f"Olá! Sou o Prof. Redi - seu assistente especializado em {exam_display}. "
                 "Estou aqui para te ajudar a entender melhor sua correção. "
-                "Posso esclarecer dúvidas sobre:\n\n"
-                "• **Norma Culta**: Ortografia, gramática, pontuação\n"
-                "• **Estrutura e Coesão**: Organização e conectivos\n"
-                "• **Proposta de Intervenção**: Como melhorar\n"
-                "• **Argumentação**: Fortalecer seus argumentos\n\n"
+                f"Posso esclarecer dúvidas sobre:\n\n"
+                f"{topics_text}\n\n"
                 "O que deseja saber?"
             ),
             "timestamp": datetime.utcnow().isoformat()
