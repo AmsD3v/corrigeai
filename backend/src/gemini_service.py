@@ -148,13 +148,30 @@ async def get_ai_tutor_response(
         from groq import Groq
         client = Groq(api_key=groq_key)
         
-        # Build context
+        # Map exam types to names and max scores
+        exam_info = {
+            'enem': {'name': 'ENEM', 'max': 1000, 'comp_note': ' (5 competências x 200 pontos)'},
+            'fuvest': {'name': 'FUVEST (USP)', 'max': 50, 'comp_note': ''},
+            'unicamp': {'name': 'UNICAMP', 'max': 48, 'comp_note': ''},
+            'ita': {'name': 'ITA', 'max': 100, 'comp_note': ''},
+            'unesp': {'name': 'UNESP', 'max': 100, 'comp_note': ''},
+            'uerj': {'name': 'UERJ', 'max': 100, 'comp_note': ''},
+            'ufmg': {'name': 'UFMG', 'max': 100, 'comp_note': ''},
+            'afa': {'name': 'AFA', 'max': 100, 'comp_note': ''},
+            'cacd': {'name': 'CACD (Diplomacia)', 'max': 100, 'comp_note': ' - NÍVEL AVANÇADO'},
+            'sisu': {'name': 'SISU (usa ENEM)', 'max': 1000, 'comp_note': ' (5 competências x 200 pontos)'}
+        }
+        
+        exam_type = submission_data.get('exam_type', 'enem').lower()
+        current_exam = exam_info.get(exam_type, exam_info['enem'])
+        
+        # Build context with exam-specific information
         context = f"""
 INFORMAÇÕES DA REDAÇÃO:
 - Título: {submission_data.get('title', 'Sem título')}
 - Tema: {submission_data.get('theme', 'Não especificado')}
-- Tipo de Exame: {submission_data.get('exam_type', 'ENEM')}
-- Nota Total: {correction_data.get('total_score', 0)}/1000
+- Tipo de Exame: {current_exam['name']}
+- Nota Total: {correction_data.get('total_score', 0)}/{current_exam['max']}{current_exam['comp_note']}
 
 COMPETÊNCIAS:
 1. Domínio da Norma Culta - Nota: {correction_data.get('competence_1_score', 0)}/200
@@ -164,15 +181,16 @@ COMPETÊNCIAS:
 5. Proposta de Intervenção - Nota: {correction_data.get('competence_5_score', 0)}/200
 """
 
-        # Build system prompt
-        system_prompt = f"""Você é o Prof. Redi, assistente especializado em redações do ENEM e vestibulares.
-Seu objetivo é ajudar o aluno a entender melhor sua correção.
+        # Build system prompt specific to exam type
+        system_prompt = f"""Você é o Prof. Redi, assistente especializado em redações para {current_exam['name']}.
+Seu objetivo é ajudar o aluno a entender melhor sua correção ESPECÍFICA para este vestibular.
 
 REGRAS:
 - Seja amigável, encorajador e didático
 - Use exemplos concretos quando relevante
 - Máximo 250 palavras por resposta
 - Foque em ações práticas para melhorar
+- Adapte suas respostas aos critérios ESPECÍFICOS do {current_exam['name']}
 - Use emojis ocasionalmente (com moderação)
 - Tom profissional mas acessível
 
