@@ -112,8 +112,26 @@ Você é um corretor do SISU (usa critérios do ENEM). Analise esta redação se
         """
     }
     
-    # Pega instruções específicas ou usa ENEM como fallback
-    specific_text = specific_instructions.get(exam_type, specific_instructions['enem'])
+    # Pega instruções específicas ou cria fallback genérico baseado no exam_criteria
+    if exam_type in specific_instructions:
+        specific_text = specific_instructions[exam_type]
+    else:
+        # Fallback genérico - usa os critérios do exam_criteria.py
+        # Isso garante que vestibulares sem prompt específico usem sua escala correta
+        specific_text = f"""
+Você é um corretor do vestibular {criteria.short_name}. Analise esta redação seguindo os critérios oficiais.
+
+**CRITÉRIOS {criteria.short_name.upper()} (total {criteria.max_score} pontos):**
+ATENÇÃO: Use EXATAMENTE a escala de pontuação indicada abaixo para cada critério.
+{format_competencies(criteria)}
+
+**INSTRUÇÕES:**
+- Analise cada critério individualmente
+- Dê nota conforme a escala de cada critério (veja os valores máximos acima)
+- Seja construtivo e específico no feedback
+- Identifique pontos fortes e áreas de melhoria
+"""
+
     
     # Monta o prompt completo
     prompt = f"""{specific_text}

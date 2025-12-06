@@ -1,0 +1,370 @@
+-- UFAC (Universidade Federal do Acre) - Conquistas e 20 Lições
+-- Execute: docker exec -it prosaai_db psql -U user -d prosaai -f /tmp/ufac.sql
+
+-- ============================================================================
+-- CONQUISTAS UFAC
+-- ============================================================================
+
+INSERT INTO achievement (code, name, description, icon, exam_type, condition_type, condition_value, xp_reward, coin_reward) VALUES
+-- Redações UFAC
+('ufac_essays_1', 'Primeira Redação UFAC', 'Enviou sua primeira redação UFAC', '📝', 'ufac', 'essays_count', 1, 25, 0),
+('ufac_essays_5', 'Escritor UFAC', 'Enviou 5 redações UFAC', '✍️', 'ufac', 'essays_count', 5, 50, 1),
+('ufac_essays_10', 'Redator Dedicado UFAC', 'Enviou 10 redações UFAC', '📚', 'ufac', 'essays_count', 10, 100, 2),
+
+-- Notas UFAC (0-100)
+('ufac_bronze', 'Nota Bronze UFAC', 'Atingiu 60+ na UFAC', '🥉', 'ufac', 'score', 60, 100, 2),
+('ufac_prata', 'Nota Prata UFAC', 'Atingiu 80+ na UFAC', '🥈', 'ufac', 'score', 80, 200, 5),
+('ufac_ouro', 'Nota Ouro UFAC', 'Atingiu 90+ na UFAC', '🥇', 'ufac', 'score', 90, 300, 10),
+
+-- Lições UFAC
+('ufac_lessons_5', 'Iniciante UFAC', 'Completou 5 lições da UFAC', '📖', 'ufac', 'lessons', 5, 50, 1),
+('ufac_lessons_15', 'Estudante UFAC', 'Completou 15 lições da UFAC', '📚', 'ufac', 'lessons', 15, 150, 3),
+('ufac_lessons_20', 'Mestre UFAC', 'Completou todas as 20 lições UFAC', '🎓', 'ufac', 'lessons', 20, 300, 5);
+
+-- ============================================================================
+-- LIÇÕES UFAC - 20 (5 por critério)
+-- Critérios: 1-Adequação ao Tema, 2-Estrutura Textual, 3-Argumentação, 4-Linguagem e Norma Culta
+-- ============================================================================
+
+-- CRITÉRIO 1: ADEQUAÇÃO AO TEMA (5 lições)
+INSERT INTO lesson (exam_type, competency, "order", title, description, content, quiz_data, xp_reward, unlock_type, unlock_value) VALUES
+('ufac', 1, 1, 'A Redação UFAC', 'Conhecendo o vestibular', 
+'# A Redação da UFAC
+
+## Universidade Federal do Acre
+Localizada em Rio Branco, a UFAC é a principal instituição de ensino superior do Acre.
+
+## Características da Redação
+- **Formato:** Dissertação-argumentativa
+- **Extensão:** 20 a 30 linhas
+- **Temas:** Atualidades e questões sociais
+
+## Critérios de Avaliação
+1. Adequação ao tema proposto
+2. Estrutura textual
+3. Argumentação
+4. Linguagem e norma culta
+
+## Contexto Regional
+A UFAC pode abordar temas relacionados à Amazônia e ao Norte do Brasil.',
+'[{"question": "A UFAC está localizada em:", "options": ["Manaus", "Rio Branco", "Belém"], "correct": 1}]',
+30, 'free', 0),
+
+('ufac', 1, 2, 'Interpretando o Tema', 'Compreensão correta', 
+'# Análise do Tema
+
+## Elementos da Proposta
+1. **Tema central:** O assunto
+2. **Recorte:** Delimitação específica
+3. **Textos de apoio:** Contextualização
+
+## Estratégia
+1. Leia a proposta completa
+2. Identifique palavras-chave
+3. Note delimitações
+4. Defina posicionamento
+
+## Evite
+❌ Fugir do tema
+❌ Tangenciar (abordar parcialmente)
+❌ Copiar textos de apoio',
+'[{"question": "Tangenciar o tema significa:", "options": ["Desenvolver bem", "Abordar parcialmente"], "correct": 1}]',
+35, 'previous', 0),
+
+('ufac', 1, 3, 'Tese Clara', 'Posicionamento objetivo', 
+'# Construindo a Tese
+
+## O que é tese?
+Seu posicionamento claro sobre o tema.
+
+## Características
+- Clara e objetiva
+- Defensável com argumentos
+- Presente na introdução
+
+## Exemplo
+**Tema:** Desmatamento na Amazônia
+
+❌ "O desmatamento é ruim"
+✅ "O desmatamento amazônico resulta de falhas na fiscalização e demanda políticas integradas de desenvolvimento sustentável"',
+'[{"question": "A tese deve ser:", "options": ["Vaga", "Clara e defensável"], "correct": 1}]',
+40, 'previous', 0),
+
+('ufac', 1, 4, 'Temas Regionais', 'Contexto amazônico', 
+'# Temas Relevantes para UFAC
+
+## Contexto Regional
+- Preservação da Amazônia
+- Povos indígenas e tradicionais
+- Desenvolvimento sustentável
+- Biodiversidade
+- Queimadas e desmatamento
+
+## Repertório Útil
+- Chico Mendes e seringueiros
+- Floresta Amazônica
+- Tratados ambientais
+- Dados do INPE/IBAMA',
+'[{"question": "Chico Mendes lutou por:", "options": ["Indústria", "Seringueiros e floresta"], "correct": 1}]',
+45, 'previous', 0),
+
+('ufac', 1, 5, 'Repertório Sociocultural', 'Fontes para argumentar', 
+'# Repertório para UFAC
+
+## Tipos válidos
+- Dados: IBGE, INPE, IBAMA
+- Histórico: Ciclo da borracha, Chico Mendes
+- Filosófico: Pensadores ambientais
+- Legal: Constituição, Código Florestal
+
+## Repertório local
+- História do Acre
+- Povos da floresta
+- Economia regional
+- Desafios amazônicos',
+'[{"question": "Repertório deve ser:", "options": ["Inventado", "De fontes confiáveis"], "correct": 1}]',
+50, 'previous', 0);
+
+-- CRITÉRIO 2: ESTRUTURA TEXTUAL (5 lições)
+INSERT INTO lesson (exam_type, competency, "order", title, description, content, quiz_data, xp_reward, unlock_type, unlock_value) VALUES
+('ufac', 2, 1, 'Estrutura Dissertativa', 'Organizando o texto', 
+'# Estrutura da Dissertação
+
+## Modelo
+- **Introdução:** Contexto + tese (5-7 linhas)
+- **D1:** Primeiro argumento (7-10 linhas)
+- **D2:** Segundo argumento (7-10 linhas)
+- **Conclusão:** Síntese + proposta (5-7 linhas)
+
+## Total
+20 a 30 linhas bem distribuídas.',
+'[{"question": "Quantos parágrafos mínimos?", "options": ["3", "4"], "correct": 1}]',
+30, 'free', 0),
+
+('ufac', 2, 2, 'Introdução Eficaz', 'Abrindo o texto', 
+'# A Introdução
+
+## Elementos
+1. Contextualização
+2. Apresentação do tema
+3. Tese clara
+
+## Estratégias
+- Citação relevante
+- Dado estatístico
+- Contextualização histórica
+
+## Evite
+Introduções longas demais ou sem tese.',
+'[{"question": "Introdução deve ter:", "options": ["Apenas tese", "Contexto + tese"], "correct": 1}]',
+35, 'previous', 0),
+
+('ufac', 2, 3, 'Parágrafos de Desenvolvimento', 'Argumentando', 
+'# Desenvolvimento
+
+## Estrutura do Parágrafo
+1. Tópico frasal (ideia principal)
+2. Fundamentação (argumento)
+3. Exemplo ou dado
+4. Análise crítica
+5. Conexão com a tese
+
+## Quantidade
+2 parágrafos bem desenvolvidos são suficientes.',
+'[{"question": "Parágrafo começa com:", "options": ["Exemplo", "Tópico frasal"], "correct": 1}]',
+40, 'previous', 0),
+
+('ufac', 2, 4, 'Conectivos', 'Ligando ideias', 
+'# Conectivos Essenciais
+
+## Adição
+Além disso, ademais, outrossim
+
+## Oposição
+Contudo, entretanto, todavia
+
+## Conclusão
+Portanto, logo, destarte
+
+## Causa
+Porque, visto que, uma vez que',
+'[{"question": "''Contudo'' indica:", "options": ["Adição", "Oposição"], "correct": 1}]',
+45, 'previous', 0),
+
+('ufac', 2, 5, 'Conclusão', 'Fechando o texto', 
+'# A Conclusão
+
+## Elementos
+1. Retomada da tese
+2. Síntese dos argumentos
+3. Proposta ou reflexão final
+
+## Evite
+- Novas informações
+- Repetir literalmente a introdução
+- Frases vazias',
+'[{"question": "Conclusão pode ter argumento novo?", "options": ["Sim", "Não"], "correct": 1}]',
+50, 'previous', 0);
+
+-- CRITÉRIO 3: ARGUMENTAÇÃO (5 lições)
+INSERT INTO lesson (exam_type, competency, "order", title, description, content, quiz_data, xp_reward, unlock_type, unlock_value) VALUES
+('ufac', 3, 1, 'Tipos de Argumento', 'Construindo defesas', 
+'# Argumentação
+
+## Tipos principais
+1. **Dados:** Estatísticas, pesquisas
+2. **Exemplos:** Casos concretos
+3. **Autoridade:** Especialistas
+4. **Causa-consequência:** Relações lógicas
+5. **Comparação:** Paralelos
+
+## Estratégia
+Use ao menos 2 tipos diferentes.',
+'[{"question": "Quantos tipos de argumento usar:", "options": ["1", "Ao menos 2"], "correct": 1}]',
+30, 'free', 0),
+
+('ufac', 3, 2, 'Análise Crítica', 'Aprofundando', 
+'# Análise Crítica
+
+## Níveis
+❌ Básico: "Isso é ruim"
+⚠️ Médio: "Isso prejudica a sociedade"
+✅ Avançado: "Esse cenário perpetua desigualdades estruturais..."
+
+## Fórmula
+DADO + "isso revela" + INTERPRETAÇÃO',
+'[{"question": "Análise crítica exige:", "options": ["Apenas citar", "Interpretar"], "correct": 1}]',
+35, 'previous', 0),
+
+('ufac', 3, 3, 'Coerência Argumentativa', 'Lógica do texto', 
+'# Coerência
+
+## Princípio
+Argumentos devem apoiar a tese.
+
+## Problemas
+❌ Argumentos contraditórios
+❌ Exemplos que não comprovam
+❌ Conclusão diferente do defendido
+
+## Solução
+Pergunte: "Isso prova minha tese?"',
+'[{"question": "Argumentos devem:", "options": ["Ser variados apenas", "Apoiar a tese"], "correct": 1}]',
+40, 'previous', 0),
+
+('ufac', 3, 4, 'Progressão Argumentativa', 'Avançando ideias', 
+'# Progressão
+
+## Princípio
+Cada parágrafo adiciona informação nova.
+
+## Estrutura
+- D1: Argumento mais acessível
+- D2: Argumento mais complexo
+
+## Conectivos de progressão
+- "Além disso..."
+- "Soma-se a isso..."',
+'[{"question": "Progressão significa:", "options": ["Repetir", "Adicionar informações"], "correct": 1}]',
+45, 'previous', 0),
+
+('ufac', 3, 5, 'Contra-argumentação', 'Fortalecendo posição', 
+'# Contra-argumentação
+
+## O que é?
+Antecipar objeções e refutá-las.
+
+## Estrutura
+1. Apresente visão contrária
+2. Reconheça parcialmente
+3. Refute com argumentos
+4. Reforce sua tese
+
+## Benefício
+Demonstra maturidade argumentativa.',
+'[{"question": "Contra-argumentação:", "options": ["Enfraquece", "Fortalece a posição"], "correct": 1}]',
+50, 'previous', 0);
+
+-- CRITÉRIO 4: LINGUAGEM E NORMA CULTA (5 lições)
+INSERT INTO lesson (exam_type, competency, "order", title, description, content, quiz_data, xp_reward, unlock_type, unlock_value) VALUES
+('ufac', 4, 1, 'Norma Culta', 'Gramática essencial', 
+'# Norma Culta
+
+## Pontos críticos
+1. Concordância verbal e nominal
+2. Regência verbal e nominal
+3. Crase
+4. Pontuação
+
+## Erros graves
+- "Haviam pessoas" ❌
+- "Prefiro isso do que" ❌
+- Vírgula entre sujeito e verbo ❌',
+'[{"question": "''Havia pessoas'' é:", "options": ["Incorreto", "Correto"], "correct": 1}]',
+30, 'free', 0),
+
+('ufac', 4, 2, 'Registro Formal', 'Linguagem adequada', 
+'# Registro Formal
+
+## Características
+- Terceira pessoa
+- Vocabulário culto
+- Frases completas
+
+## Evite
+- "A gente" → use "nós"
+- Gírias e coloquialismos
+- Contrações: "pra", "tá"',
+'[{"question": "''A gente'' é adequado?", "options": ["Sim", "Não"], "correct": 1}]',
+35, 'previous', 0),
+
+('ufac', 4, 3, 'Vocabulário', 'Escolha de palavras', 
+'# Vocabulário Adequado
+
+## Substituições
+| Simples | Sofisticado |
+|---------|-------------|
+| Mostrar | Evidenciar |
+| Problema | Impasse |
+| Importante | Fundamental |
+
+## Cuidado
+Use apenas palavras que conhece.',
+'[{"question": "Vocabulário deve ser:", "options": ["Complexo sempre", "Preciso e adequado"], "correct": 1}]',
+40, 'previous', 0),
+
+('ufac', 4, 4, 'Coesão Textual', 'Amarrando o texto', 
+'# Coesão
+
+## Mecanismos
+1. Pronomes: ele, isso
+2. Sinônimos: variação lexical
+3. Conectivos: ligação de ideias
+4. Elipse: omissão intencional
+
+## Evite
+Repetição excessiva do mesmo termo.',
+'[{"question": "Coesão usa:", "options": ["Apenas conectivos", "Vários mecanismos"], "correct": 1}]',
+45, 'previous', 0),
+
+('ufac', 4, 5, 'Revisão Final', 'Checklist', 
+'# Checklist UFAC
+
+## Conteúdo
+- [ ] Tema atendido?
+- [ ] Tese clara?
+- [ ] Argumentos desenvolvidos?
+
+## Gramática
+- [ ] Concordâncias corretas?
+- [ ] Pontuação adequada?
+
+## Estrutura
+- [ ] 4 parágrafos?
+- [ ] Transições claras?
+
+**Reserve 10 minutos para revisão!**',
+'[{"question": "Revisão deve levar:", "options": ["0 minutos", "10 minutos"], "correct": 1}]',
+50, 'previous', 0);
+
+SELECT 'UFAC: Criadas conquistas e ' || COUNT(*) || ' lições!' as status FROM lesson WHERE exam_type = 'ufac';

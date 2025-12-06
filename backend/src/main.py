@@ -76,6 +76,7 @@ origins = [origin.strip() for origin in raw_origins] + [
     "https://corrigeai.online",
     "https://www.corrigeai.online",
     "https://api.corrigeai.online",
+    "http://localhost",
     "http://localhost:5173",
     "http://localhost:3000"
 ]
@@ -152,3 +153,7 @@ app.include_router(user_stats.router, tags=["user-stats"])
 # AI Tutor router
 from .routers import ai_tutor
 app.include_router(ai_tutor.router, tags=["ai-tutor"])
+
+# Gamification router
+from .routers import gamification
+app.include_router(gamification.router, tags=["gamification"])

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import Integer
 from typing import Optional
 from .. import schemas, models
 from ..database import get_db
@@ -497,22 +498,30 @@ def get_feedback_stats(
             models.Feedback.created_at >= start_date
         ).group_by(func.date(models.Feedback.created_at)).all()
         
+        # Get essay info for latest feedbacks
+        latest_with_info = []
+        for f in latest_feedbacks:
+            submission = db.query(models.Submission).filter(models.Submission.id == f.submission_id).first()
+            correction = db.query(models.Correction).filter(models.Correction.submission_id == f.submission_id).first()
+            user = db.query(models.User).filter(models.User.id == f.user_id).first()
+            
+            latest_with_info.append({
+                "id": f.id,
+                "submission_id": f.submission_id,
+                "essay_title": submission.title if submission else "Redação deletada",
+                "score": correction.total_score if correction else 0,
+                "is_helpful": f.is_helpful,
+                "user_name": user.full_name if user else "Usuário desconhecido",
+                "created_at": f.created_at.isoformat()
+            })
+        
         return {
             "total_feedbacks": total_feedbacks,
             "positive_count": positive_count,
             "negative_count": negative_count,
             "positive_percentage": round((positive_count / total_feedbacks * 100), 1) if total_feedbacks > 0 else 0,
             "negative_percentage": round((negative_count / total_feedbacks * 100), 1) if total_feedbacks > 0 else 0,
-            "latest_feedbacks": [
-                {
-                    "id": f.id,
-                    "submission_id": f.submission_id,
-                    "user_id": f.user_id,
-                    "is_helpful": f.is_helpful,
-                    "created_at": f.created_at.isoformat()
-                }
-                for f in latest_feedbacks
-            ],
+            "latest_feedbacks": latest_with_info,
             "daily_stats": [
                 {
                     "date": stat.date.isoformat(),
@@ -521,17 +530,10 @@ def get_feedback_stats(
                     "negative": stat.count - (stat.positive or 0)
                 }
                 for stat in daily_stats
-            ]
+            ],
+            "period_days": days
         }
     except Exception as e:
-        # Table might not exist yet, return empty stats
-        return {
-            "total_feedbacks": 0,
-            "positive_count": 0,
-            "negative_count": 0,
-            "positive_percentage": 0,
-            "negative_percentage": 0,
-            "latest_feedbacks": [],
-            "daily_stats": []
-        }
-
+        import logging
+        logging.error(f"Erro ao buscar feedback stats: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar estatísticas: {str(e)}")

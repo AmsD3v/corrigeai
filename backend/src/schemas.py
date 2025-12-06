@@ -171,9 +171,25 @@ class SubmissionBase(BaseModel):
         if v is None:
             return 'enem'  # Padrão é ENEM
         
+        # Lista completa de todos os vestibulares suportados
         allowed_types = [
+            # Principais e especiais
             'enem', 'fuvest', 'unicamp', 'ita', 'unesp',
-            'uerj', 'ufmg', 'afa', 'cacd', 'sisu'
+            'uerj', 'ufmg', 'afa', 'cacd', 'sisu',
+            # Federais das capitais - Norte
+            'ufac', 'unifap', 'ufam', 'ufpa', 'unir', 'ufrr', 'uft',
+            # Federais das capitais - Nordeste
+            'ufal', 'ufba', 'ufc', 'ufma', 'ufpb', 'ufpe', 'ufpi', 'ufrn', 'ufs',
+            # Federais das capitais - Centro-Oeste
+            'unb', 'udf', 'ufg', 'ufmt', 'ufms',
+            # Federais das capitais - Sudeste
+            'ufes',
+            # Federais das capitais - Sul
+            'ufpr', 'ufrgs', 'ufsc',
+            # Estaduais
+            'uerr',
+            # PUCs
+            'pucsp', 'puccampinas', 'pucminas', 'pucpr', 'pucrio', 'pucgoias', 'pucrs'
         ]
         
         v = v.lower().strip()

@@ -6,7 +6,7 @@ from datetime import datetime
 from .database import Base
 
 class User(Base):
-    __tablename__ = "user"  # Usando aspas para evitar conflito com a palavra reservada 'user'
+    __tablename__ = "user"
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
@@ -16,26 +16,27 @@ class User(Base):
     hashed_refresh_token = Column(String, index=True, nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-    role = Column(String, default="aluno")  # Adiciona o campo de perfil
-    credits = Column(Integer, default=1)      # CorriCoins (comprados)
-    free_credits = Column(Integer, default=0)  # Créditos grátis
-    is_admin = Column(Boolean, default=False)  # Flag de administrador
-    phone = Column(String, nullable=True)  # Telefone opcional
-    birth_date = Column(String, nullable=True)  # Data de nascimento (YYYY-MM-DD)
-    reset_token = Column(String, nullable=True)  # Token de recuperação de senha
-    reset_token_expires = Column(DateTime, nullable=True)  # Expiração do token
+    role = Column(String, default="aluno")
+    credits = Column(Integer, default=1)
+    free_credits = Column(Integer, default=0)
+    is_admin = Column(Boolean, default=False)
+    phone = Column(String, nullable=True)
+    birth_date = Column(String, nullable=True)
+    reset_token = Column(String, nullable=True)
+    reset_token_expires = Column(DateTime, nullable=True)
     
     # Complementary Information Fields (Analytics)
-    school_level = Column(String, nullable=True)  # Nível escolar
-    intended_course = Column(String, nullable=True)  # Curso pretendido
-    state = Column(String, nullable=True)  # Estado
-    city = Column(String, nullable=True)  # Cidade
-    enem_attempts = Column(String, nullable=True)  # Tentativas ENEM
-    previous_scores = Column(String, nullable=True)  # Notas anteriores
-    main_goal = Column(String, nullable=True)  # Objetivo principal
-    study_method = Column(String, nullable=True)  # Método de estudo
+    school_level = Column(String, nullable=True)
+    intended_course = Column(String, nullable=True)
+    state = Column(String, nullable=True)
+    city = Column(String, nullable=True)
+    enem_attempts = Column(String, nullable=True)
+    previous_scores = Column(String, nullable=True)
+    main_goal = Column(String, nullable=True)
+    study_method = Column(String, nullable=True)
 
     submissions = relationship("Submission", back_populates="owner")
+
 
 class Submission(Base):
     __tablename__ = "submission"
@@ -48,11 +49,12 @@ class Submission(Base):
     content = Column(Text)
     submitted_at = Column(DateTime, default=datetime.utcnow)
     status = Column(String, default="pending")
-    correction_type = Column(String, default="advanced")  # "advanced" or "premium"
+    correction_type = Column(String, default="advanced")
     owner_id = Column(Integer, ForeignKey("user.id"))
 
     owner = relationship("User", back_populates="submissions")
     correction = relationship("Correction", back_populates="submission", uselist=False)
+
 
 class Correction(Base):
     __tablename__ = "correction"
@@ -61,31 +63,27 @@ class Correction(Base):
     id = Column(Integer, primary_key=True, index=True)
     submission_id = Column(Integer, ForeignKey("submission.id"), unique=True, nullable=False)
     
-    # ENEM Competencies (0-200 points each)
-    competence_1_score = Column(Integer, nullable=False)  # Domínio da norma culta
-    competence_2_score = Column(Integer, nullable=False)  # Compreensão do tema
-    competence_3_score = Column(Integer, nullable=False)  # Argumentação
-    competence_4_score = Column(Integer, nullable=False)  # Coesão
-    competence_5_score = Column(Integer, nullable=False)  # Proposta de intervenção
-    
-    # Total score (sum of all competencies, max 1000)
+    competence_1_score = Column(Integer, nullable=False)
+    competence_2_score = Column(Integer, nullable=False)
+    competence_3_score = Column(Integer, nullable=False)
+    competence_4_score = Column(Integer, nullable=False)
+    competence_5_score = Column(Integer, nullable=False)
     total_score = Column(Integer, nullable=False)
     
-    # Detailed feedback for each competency
     competence_1_feedback = Column(Text, nullable=False)
     competence_2_feedback = Column(Text, nullable=False)
     competence_3_feedback = Column(Text, nullable=False)
     competence_4_feedback = Column(Text, nullable=False)
     competence_5_feedback = Column(Text, nullable=False)
     
-    # General feedback (stored as JSON strings)
-    strengths = Column(Text, nullable=False)  # JSON array of strengths
-    improvements = Column(Text, nullable=False)  # JSON array of improvements
+    strengths = Column(Text, nullable=False)
+    improvements = Column(Text, nullable=False)
     general_comments = Column(Text, nullable=False)
     
     corrected_at = Column(DateTime, default=datetime.utcnow)
     
     submission = relationship("Submission", back_populates="correction")
+
 
 class Transaction(Base):
     __tablename__ = "transaction"
@@ -94,31 +92,27 @@ class Transaction(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     
-    # Mercado Pago data
-    payment_id = Column(String, unique=True, nullable=True)  # MP payment ID
-    preference_id = Column(String, nullable= True)  # MP preference ID
-    external_reference = Column(String, nullable=True) # Our reference
+    payment_id = Column(String, unique=True, nullable=True)
+    preference_id = Column(String, nullable=True)
+    external_reference = Column(String, nullable=True)
     
-    # Transaction details
-    package_id = Column(String, nullable=False)  # Package identifier
-    package_name = Column(String, nullable=False)  # Package name
-    coins_amount = Column(Integer, nullable=False)  # Coins purchased
-    bonus_coins = Column(Integer, default=0)  # Bonus coins
-    price = Column(Integer, nullable=False)  # Price in cents (BRL)
+    package_id = Column(String, nullable=False)
+    package_name = Column(String, nullable=False)
+    coins_amount = Column(Integer, nullable=False)
+    bonus_coins = Column(Integer, default=0)
+    price = Column(Integer, nullable=False)
     
-    # Payment info
-    payment_method = Column(String, nullable=True)  # credit_card, pix, etc
-    payment_type = Column(String, nullable=True)  # credit_card, debit_card, etc
-    status = Column(String, default="pending")  # pending, approved, rejected, cancelled
-    status_detail = Column(String, nullable=True)  # Detailed status from MP
+    payment_method = Column(String, nullable=True)
+    payment_type = Column(String, nullable=True)
+    status = Column(String, default="pending")
+    status_detail = Column(String, nullable=True)
     
-    # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     approved_at = Column(DateTime, nullable=True)
     
-    # Relationship
     user = relationship("User")
+
 
 class Package(Base):
     __tablename__ = "package"
@@ -127,33 +121,36 @@ class Package(Base):
     id = Column(String, primary_key=True, index=True)
     name = Column(String, nullable=False)
     credits = Column(Integer, nullable=False)
-    price = Column(Integer, nullable=False)  # Price in cents (final price after discount)
-    discount_percentage = Column(Integer, default=0)  # Discount percentage (0-100)
+    price = Column(Integer, nullable=False)
+    discount_percentage = Column(Integer, default=0)
     bonus = Column(Integer, default=0)
-    discount_text = Column(String, nullable=True)  # e.g. "15% OFF!"
-    feature1 = Column(String, nullable=True)  # Feature text 1
-    feature2 = Column(String, nullable=True)  # Feature text 2
-    feature3 = Column(String, nullable=True)  # Feature text 3
-    feature4 = Column(String, nullable=True)  # Feature text 4
-    features = Column(Text, nullable=True)  # Legacy JSON string of features
+    discount_text = Column(String, nullable=True)
+    feature1 = Column(String, nullable=True)
+    feature2 = Column(String, nullable=True)
+    feature3 = Column(String, nullable=True)
+    feature4 = Column(String, nullable=True)
+    features = Column(Text, nullable=True)
     is_active = Column(Boolean, default=True)
     is_popular = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
 class Settings(Base):
-    """Global application settings (one row only)"""
+    """Global application settings"""
     __tablename__ = "settings"
     __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True, default=1)
-    active_ai_provider = Column(String, default="groq")  # groq, gemini, huggingface, together
+    active_ai_provider = Column(String, default="groq")
     
-    # API Keys (stored in DB to allow admin update)
     gemini_api_key = Column(String, nullable=True)
     groq_api_key = Column(String, nullable=True)
     hf_token = Column(String, nullable=True)
     together_api_key = Column(String, nullable=True)
+    
+    # Gamification settings
+    lesson_cooldown_hours = Column(Integer, default=168)
+    lesson_repeat_xp_percent = Column(Integer, default=50)
     
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -168,3 +165,145 @@ class Feedback(Base):
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     is_helpful = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+# ==================== GAMIFICATION MODELS ====================
+
+class UserGamification(Base):
+    """User gamification profile - XP, level, streak (GLOBAL)"""
+    __tablename__ = "user_gamification"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), unique=True, nullable=False)
+    
+    xp_total = Column(Integer, default=0, nullable=False)
+    level = Column(Integer, default=1, nullable=False)
+    
+    current_streak = Column(Integer, default=0, nullable=False)
+    max_streak = Column(Integer, default=0, nullable=False)
+    last_activity_date = Column(DateTime, nullable=True)
+    
+    lessons_completed = Column(Integer, default=0, nullable=False)
+    quizzes_perfect = Column(Integer, default=0, nullable=False)
+    
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Achievement(Base):
+    """Achievement/Badge definitions - can be global or per exam_type"""
+    __tablename__ = "achievement"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String, unique=True, nullable=False)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    icon = Column(String, default="🏆")
+    
+    # NULL = global achievement, otherwise specific to exam type
+    exam_type = Column(String, nullable=True, index=True)
+    
+    xp_reward = Column(Integer, default=0)
+    coin_reward = Column(Integer, default=0)
+    lessons_reward = Column(Integer, default=0)
+    
+    condition_type = Column(String, nullable=False)
+    condition_value = Column(Integer, nullable=False)
+    
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class UserAchievement(Base):
+    """User unlocked achievements"""
+    __tablename__ = "user_achievement"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    achievement_id = Column(Integer, ForeignKey("achievement.id", ondelete="CASCADE"), nullable=False)
+    unlocked_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class Lesson(Base):
+    """Interactive lessons content - organized by exam_type"""
+    __tablename__ = "lesson"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    
+    exam_type = Column(String, nullable=False, index=True)
+    competency = Column(Integer, nullable=False)
+    order = Column(Integer, nullable=False)
+    
+    title = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    content = Column(Text, nullable=False)
+    
+    quiz_data = Column(Text, nullable=True)
+    
+    xp_reward = Column(Integer, default=25)
+    
+    unlock_type = Column(String, default="previous")
+    unlock_value = Column(Integer, default=0)
+    
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class UserLesson(Base):
+    """User lesson progress"""
+    __tablename__ = "user_lesson"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    lesson_id = Column(Integer, ForeignKey("lesson.id", ondelete="CASCADE"), nullable=False)
+    
+    is_unlocked = Column(Boolean, default=False)
+    is_completed = Column(Boolean, default=False)
+    quiz_score = Column(Integer, nullable=True)
+    times_completed = Column(Integer, default=0)
+    
+    unlocked_at = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
+    cooldown_until = Column(DateTime, nullable=True)
+
+
+class Challenge(Base):
+    """Daily/Weekly challenges"""
+    __tablename__ = "challenge"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    
+    challenge_type = Column(String, nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    icon = Column(String, default="🎯")
+    
+    action_type = Column(String, nullable=False)
+    target_count = Column(Integer, default=1)
+    
+    xp_reward = Column(Integer, default=10)
+    coin_reward = Column(Integer, default=0)
+    
+    is_active = Column(Boolean, default=True)
+
+
+class UserChallenge(Base):
+    """User challenge progress"""
+    __tablename__ = "user_challenge"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    challenge_id = Column(Integer, ForeignKey("challenge.id", ondelete="CASCADE"), nullable=False)
+    
+    progress = Column(Integer, default=0)
+    is_completed = Column(Boolean, default=False)
+    
+    period_start = Column(DateTime, nullable=False)
+    completed_at = Column(DateTime, nullable=True)

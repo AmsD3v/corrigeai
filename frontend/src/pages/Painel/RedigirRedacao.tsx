@@ -26,6 +26,7 @@ const RedigirRedacao = () => {
   const [userCredits, setUserCredits] = useState<number>(0);
   const [freeCredits, setFreeCredits] = useState<number>(0);
   const [loadingCredits, setLoadingCredits] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch user credits on mount
   useEffect(() => {
@@ -118,6 +119,14 @@ const RedigirRedacao = () => {
       return;
     }
 
+    // Prevent double submission
+    if (isSubmitting) {
+      console.log('Já está enviando, ignorando clique duplicado');
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
       // Submit to backend first to get numeric ID
       const { essayService } = await import('../../services/essayService');
@@ -151,6 +160,7 @@ const RedigirRedacao = () => {
     } catch (error) {
       console.error('Erro ao enviar redação:', error);
       alert('Erro ao enviar redação. Tente novamente.');
+      setIsSubmitting(false);
     }
   };
 
@@ -287,6 +297,7 @@ const RedigirRedacao = () => {
                 onChange={(e) => setExamType(e.target.value)}
                 className="w-full px-4 py-3 md:py-4 bg-[#0f1419] border-2 border-[#3B82F6] rounded-xl text-white text-sm md:text-base font-semibold cursor-pointer outline-none transition-all"
               >
+                {/* === PRINCIPAIS === */}
                 <option value="enem">📝 ENEM - Exame Nacional do Ensino Médio (0-1000)</option>
                 <option value="fuvest">🎓 FUVEST - USP (0-50)</option>
                 <option value="unicamp">🦄 UNICAMP (0-48)</option>
@@ -297,6 +308,51 @@ const RedigirRedacao = () => {
                 <option value="afa">✈️ AFA - Academia da Força Aérea (0-100)</option>
                 <option value="cacd">💼 CACD - Carreira Diplomática (0-100) - MAIS DIFÍCIL!</option>
                 <option value="sisu">📊 SISU - Sistema de Seleção Unificada (usa ENEM)</option>
+
+                {/* === NORTE (via SISU - nota ENEM) === */}
+                <option value="ufac">🌳 UFAC - Universidade Federal do Acre (0-1000 via SISU)</option>
+                <option value="unifap">🦜 UNIFAP - Universidade Federal do Amapá (0-1000 via SISU)</option>
+                <option value="ufam">🐊 UFAM - Universidade Federal do Amazonas (0-1000 via SISU)</option>
+                <option value="ufpa">🌴 UFPA - Universidade Federal do Pará (0-1000 via SISU)</option>
+                <option value="unir">🪵 UNIR - Universidade Federal de Rondônia (0-1000 via SISU)</option>
+                <option value="ufrr">🏔️ UFRR - Universidade Federal de Roraima (0-1000 via SISU)</option>
+                <option value="uft">🌅 UFT - Universidade Federal do Tocantins (0-1000 via SISU)</option>
+                <option value="uerr">⛰️ UERR - Universidade Estadual de Roraima (0-1000 via SISU)</option>
+
+                {/* === NORDESTE (via SISU - nota ENEM) === */}
+                <option value="ufal">🏖️ UFAL - Universidade Federal de Alagoas (0-1000 via SISU)</option>
+                <option value="ufba">🥁 UFBA - Universidade Federal da Bahia (0-1000 via SISU)</option>
+                <option value="ufc">☀️ UFC - Universidade Federal do Ceará (0-1000 via SISU)</option>
+                <option value="ufma">🦞 UFMA - Universidade Federal do Maranhão (0-1000 via SISU)</option>
+                <option value="ufpb">🎸 UFPB - Universidade Federal da Paraíba (0-1000 via SISU)</option>
+                <option value="ufpe">🎭 UFPE - Universidade Federal de Pernambuco (0-1000 via SISU)</option>
+                <option value="ufpi">🌵 UFPI - Universidade Federal do Piauí (0-1000 via SISU)</option>
+                <option value="ufrn">🏝️ UFRN - Universidade Federal do Rio Grande do Norte (0-1000 via SISU)</option>
+                <option value="ufs">🦀 UFS - Universidade Federal de Sergipe (0-1000 via SISU)</option>
+
+                {/* === CENTRO-OESTE === */}
+                <option value="unb">🏛️ UnB - Universidade de Brasília (0-10)</option>
+                <option value="udf">🌆 UDF - Centro Universitário do Distrito Federal (0-1000 via SISU)</option>
+                <option value="ufg">🌾 UFG - Universidade Federal de Goiás (0-1000 via SISU)</option>
+                <option value="ufmt">🐆 UFMT - Universidade Federal de Mato Grosso (0-1000 via SISU)</option>
+                <option value="ufms">🐂 UFMS - Universidade Federal de Mato Grosso do Sul (0-1000 via SISU)</option>
+
+                {/* === SUDESTE (via SISU) === */}
+                <option value="ufes">🌊 UFES - Universidade Federal do Espírito Santo (0-1000 via SISU)</option>
+
+                {/* === SUL (vestibulares próprios) === */}
+                <option value="ufpr">🌲 UFPR - Universidade Federal do Paraná (0-60)</option>
+                <option value="ufrgs">🧉 UFRGS - Universidade Federal do Rio Grande do Sul (0-30)</option>
+                <option value="ufsc">🌉 UFSC - Universidade Federal de Santa Catarina (0-10)</option>
+
+                {/* === PUCs === */}
+                <option value="pucsp">✝️ PUC-SP - Pontifícia Univ. Católica de São Paulo (0-100)</option>
+                <option value="puccampinas">⛪ PUC-Campinas - Pontifícia Univ. Católica de Campinas (0-100)</option>
+                <option value="pucminas">⛏️ PUC-Minas - Pontifícia Univ. Católica de Minas Gerais (0-10)</option>
+                <option value="pucpr">🌲 PUCPR - Pontifícia Univ. Católica do Paraná (0-10)</option>
+                <option value="pucrio">🏔️ PUC-Rio - Pontifícia Univ. Católica do Rio de Janeiro (0-100)</option>
+                <option value="pucgoias">🌻 PUC-Goiás - Pontifícia Univ. Católica de Goiás (0-100)</option>
+                <option value="pucrs">🍇 PUCRS - Pontifícia Univ. Católica do Rio Grande do Sul (0-100)</option>
               </select>
               <p style={{
                 fontSize: '12px',
@@ -378,13 +434,13 @@ const RedigirRedacao = () => {
               </div>
               <button
                 type="submit"
-                disabled={!content.trim() || (freeCredits + userCredits) < (correctionType === 'premium' ? 3 : 1)}
-                className={`w-full sm:w-auto px-6 md:px-8 py-3 md:py-3.5 rounded-xl text-sm md:text-base font-semibold transition-all ${(content.trim() && (freeCredits + userCredits) >= (correctionType === 'premium' ? 3 : 1))
+                disabled={isSubmitting || !content.trim() || (freeCredits + userCredits) < (correctionType === 'premium' ? 3 : 1)}
+                className={`w-full sm:w-auto px-6 md:px-8 py-3 md:py-3.5 rounded-xl text-sm md:text-base font-semibold transition-all ${(!isSubmitting && content.trim() && (freeCredits + userCredits) >= (correctionType === 'premium' ? 3 : 1))
                   ? 'bg-[#4F46E5] hover:bg-[#4338ca] text-white cursor-pointer'
                   : 'bg-[#334155] text-[#64748b] cursor-not-allowed'
                   }`}
               >
-                Enviar para Correção
+                {isSubmitting ? 'Enviando...' : 'Enviar para Correção'}
               </button>
             </div>
           </div>

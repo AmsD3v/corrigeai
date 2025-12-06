@@ -67,92 +67,9 @@ async def chat_with_ai_tutor(
     logger.info(f"🎓 Conv key: {conv_key}, Exists: {conv_key in conversations_store}, Exam: {submission.exam_type}")
     
     if conv_key not in conversations_store:
-        # Map exam types to welcome topics
-        exam_topics = {
-            'enem': [
-                '• **Norma Culta**: Ortografia, gramática, pontuação',
-                '• **Compreensão do Tema**: Desenvolvimento adequado',
-                '• **Argumentação**: Seleção e organização de argumentos',
-                '• **Coesão e Coerência**: Conectivos e progressão',
-                '• **Proposta de Intervenção**: 5 elementos completos'
-            ],
-            'fuvest': [
-                '• **Desenvolvimento do Tema**: Abordagem crítica e autoral',
-                '• **Estrutura**: Organização dissertativa-argumentativa',
-                '• **Expressão**: Gramática, vocabulário e estilo',
-                '• **Coesão e Coerência**: Articulação das ideias'
-            ],
-            'unicamp': [
-                '• **Adequação ao Gênero**: Carta, artigo, relato, etc.',
-                '• **Desenvolvimento da Proposta**: Compreensão temática',
-                '• **Propósito Comunicativo**: Cumprimento do objetivo',
-                '• **Articulação das Ideias**: Progressão textual',
-                '• **Adequação Linguística**: Norma culta e registro'
-            ],
-            'ita': [
-                '• **Domínio do Tema**: Conhecimento técnico-científico',
-                '• **Estrutura Lógica**: Organização rigorosa',
-                '• **Precisão Linguística**: Vocabulário técnico',
-                '• **Coesão e Coerência**: Articulação precisa'
-            ],
-            'cacd': [
-                '• **Erudição**: Repertório sociocultural amplo',
-                '• **Clareza e Objetividade**: Precisão diplomática',
-                '• **Estrutura**: Organização impecável',
-                '• **Argumentação**: Profundidade analítica',
-                '• **Estilo**: Linguagem formal e elegante'
-            ],
-            'unesp': [
-                '• **Tema**: Compreensão e desenvolvimento do tema proposto',
-                '• **Estrutura**: Organização lógica e progressão textual',
-                '• **Expressão**: Gramática, vocabulário e clareza',
-                '• **Coesão**: Articulação entre parágrafos e períodos'
-            ],
-            'uerj': [
-                '• **Adequação ao Tema**: Compreensão e desenvolvimento',
-                '• **Adequação à Norma Culta**: Domínio gramatical',
-                '• **Estrutura Lógica**: Organização e articulação das ideias'
-            ],
-            'ufmg': [
-                '• **Tipo Textual**: Adequação ao gênero solicitado',
-                '• **Adequação ao Tema**: Compreensão da proposta',
-                '• **Articulação**: Organização lógica dos argumentos',
-                '• **Coesão e Coerência**: Progressão e conectividade textual'
-            ],
-            'afa': [
-                '• **Tema**: Compreensão e abordagem do assunto',
-                '• **Estrutura**: Organização dissertativa-argumentativa',
-                '• **Expressão**: Clareza, precisão e domínio da norma culta',
-                '• **Originalidade**: Criatividade e autoria na argumentação'
-            ]
-        }
-        
-        exam_type_lower = (submission.exam_type or 'enem').lower()
-        topics_list = exam_topics.get(exam_type_lower, exam_topics['enem'])
-        topics_text = '\n'.join(topics_list)
-        
-        exam_names = {
-            'enem': 'ENEM', 'fuvest': 'FUVEST', 'unicamp': 'UNICAMP',
-            'ita': 'ITA', 'cacd': 'CACD', 'unesp': 'UNESP',
-            'uerj': 'UERJ', 'ufmg': 'UFMG', 'afa': 'AFA', 'sisu': 'SISU'
-        }
-        exam_display = exam_names.get(exam_type_lower, exam_type_lower.upper())
-        
-        # Create new conversation with exam-specific welcome message
-        welcome_msg = {
-            "role": "assistant",
-            "content": (
-                f"Olá! Sou o Prof. Redi - seu assistente especializado em {exam_display}. "
-                "Estou aqui para te ajudar a entender melhor sua correção. "
-                f"Posso esclarecer dúvidas sobre:\n\n"
-                f"{topics_text}\n\n"
-                "O que deseja saber?"
-            ),
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        
+        # Inicializa conversa vazia - a mensagem de boas-vindas é exibida no frontend
         conversations_store[conv_key] = {
-            "messages": [welcome_msg],
+            "messages": [],
             "messages_count": 0
         }
     

@@ -10,6 +10,7 @@ const Sidebar = ({ activePage }: SidebarProps) => {
 
     const menuItems = [
         { path: '/painel', icon: '🏠', label: 'Painel' },
+        { path: '/painel/minha-jornada', icon: '🎮', label: 'Minha Jornada' },
         { path: '/painel/minhas-redacoes', icon: '📄', label: 'Minhas Redações' },
         { path: '/painel/redigir-redacao', icon: '✍️', label: 'Redigir Redação' },
         { path: '/painel/desenvolvimento', icon: '📊', label: 'Meu Desenvolvimento' },

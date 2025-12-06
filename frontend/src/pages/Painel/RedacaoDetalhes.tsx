@@ -150,7 +150,103 @@ const EXAM_CRITERIA: Record<string, { name: string; max_score: number; competenc
             'Proposta de Intervenção'
         ],
         weights: [200, 200, 200, 200, 200]
-    }
+    },
+    // Vestibulares com escalas próprias
+    pucpr: {
+        name: 'PUCPR',
+        max_score: 10,
+        competencies: [
+            'Qualidade de Conteúdo',
+            'Progressão e Coerência',
+            'Coesão',
+            'Norma Padrão'
+        ],
+        weights: [4, 2, 2, 2]
+    },
+    pucminas: {
+        name: 'PUC-Minas',
+        max_score: 10,
+        competencies: [
+            'Conteúdo',
+            'Estrutura',
+            'Expressão',
+            'Adequação'
+        ],
+        weights: [2.5, 2.5, 2.5, 2.5]
+    },
+    unb: {
+        name: 'UnB',
+        max_score: 10,
+        competencies: [
+            'Conteúdo',
+            'Estrutura',
+            'Expressão',
+            'Adequação'
+        ],
+        weights: [2.5, 2.5, 2.5, 2.5]
+    },
+    ufpr: {
+        name: 'UFPR',
+        max_score: 60,
+        competencies: [
+            'Adequação ao Tema',
+            'Estrutura Textual',
+            'Argumentação',
+            'Domínio da Norma Culta'
+        ],
+        weights: [15, 15, 15, 15]
+    },
+    ufrgs: {
+        name: 'UFRGS',
+        max_score: 30,
+        competencies: [
+            'Adequação ao Tema',
+            'Estrutura',
+            'Argumentação',
+            'Linguagem'
+        ],
+        weights: [7.5, 7.5, 7.5, 7.5]
+    },
+    ufsc: {
+        name: 'UFSC',
+        max_score: 10,
+        competencies: [
+            'Adequação ao Tema',
+            'Estrutura e Coesão',
+            'Argumentação',
+            'Domínio Linguístico'
+        ],
+        weights: [2.5, 2.5, 2.5, 2.5]
+    },
+    // Federais via SISU (usam critérios ENEM)
+    ufac: { name: 'UFAC', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    unifap: { name: 'UNIFAP', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufam: { name: 'UFAM', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufpa: { name: 'UFPA', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    unir: { name: 'UNIR', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufrr: { name: 'UFRR', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    uft: { name: 'UFT', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    uerr: { name: 'UERR', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufal: { name: 'UFAL', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufba: { name: 'UFBA', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufc: { name: 'UFC', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufma: { name: 'UFMA', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufpb: { name: 'UFPB', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufpe: { name: 'UFPE', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufpi: { name: 'UFPI', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufrn: { name: 'UFRN', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufs: { name: 'UFS', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    udf: { name: 'UDF', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufg: { name: 'UFG', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufmt: { name: 'UFMT', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufms: { name: 'UFMS', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    ufes: { name: 'UFES', max_score: 1000, competencies: ['Domínio da Norma Culta', 'Compreensão do Tema', 'Argumentação', 'Coesão e Coerência', 'Proposta de Intervenção'], weights: [200, 200, 200, 200, 200] },
+    // Outras PUCs
+    pucsp: { name: 'PUC-SP', max_score: 100, competencies: ['Tema e Visão Crítica', 'Argumentação', 'Coesão e Coerência', 'Norma Culta'], weights: [25, 25, 25, 25] },
+    puccampinas: { name: 'PUC-Campinas', max_score: 100, competencies: ['Adequação ao Tema', 'Estrutura', 'Argumentação', 'Linguagem'], weights: [25, 25, 25, 25] },
+    pucrio: { name: 'PUC-Rio', max_score: 100, competencies: ['Tema', 'Argumentação', 'Estrutura', 'Linguagem'], weights: [25, 25, 25, 25] },
+    pucgoias: { name: 'PUC-Goiás', max_score: 100, competencies: ['Tema', 'Argumentação', 'Estrutura', 'Linguagem'], weights: [25, 25, 25, 25] },
+    pucrs: { name: 'PUCRS', max_score: 100, competencies: ['Tema', 'Argumentação', 'Estrutura', 'Linguagem'], weights: [25, 25, 25, 25] }
 };
 
 const RedacaoDetalhes = () => {
@@ -492,11 +588,21 @@ const RedacaoDetalhes = () => {
                                     </div>
 
                                     {(() => {
-                                        // Parse feedback sections safely
-                                        const parts = feedback ? feedback.split(/✅ Pontos Fortes:|⚠️ O que melhorar:/) : [];
-                                        const analise = parts[0]?.replace('Análise:', '').trim();
-                                        const pontosFortes = parts[1]?.trim();
-                                        const melhorias = parts[2]?.trim();
+                                        // Parse feedback sections with flexible regex
+                                        // Accepts variations: "✅ Pontos Fortes:", "✅Pontos Fortes", etc.
+                                        const pontosMatch = feedback?.match(/✅\s*Pontos?\s*Fortes?:?\s*([\s\S]*?)(?=⚠️|$)/i);
+                                        const melhoriasMatch = feedback?.match(/⚠️\s*O?\s*que\s*melhorar:?\s*([\s\S]*?)$/i);
+
+                                        // Extract analysis (everything before ✅)
+                                        const analiseMatch = feedback?.match(/^([\s\S]*?)(?=✅)/);
+                                        let analise = analiseMatch?.[1]?.replace(/Análise:?|📊.*?:/gi, '').trim() || '';
+                                        const pontosFortes = pontosMatch?.[1]?.trim() || '';
+                                        const melhorias = melhoriasMatch?.[1]?.trim() || '';
+
+                                        // Fallback: if no markers found, show entire feedback as analysis
+                                        if (!pontosFortes && !melhorias && feedback) {
+                                            analise = feedback.replace(/Análise:?|📊.*?:/gi, '').trim();
+                                        }
 
                                         return (
                                             <div style={{

@@ -24,30 +24,8 @@ const AIProfessorChat = ({ submissionId }: AIProfessorChatProps) => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    // Load conversation when opened
-    useEffect(() => {
-        if (isOpen && messages.length === 0) {
-            loadWelcomeMessage();
-        }
-    }, [isOpen]);
-
-    const loadWelcomeMessage = async () => {
-        setIsLoading(true);
-        try {
-            // Send empty message to get welcome
-            const response = await api.post(`/ai-tutor/chat/${submissionId}`, {
-                message: ' '  // Workaround to trigger welcome
-            });
-            setMessages(response.data.messages);
-            setMessagesRemaining(response.data.messages_remaining);
-            // Remove the empty user message
-            setMessages(prev => prev.filter(m => m.content.trim() !== ''));
-        } catch (error: any) {
-            console.error('Error loading conversation:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    // Removed: No longer loads welcome message automatically
+    // The welcome message will come with the first user message
 
     const sendMessage = async () => {
         if (!inputMessage.trim() || isLoading) return;
@@ -180,6 +158,26 @@ const AIProfessorChat = ({ submissionId }: AIProfessorChatProps) => {
                 flexDirection: 'column',
                 gap: '16px'
             }}>
+                {/* Welcome message - always shown first */}
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start'
+                }}>
+                    <div style={{
+                        maxWidth: '80%',
+                        padding: '12px 16px',
+                        borderRadius: '12px',
+                        background: '#334155',
+                        color: 'white',
+                        fontSize: '14px',
+                        lineHeight: '1.6'
+                    }}>
+                        Olá! 🙋‍♂️ Seja bem-vindo! Estou aqui para ajudá-lo a entender melhor sua correção de redação.
+                        Qual é o seu objetivo? Quer saber como melhorar sua nota ou entender melhor os critérios de avaliação? 📝 Vamos começar!
+                    </div>
+                </div>
+
+                {/* User and AI messages */}
                 {messages.map((msg, idx) => (
                     <div
                         key={idx}

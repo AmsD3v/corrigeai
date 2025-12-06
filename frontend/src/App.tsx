@@ -14,6 +14,7 @@ import Feedback from './pages/Painel/Feedback';
 import RedacaoDetalhes from './pages/Painel/RedacaoDetalhes';
 import CorrigindoRedacao from './pages/Painel/CorrigindoRedacao';
 import ResultadoCorrecao from './pages/Painel/ResultadoCorrecao';
+import MinhaJornada from './pages/Painel/MinhaJornada';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
 import './App.css';
@@ -64,6 +65,7 @@ function App() {
           <Route path="/painel/pagamento/sucesso" element={<PagamentoSucesso />} />
           <Route path="/painel/pagamento/falha" element={<PagamentoFalha />} />
           <Route path="/painel/pagamento/pendente" element={<PagamentoPendente />} />
+          <Route path="/painel/minha-jornada" element={<MinhaJornada />} />
         </Route>
 
         {/* Admin Routes */}

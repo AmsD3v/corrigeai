@@ -13,6 +13,7 @@ const ResultadoCorrecao = () => {
     const [showConfetti, setShowConfetti] = useState(false);
 
     const EXAM_DETAILS: Record<string, { name: string; max: number }> = {
+        // Principais (critérios próprios)
         enem: { name: 'ENEM', max: 1000 },
         fuvest: { name: 'FUVEST', max: 50 },
         unicamp: { name: 'UNICAMP', max: 48 },
@@ -22,7 +23,43 @@ const ResultadoCorrecao = () => {
         ufmg: { name: 'UFMG', max: 100 },
         afa: { name: 'AFA', max: 100 },
         cacd: { name: 'CACD', max: 100 },
-        sisu: { name: 'SISU', max: 1000 }
+        sisu: { name: 'SISU', max: 1000 },
+        // Vestibulares próprios (notas especiais)
+        unb: { name: 'UnB', max: 10 },
+        ufpr: { name: 'UFPR', max: 60 },
+        ufrgs: { name: 'UFRGS', max: 30 },
+        ufsc: { name: 'UFSC', max: 10 },
+        // Federais via SISU (usam nota ENEM = 1000)
+        ufac: { name: 'UFAC', max: 1000 },
+        unifap: { name: 'UNIFAP', max: 1000 },
+        ufam: { name: 'UFAM', max: 1000 },
+        ufpa: { name: 'UFPA', max: 1000 },
+        unir: { name: 'UNIR', max: 1000 },
+        ufrr: { name: 'UFRR', max: 1000 },
+        uft: { name: 'UFT', max: 1000 },
+        uerr: { name: 'UERR', max: 1000 },
+        ufal: { name: 'UFAL', max: 1000 },
+        ufba: { name: 'UFBA', max: 1000 },
+        ufc: { name: 'UFC', max: 1000 },
+        ufma: { name: 'UFMA', max: 1000 },
+        ufpb: { name: 'UFPB', max: 1000 },
+        ufpe: { name: 'UFPE', max: 1000 },
+        ufpi: { name: 'UFPI', max: 1000 },
+        ufrn: { name: 'UFRN', max: 1000 },
+        ufs: { name: 'UFS', max: 1000 },
+        udf: { name: 'UDF', max: 1000 },
+        ufg: { name: 'UFG', max: 1000 },
+        ufmt: { name: 'UFMT', max: 1000 },
+        ufms: { name: 'UFMS', max: 1000 },
+        ufes: { name: 'UFES', max: 1000 },
+        // PUCs (critérios próprios)
+        pucsp: { name: 'PUC-SP', max: 100 },
+        puccampinas: { name: 'PUC-Campinas', max: 100 },
+        pucminas: { name: 'PUC-Minas', max: 10 },
+        pucpr: { name: 'PUCPR', max: 10 },
+        pucrio: { name: 'PUC-Rio', max: 100 },
+        pucgoias: { name: 'PUC-Goiás', max: 100 },
+        pucrs: { name: 'PUCRS', max: 100 }
     };
 
 
