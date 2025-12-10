@@ -381,12 +381,17 @@ const MinhaJornada = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [profileRes, achievementsRes, challengesRes, lessonsRes] = await Promise.all([
-                api.get('/gamification/profile'),
+            // IMPORTANT: achievements must be called FIRST to unlock and add XP
+            // Then profile will return the updated XP value
+            const [achievementsRes, challengesRes, lessonsRes] = await Promise.all([
                 api.get(`/gamification/achievements?exam_type=${selectedExam}`),
                 api.get('/gamification/challenges'),
                 api.get(`/gamification/lessons?exam_type=${selectedExam}`)
             ]);
+
+            // Now get profile with updated XP
+            const profileRes = await api.get('/gamification/profile');
+
             setProfile(profileRes.data);
             setAchievements(achievementsRes.data);
             setChallenges(challengesRes.data);
@@ -826,6 +831,46 @@ const RankingTab = () => {
     );
 };
 
+// Função para parsear markdown de forma mais completa
+const parseMarkdown = (content: string): string => {
+    if (!content) return '';
+
+    let html = content;
+
+    // Escapar HTML perigoso, mas manter estrutura
+    html = html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // Títulos (# e ##) - deve vir antes de outras transformações
+    html = html.replace(/^## (.+)$/gm, '<h4 style="color:#f59e0b;margin:16px 0 8px;font-weight:700;">$1</h4>');
+    html = html.replace(/^# (.+)$/gm, '<h3 style="color:#10b981;margin:20px 0 10px;font-weight:700;font-size:18px;">$1</h3>');
+
+    // Negrito (**texto**) - cor bem clara para destacar
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#f8fafc;font-weight:700;">$1</strong>');
+
+    // Blockquotes (> texto) - texto mais claro
+    html = html.replace(/^&gt; (.+)$/gm, '<div style="background:#1e293b;border-left:4px solid #10b981;padding:12px 16px;margin:12px 0;border-radius:4px;color:#e2e8f0;font-style:italic;">$1</div>');
+
+    // Tabelas simples - converter | Nota | Descrição | para formato de lista
+    // Primeira, remover linhas de separadores de tabela (|---|---|)
+    html = html.replace(/^\|[-\s|]+\|$/gm, '');
+    // Converter linhas de tabela em itens formatados
+    html = html.replace(/^\| ?(\d+) ?\| ?(.+?) ?\|$/gm, '<div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #334155;"><strong style="color:#10b981;min-width:50px;">$1</strong><span style="color:#e2e8f0;">$2</span></div>');
+    // Headers de tabela
+    html = html.replace(/^\| ?(.+?) ?\| ?(.+?) ?\|$/gm, '<div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #475569;margin-bottom:4px;"><strong style="color:#f59e0b;min-width:50px;">$1</strong><strong style="color:#f59e0b;">$2</strong></div>');
+
+    // Listas (- item) - texto mais claro
+    html = html.replace(/^- (.+)$/gm, '<div style="display:flex;gap:8px;padding:4px 0;"><span style="color:#10b981;">•</span><span style="color:#e2e8f0;">$1</span></div>');
+
+    // Quebras de linha
+    html = html.replace(/\n\n/g, '<br><br>');
+    html = html.replace(/\n/g, '<br>');
+
+    // Limpar BRs duplicados
+    html = html.replace(/(<br>){3,}/g, '<br><br>');
+
+    return html;
+};
+
 const LessonModal = ({ lesson, onClose, onComplete }: { lesson: any, onClose: () => void, onComplete: (id: number, score: number) => void }) => {
     const [showQuiz, setShowQuiz] = useState(false);
     const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -860,7 +905,7 @@ const LessonModal = ({ lesson, onClose, onComplete }: { lesson: any, onClose: ()
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'rgba(0,0,0,0.8)',
+            background: 'rgba(0,0,0,0.85)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -868,16 +913,17 @@ const LessonModal = ({ lesson, onClose, onComplete }: { lesson: any, onClose: ()
             padding: '20px'
         }}>
             <div style={{
-                background: '#1a1f2e',
+                background: '#0f1419',
                 borderRadius: '16px',
                 maxWidth: '700px',
                 width: '100%',
                 maxHeight: '90vh',
                 overflow: 'auto',
-                padding: '32px'
+                padding: '32px',
+                border: '1px solid #334155'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
-                    <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#fff' }}>{lesson.title}</h2>
+                    <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#ffffff' }}>{lesson.title}</h2>
                     <button onClick={onClose} style={{
                         background: 'transparent',
                         border: 'none',
@@ -890,8 +936,16 @@ const LessonModal = ({ lesson, onClose, onComplete }: { lesson: any, onClose: ()
                 {!showQuiz && !showResults && (
                     <>
                         <div
-                            style={{ color: '#e2e8f0', fontSize: '15px', lineHeight: '1.8' }}
-                            dangerouslySetInnerHTML={{ __html: lesson.content.replace(/\n/g, '<br>').replace(/# /g, '<h3 style="color:#fff;margin:16px 0 8px">').replace(/## /g, '<h4 style="color:#94a3b8;margin:12px 0 6px">') }}
+                            style={{
+                                color: '#e2e8f0',
+                                fontSize: '15px',
+                                lineHeight: '1.8',
+                                background: '#1a1f2e',
+                                padding: '24px',
+                                borderRadius: '12px',
+                                border: '1px solid #334155'
+                            }}
+                            dangerouslySetInnerHTML={{ __html: parseMarkdown(lesson.content) }}
                         />
                         {quiz.length > 0 && (
                             <button

@@ -781,7 +781,7 @@ const LandingPage = () => {
               <div className="hero-buttons">
                 <button
                   className="btn-primary"
-                  onClick={() => navigate('/register')}
+                  onClick={() => navigate('/cadastro')}
                 >
                   Começar de graça →
                 </button>
@@ -1357,7 +1357,7 @@ const LandingPage = () => {
                       </p>
 
                       <button
-                        onClick={() => navigate('/register')}
+                        onClick={() => navigate('/cadastro')}
                         style={{
                           width: '100%',
                           background: '#4F46E5',
@@ -1408,7 +1408,7 @@ const LandingPage = () => {
                 </p>
               </div>
               <button
-                onClick={() => navigate('/register')}
+                onClick={() => navigate('/cadastro')}
                 style={{
                   background: '#4F46E5',
                   border: 'none',

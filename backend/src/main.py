@@ -157,3 +157,7 @@ app.include_router(ai_tutor.router, tags=["ai-tutor"])
 # Gamification router
 from .routers import gamification
 app.include_router(gamification.router, tags=["gamification"])
+
+# Exam Criteria router (centralizes vestibular criteria for frontend)
+from .routers import exam_criteria_router
+app.include_router(exam_criteria_router.router, tags=["exam-criteria"])

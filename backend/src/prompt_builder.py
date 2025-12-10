@@ -15,6 +15,19 @@ def format_competencies(criteria: ExamCriteria) -> str:
     return "\n".join(formatted)
 
 
+def generate_competence_json_structure(criteria: ExamCriteria) -> str:
+    """
+    Gera a estrutura JSON dinamicamente baseada no número de competências.
+    Vestibulares como PUCPR (4 comp) terão estrutura diferente de ENEM (5 comp).
+    """
+    lines = []
+    for i, weight in enumerate(criteria.weights, 1):
+        lines.append(f'    "competence_{i}_score": <nota de 0 a {int(weight)}>,')
+    for i in range(1, len(criteria.weights) + 1):
+        lines.append(f'    "competence_{i}_feedback": "Análise: <análise>\\n\\n✅ Pontos Fortes: <pontos fortes>\\n\\n⚠️ O que melhorar: <melhorias ou N/A se nota máxima>",')
+    return "\n".join(lines)
+
+
 def create_correction_prompt(exam_type: str, title: str, theme: str, content: str) -> str:
     """
     Cria um prompt específico para correção baseado no tipo de exame.
@@ -150,17 +163,8 @@ Tema: {theme or '(Tema livre)'}
 **RETORNE EM JSON com a seguinte estrutura EXATA:**
 
 {{
-    "competence_1_score": <nota de 0 a {int(criteria.weights[0])}>,
-    "competence_2_score": <nota de 0 a {int(criteria.weights[1])}>,
-    "competence_3_score": <nota de 0 a {int(criteria.weights[2]) if len(criteria.weights) > 2 else 0}>,
-    "competence_4_score": <nota de 0 a {int(criteria.weights[3]) if len(criteria.weights) > 3 else 0}>,
-    "competence_5_score": <nota de 0 a {int(criteria.weights[4]) if len(criteria.weights) > 4 else 0}>,
+{generate_competence_json_structure(criteria)}
     "total_score": <soma de todas as competências>,
-    "competence_1_feedback": "Análise: <análise>\\n\\n✅ Pontos Fortes: <pontos fortes>\\n\\n⚠️ O que melhorar: <melhorias>",
-    "competence_2_feedback": "Análise: <análise>\\n\\n✅ Pontos Fortes: <pontos fortes>\\n\\n⚠️ O que melhorar: <melhorias>",
-    "competence_3_feedback": "Análise: <análise>\\n\\n✅ Pontos Fortes: <pontos fortes>\\n\\n⚠️ O que melhorar: <melhorias>",
-    "competence_4_feedback": "Análise: <análise>\\n\\n✅ Pontos Fortes: <pontos fortes>\\n\\n⚠️ O que melhorar: <melhorias>",
-    "competence_5_feedback": "Análise: <análise>\\n\\n✅ Pontos Fortes: <pontos fortes>\\n\\n⚠️ O que melhorar: <melhorias>",
     "strengths": "<lista de pontos fortes em JSON array>",
     "improvements": "<lista de pontos a melhorar em JSON array>",
     "general_comments": "<comentário geral sobre a redação>"

@@ -11,6 +11,7 @@ interface Essay {
     theme?: string;
     score?: number;
     correction_type?: string;
+    exam_type?: string;  // Vestibular (ENEM, FUVEST, etc.)
 }
 
 const MinhasRedacoes = () => {
@@ -136,12 +137,15 @@ const MinhasRedacoes = () => {
             {/* Table */}
             <div className="bg-[#1a1f2e] border border-[#334155] rounded-2xl overflow-hidden">
                 {/* Table Header - Hidden on mobile */}
-                <div className="hidden lg:grid lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] px-6 py-4 border-b border-[#334155] bg-[#0f1419]">
+                <div className="hidden lg:grid lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr] px-6 py-4 border-b border-[#334155] bg-[#0f1419]">
                     <div className="text-xs font-semibold text-[#94a3b8] uppercase">
                         Título
                     </div>
                     <div className="text-xs font-semibold text-[#94a3b8] uppercase">
                         Data
+                    </div>
+                    <div className="text-xs font-semibold text-[#94a3b8] uppercase">
+                        Vestibular
                     </div>
                     <div className="text-xs font-semibold text-[#94a3b8] uppercase">
                         Tipo
@@ -171,7 +175,7 @@ const MinhasRedacoes = () => {
                         {essays.map((essay) => (
                             <div
                                 key={essay.id}
-                                className="p-5 lg:px-6 lg:py-5 lg:grid lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] lg:items-center border-b border-[#334155] transition-colors hover:bg-[#0f1419]"
+                                className="p-5 lg:px-6 lg:py-5 lg:grid lg:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_1fr] lg:items-center border-b border-[#334155] transition-colors hover:bg-[#0f1419]"
                             >
                                 {/* MOBILE CARD LAYOUT */}
                                 <div className="lg:hidden space-y-3">
@@ -234,6 +238,11 @@ const MinhasRedacoes = () => {
                                 </div>
                                 <div className="hidden lg:block text-sm text-[#94a3b8]">
                                     {formatDate(essay.submitted_at)}
+                                </div>
+                                <div className="hidden lg:block">
+                                    <span className="px-3 py-1 rounded-xl text-xs font-semibold bg-[#3b82f620] text-[#3b82f6]">
+                                        {essay.exam_type?.toUpperCase() || 'ENEM'}
+                                    </span>
                                 </div>
                                 <div className="hidden lg:block">
                                     {getCorrectionTypeBadge(essay.correction_type)}

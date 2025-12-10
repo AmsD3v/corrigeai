@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PanelLayout from '../../components/PanelLayout';
 import geminiService from '../../services/geminiService';
@@ -27,6 +27,7 @@ const RedigirRedacao = () => {
   const [freeCredits, setFreeCredits] = useState<number>(0);
   const [loadingCredits, setLoadingCredits] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);  // Proteção extra contra dupla submissão
 
   // Fetch user credits on mount
   useEffect(() => {
@@ -119,12 +120,14 @@ const RedigirRedacao = () => {
       return;
     }
 
-    // Prevent double submission
-    if (isSubmitting) {
-      console.log('Já está enviando, ignorando clique duplicado');
+    // Prevent double submission using both state and ref
+    if (isSubmitting || isSubmittingRef.current) {
+      console.log('⚠️ Já está enviando, ignorando clique duplicado');
       return;
     }
 
+    // Set ref IMMEDIATELY to prevent race conditions
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
 
     try {
@@ -161,6 +164,7 @@ const RedigirRedacao = () => {
       console.error('Erro ao enviar redação:', error);
       alert('Erro ao enviar redação. Tente novamente.');
       setIsSubmitting(false);
+      isSubmittingRef.current = false;  // Reset ref on error
     }
   };
 

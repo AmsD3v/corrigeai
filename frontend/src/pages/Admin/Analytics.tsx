@@ -138,6 +138,177 @@ const Analytics = () => {
         </div>
     );
 
+    // Growth Chart Component
+    const GrowthChart = () => {
+        const [growthData, setGrowthData] = useState<{ month: string; year: number; label: string; users: number; essays: number; revenue: number }[]>([]);
+
+        useEffect(() => {
+            const fetchGrowth = async () => {
+                try {
+                    const response = await api.get('/admin/growth-timeline?months=6');
+                    setGrowthData(response.data);
+                } catch (error) {
+                    console.error('Erro ao carregar growth:', error);
+                }
+            };
+            fetchGrowth();
+        }, []);
+
+        if (growthData.length === 0) {
+            return (
+                <div style={{
+                    height: '300px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: '#0f1419',
+                    borderRadius: '8px',
+                    color: '#64748b'
+                }}>
+                    Carregando dados...
+                </div>
+            );
+        }
+
+        const width = 800;
+        const height = 280;
+        const padding = { top: 40, right: 30, bottom: 40, left: 50 };
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+
+        const maxUsers = Math.max(...growthData.map(d => d.users), 1);
+        const maxEssays = Math.max(...growthData.map(d => d.essays), 1);
+        const maxValue = Math.max(maxUsers, maxEssays);
+
+        const getX = (index: number) => padding.left + (index * chartWidth) / (growthData.length - 1 || 1);
+        const getY = (value: number) => padding.top + chartHeight - (value / maxValue) * chartHeight;
+
+        const getColor = (value: number, max: number) => {
+            const percent = value / max;
+            if (percent >= 0.7) return '#10b981'; // Green
+            if (percent >= 0.4) return '#f59e0b'; // Yellow/Orange
+            return '#ef4444'; // Red
+        };
+
+        // Generate line path for users
+        const usersPath = growthData.map((d, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)},${getY(d.users)}`).join(' ');
+
+        // Generate line path for essays
+        const essaysPath = growthData.map((d, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)},${getY(d.essays)}`).join(' ');
+
+        return (
+            <div style={{
+                background: '#0f1419',
+                borderRadius: '8px',
+                padding: '16px',
+                overflow: 'auto'
+            }}>
+                {/* Legend */}
+                <div style={{ display: 'flex', gap: '24px', marginBottom: '16px', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '12px', height: '12px', background: '#3b82f6', borderRadius: '50%' }} />
+                        <span style={{ color: '#94a3b8', fontSize: '12px' }}>Usuários</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '12px', height: '12px', background: '#10b981', borderRadius: '50%' }} />
+                        <span style={{ color: '#94a3b8', fontSize: '12px' }}>Redações</span>
+                    </div>
+                </div>
+
+                <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ minWidth: '600px' }}>
+                    {/* Y-axis reference lines */}
+                    {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
+                        const y = padding.top + chartHeight * (1 - ratio);
+                        const value = Math.round(maxValue * ratio);
+                        return (
+                            <g key={i}>
+                                <line
+                                    x1={padding.left}
+                                    y1={y}
+                                    x2={width - padding.right}
+                                    y2={y}
+                                    stroke="#334155"
+                                    strokeDasharray="4"
+                                />
+                                <text x={padding.left - 10} y={y + 4} fill="#64748b" fontSize="11" textAnchor="end">
+                                    {value}
+                                </text>
+                            </g>
+                        );
+                    })}
+
+                    {/* Users line */}
+                    <path d={usersPath} fill="none" stroke="#3b82f6" strokeWidth="3" />
+
+                    {/* Essays line */}
+                    <path d={essaysPath} fill="none" stroke="#10b981" strokeWidth="3" />
+
+                    {/* Users points and labels */}
+                    {growthData.map((d, i) => (
+                        <g key={`users-${i}`}>
+                            <circle
+                                cx={getX(i)}
+                                cy={getY(d.users)}
+                                r="6"
+                                fill="#3b82f6"
+                                stroke="#0f1419"
+                                strokeWidth="2"
+                            />
+                            <text
+                                x={getX(i)}
+                                y={getY(d.users) - 12}
+                                fill="#3b82f6"
+                                fontSize="11"
+                                fontWeight="600"
+                                textAnchor="middle"
+                            >
+                                {d.users}
+                            </text>
+                        </g>
+                    ))}
+
+                    {/* Essays points and labels */}
+                    {growthData.map((d, i) => (
+                        <g key={`essays-${i}`}>
+                            <circle
+                                cx={getX(i)}
+                                cy={getY(d.essays)}
+                                r="6"
+                                fill="#10b981"
+                                stroke="#0f1419"
+                                strokeWidth="2"
+                            />
+                            <text
+                                x={getX(i)}
+                                y={getY(d.essays) - 12}
+                                fill="#10b981"
+                                fontSize="11"
+                                fontWeight="600"
+                                textAnchor="middle"
+                            >
+                                {d.essays}
+                            </text>
+                        </g>
+                    ))}
+
+                    {/* X-axis labels */}
+                    {growthData.map((d, i) => (
+                        <text
+                            key={`label-${i}`}
+                            x={getX(i)}
+                            y={height - 8}
+                            fill="#94a3b8"
+                            fontSize="11"
+                            textAnchor="middle"
+                        >
+                            {d.label}
+                        </text>
+                    ))}
+                </svg>
+            </div>
+        );
+    };
+
     return (
         <AdminLayout activePage="/admin/analytics">
             <div style={{ marginBottom: '32px' }}>
@@ -366,7 +537,7 @@ const Analytics = () => {
                 </div>
             </div>
 
-            {/* Growth Chart Placeholder */}
+            {/* Growth Chart */}
             <div style={{
                 background: '#1a1f2e',
                 border: '1px solid #334155',
@@ -377,28 +548,12 @@ const Analytics = () => {
                 <h2 style={{
                     fontSize: '18px',
                     fontWeight: '700',
-                    color: '#fff',
+                    color: '#f59e0b',
                     marginBottom: '20px'
                 }}>
-                    Crescimento ao Longo do Tempo
+                    Crescimento ao longo do tempo
                 </h2>
-                <div style={{
-                    height: '300px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: '#0f1419',
-                    borderRadius: '8px',
-                    color: '#64748b'
-                }}>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '48px', marginBottom: '12px' }}>📊</div>
-                        <div>Gráfico de crescimento</div>
-                        <div style={{ fontSize: '12px', marginTop: '8px' }}>
-                            Integre uma biblioteca de gráficos (Chart.js, Recharts)
-                        </div>
-                    </div>
-                </div>
+                <GrowthChart />
             </div>
 
             {/* NEW: Complementary User Info Analytics */}

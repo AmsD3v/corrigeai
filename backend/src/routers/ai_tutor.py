@@ -3,7 +3,7 @@ AI Tutor endpoints for essay correction assistance
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import Dict
+from typing import Dict, List
 from datetime import datetime
 import logging
 
@@ -18,13 +18,44 @@ router = APIRouter(prefix="/ai-tutor", tags=["ai-tutor"])
 
 MAX_MESSAGES_PER_CONVERSATION = 10
 
-# In-memory storage for conversations (temporary - will use DB later)
-conversations_store: Dict[str, dict] = {}
 
-
-def get_conversation_key(submission_id: int, user_id: int) -> str:
-    """Get unique key for conversation"""
-    return f"{user_id}_{submission_id}"
+@router.get("/history/{submission_id}")
+async def get_chat_history(
+    submission_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Get chat history for a submission"""
+    # Verify submission belongs to user
+    submission = db.query(models.Submission).filter(
+        models.Submission.id == submission_id,
+        models.Submission.owner_id == current_user.id
+    ).first()
+    
+    if not submission:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Submissão não encontrada"
+        )
+    
+    # Load messages from database
+    messages = db.query(models.ChatMessage).filter(
+        models.ChatMessage.submission_id == submission_id,
+        models.ChatMessage.user_id == current_user.id
+    ).order_by(models.ChatMessage.created_at).all()
+    
+    return {
+        "conversation_id": submission_id,
+        "messages": [
+            {
+                "role": msg.role,
+                "content": msg.content,
+                "timestamp": msg.created_at.isoformat()
+            }
+            for msg in messages
+        ],
+        "messages_remaining": MAX_MESSAGES_PER_CONVERSATION - len(messages)
+    }
 
 
 @router.post("/chat/{submission_id}", response_model=schemas.AIChatResponse)
@@ -60,43 +91,43 @@ async def chat_with_ai_tutor(
             detail="Correção não encontrada"
         )
     
-    # Get or create conversation (using in-memory for now)
-    conv_key = get_conversation_key(submission_id, current_user.id)
+    # Load existing messages from database
+    existing_messages = db.query(models.ChatMessage).filter(
+        models.ChatMessage.submission_id == submission_id,
+        models.ChatMessage.user_id == current_user.id
+    ).order_by(models.ChatMessage.created_at).all()
     
-    # DEBUG: Log conversation state
-    logger.info(f"🎓 Conv key: {conv_key}, Exists: {conv_key in conversations_store}, Exam: {submission.exam_type}")
-    
-    if conv_key not in conversations_store:
-        # Inicializa conversa vazia - a mensagem de boas-vindas é exibida no frontend
-        conversations_store[conv_key] = {
-            "messages": [],
-            "messages_count": 0
-        }
-    
-    conversation = conversations_store[conv_key]
-    
-    # Check message limit
-    if conversation["messages_count"] >= MAX_MESSAGES_PER_CONVERSATION:
+    # Check message limit (count user messages only)
+    user_messages_count = len([m for m in existing_messages if m.role == "user"])
+    if user_messages_count >= MAX_MESSAGES_PER_CONVERSATION:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail=f"Limite de mensagens atingido ({MAX_MESSAGES_PER_CONVERSATION})"
         )
     
-    #  Add user message
-    user_msg = {
-        "role": "user",
-        "content": message.message,
-        "timestamp": datetime.utcnow().isoformat()
-    }
-    conversation["messages"].append(user_msg)
-    conversation["messages_count"] += 1
+    # Save user message to database
+    user_msg = models.ChatMessage(
+        submission_id=submission_id,
+        user_id=current_user.id,
+        role="user",
+        content=message.message
+    )
+    db.add(user_msg)
+    db.commit()
+    
+    # Convert to format for AI
+    conversation_history = [
+        {"role": m.role, "content": m.content}
+        for m in existing_messages
+    ]
+    conversation_history.append({"role": "user", "content": message.message})
     
     # Prepare data for AI
     submission_data = {
         "title": submission.title,
         "theme": submission.theme,
         "content": submission.content,
-        "exam_type": submission.exam_type or "ENEM"  # Use real exam_type
+        "exam_type": submission.exam_type or "ENEM"
     }
     
     correction_data = {
@@ -106,6 +137,7 @@ async def chat_with_ai_tutor(
         "competence_3_score": correction.competence_3_score,
         "competence_4_score": correction.competence_4_score,
         "competence_5_score": correction.competence_5_score,
+        "criteria_snapshot": getattr(correction, 'criteria_snapshot', None)
     }
     
     # Get AI response
@@ -113,20 +145,35 @@ async def chat_with_ai_tutor(
         user_message=message.message,
         submission_data=submission_data,
         correction_data=correction_data,
-        conversation_history=conversation["messages"]
+        conversation_history=conversation_history
     )
     
-    # Add AI message
-    ai_msg = {
-        "role": "assistant",
-        "content": ai_response,
-        "timestamp": datetime.utcnow().isoformat()
-    }
-    conversation["messages"].append(ai_msg)
+    # Save AI message to database
+    ai_msg = models.ChatMessage(
+        submission_id=submission_id,
+        user_id=current_user.id,
+        role="assistant",
+        content=ai_response
+    )
+    db.add(ai_msg)
+    db.commit()
+    
+    # Reload all messages for response
+    all_messages = db.query(models.ChatMessage).filter(
+        models.ChatMessage.submission_id == submission_id,
+        models.ChatMessage.user_id == current_user.id
+    ).order_by(models.ChatMessage.created_at).all()
     
     return {
-        "conversation_id": submission_id,  # Using submission_id as temp ID
-        "messages": conversation["messages"],
-        "messages_remaining": MAX_MESSAGES_PER_CONVERSATION - conversation["messages_count"],
+        "conversation_id": submission_id,
+        "messages": [
+            {
+                "role": msg.role,
+                "content": msg.content,
+                "timestamp": msg.created_at.isoformat()
+            }
+            for msg in all_messages
+        ],
+        "messages_remaining": MAX_MESSAGES_PER_CONVERSATION - len([m for m in all_messages if m.role == "user"]),
         "max_messages": MAX_MESSAGES_PER_CONVERSATION
     }

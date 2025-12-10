@@ -157,7 +157,7 @@ const Header = () => {
                             Entrar
                         </button>
                         <button
-                            onClick={() => navigate('/register')}
+                            onClick={() => navigate('/cadastro')}
                             style={{
                                 background: '#4F46E5',
                                 border: 'none',
@@ -374,7 +374,7 @@ const Header = () => {
                             </button>
                             <button
                                 onClick={() => {
-                                    navigate('/register');
+                                    navigate('/cadastro');
                                     setMobileMenuOpen(false);
                                 }}
                                 style={{

@@ -21,8 +21,11 @@ router = APIRouter(prefix="/gamification", tags=["gamification"])
 
 # ==================== HELPER FUNCTIONS ====================
 
-LEVEL_THRESHOLDS = [0, 100, 300, 600, 1000, 2000, 5000, 10000]
-LEVEL_NAMES = ["Calouro", "Estudante", "Dedicado", "Aplicado", "Redator", "Escritor", "Mestre", "Expert"]
+# Progressão linear: 100 XP por nível
+LEVEL_THRESHOLDS = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+LEVEL_NAMES = ["Calouro", "Estudante", "Dedicado", "Aplicado", "Redator", "Escritor", "Mestre", "Expert", "Lenda", "Gênio", "Divino"]
+XP_PER_LEVEL = 100  # Valor fixo para cada nível
+
 
 
 def get_settings(db: Session) -> models.Settings:
@@ -38,20 +41,19 @@ def get_settings(db: Session) -> models.Settings:
 
 def calculate_level(xp: int) -> tuple[int, str, int, int]:
     """Calculate level from XP. Returns (level, name, current_xp_in_level, xp_needed_for_next)"""
-    level = 1
-    for i, threshold in enumerate(LEVEL_THRESHOLDS):
-        if xp >= threshold:
-            level = i + 1
+    # Nível é calculado como XP / 100 (cada 100 XP = 1 nível)
+    level = min(xp // XP_PER_LEVEL + 1, len(LEVEL_NAMES))
     
-    current_threshold = LEVEL_THRESHOLDS[level - 1] if level <= len(LEVEL_THRESHOLDS) else LEVEL_THRESHOLDS[-1]
-    next_threshold = LEVEL_THRESHOLDS[level] if level < len(LEVEL_THRESHOLDS) else LEVEL_THRESHOLDS[-1]
+    # XP dentro do nível atual (0-99)
+    xp_in_level = xp % XP_PER_LEVEL
     
-    xp_in_level = xp - current_threshold
-    xp_needed = next_threshold - current_threshold
+    # Sempre 100 XP para subir de nível
+    xp_needed = XP_PER_LEVEL
     
     name = LEVEL_NAMES[level - 1] if level <= len(LEVEL_NAMES) else "Lenda"
     
     return level, name, xp_in_level, xp_needed
+
 
 
 def get_or_create_gamification(db: Session, user_id: int) -> models.UserGamification:
@@ -93,9 +95,10 @@ def update_streak(db: Session, profile: models.UserGamification):
 
 
 def check_achievements(db: Session, user_id: int) -> list:
-    """Check and unlock any new achievements"""
+    """Check and unlock any new GLOBAL achievements (exam_type = NULL only)"""
     unlocked = []
     
+    # Global stats
     essays_count = db.query(func.count(models.Submission.id)).filter(
         models.Submission.owner_id == user_id
     ).scalar() or 0
@@ -111,8 +114,11 @@ def check_achievements(db: Session, user_id: int) -> list:
     ).all()
     existing_ids = [a[0] for a in existing_ids]
     
+    # IMPORTANT: Only check GLOBAL achievements (exam_type IS NULL)
+    # Exam-specific achievements are handled in /achievements endpoint
     achievements = db.query(models.Achievement).filter(
         models.Achievement.is_active == True,
+        models.Achievement.exam_type == None,  # Only global achievements
         ~models.Achievement.id.in_(existing_ids) if existing_ids else True
     ).all()
     
@@ -151,6 +157,69 @@ def check_achievements(db: Session, user_id: int) -> list:
                 "xp_reward": achievement.xp_reward,
                 "coin_reward": achievement.coin_reward
             })
+    
+    if unlocked:
+        db.commit()
+    
+    return unlocked
+
+
+def check_exam_achievements(db: Session, user_id: int, exam_type: str, score: int) -> list:
+    """Check and unlock achievements for a specific exam type after correction.
+    Called from correction_service.py when a correction is completed."""
+    unlocked = []
+    
+    # Get user's gamification profile
+    profile = get_or_create_gamification(db, user_id)
+    
+    # Get already unlocked achievements for this user
+    existing_ids = db.query(models.UserAchievement.achievement_id).filter(
+        models.UserAchievement.user_id == user_id
+    ).all()
+    existing_ids = [a[0] for a in existing_ids]
+    
+    # Get essays count for this specific exam type
+    essays_for_exam = db.query(func.count(models.Submission.id)).filter(
+        models.Submission.owner_id == user_id,
+        models.Submission.exam_type == exam_type.lower()
+    ).scalar() or 0
+    
+    # Get achievements for this exam type that haven't been unlocked
+    achievements = db.query(models.Achievement).filter(
+        models.Achievement.is_active == True,
+        models.Achievement.exam_type == exam_type.lower(),
+        ~models.Achievement.id.in_(existing_ids) if existing_ids else True
+    ).all()
+    
+    for achievement in achievements:
+        earned = False
+        
+        if achievement.condition_type == "essays_count" and essays_for_exam >= achievement.condition_value:
+            earned = True
+        elif achievement.condition_type == "score" and score >= achievement.condition_value:
+            earned = True
+        
+        if earned:
+            user_achievement = models.UserAchievement(
+                user_id=user_id,
+                achievement_id=achievement.id
+            )
+            db.add(user_achievement)
+            
+            if achievement.xp_reward > 0:
+                profile.xp_total += achievement.xp_reward
+            
+            if achievement.coin_reward > 0:
+                user = db.query(models.User).filter(models.User.id == user_id).first()
+                if user:
+                    user.free_credits = (user.free_credits or 0) + achievement.coin_reward
+            
+            unlocked.append({
+                "code": achievement.code,
+                "name": achievement.name,
+                "xp_reward": achievement.xp_reward
+            })
+            logging.info(f"🏆 Conquista desbloqueada via correção: {achievement.name} (+{achievement.xp_reward} XP)")
     
     if unlocked:
         db.commit()
@@ -299,9 +368,12 @@ async def get_achievements(
     ).scalar() or 0
     
     result = []
+    newly_unlocked = []  # Track newly unlocked achievements
+    
     for a in achievements:
         # Determine if unlocked based on achievement type and exam_type
         is_unlocked = False
+        was_already_unlocked = a.id in unlocked_ids
         
         if a.exam_type is None:
             # Global achievement - use global stats or profile
@@ -310,7 +382,7 @@ async def get_achievements(
             elif a.condition_type == "streak":
                 is_unlocked = profile.current_streak >= a.condition_value
             else:
-                is_unlocked = a.id in unlocked_ids
+                is_unlocked = was_already_unlocked
         else:
             # Exam-specific achievement - use exam-specific stats
             if a.condition_type == "essays_count":
@@ -320,7 +392,26 @@ async def get_achievements(
             elif a.condition_type == "lessons":
                 is_unlocked = lessons_for_exam >= a.condition_value
             else:
-                is_unlocked = a.id in unlocked_ids
+                is_unlocked = was_already_unlocked
+        
+        # PERSIST newly unlocked achievement and add XP
+        if is_unlocked and not was_already_unlocked:
+            user_achievement = models.UserAchievement(
+                user_id=current_user.id,
+                achievement_id=a.id
+            )
+            db.add(user_achievement)
+            
+            # Add XP to profile
+            if a.xp_reward > 0:
+                profile.xp_total += a.xp_reward
+            
+            # Add coins if applicable
+            if a.coin_reward > 0:
+                current_user.free_credits = (current_user.free_credits or 0) + a.coin_reward
+            
+            newly_unlocked.append(a)
+            logging.info(f"🏆 Conquista desbloqueada: {a.name} (+{a.xp_reward} XP) para user {current_user.id}")
         
         result.append({
             "id": a.id,
@@ -333,14 +424,19 @@ async def get_achievements(
             "coin_reward": a.coin_reward,
             "lessons_reward": a.lessons_reward,
             "is_unlocked": is_unlocked,
-            "unlocked_at": next((ua.unlocked_at.isoformat() for ua in user_achievements if ua.achievement_id == a.id), None) if is_unlocked else None
+            "unlocked_at": next((ua.unlocked_at.isoformat() for ua in user_achievements if ua.achievement_id == a.id), None) if was_already_unlocked else None
         })
+    
+    # Commit if there are newly unlocked achievements
+    if newly_unlocked:
+        db.commit()
     
     return {
         "exam_type": exam_type,
         "total": len(achievements),
         "unlocked": len([a for a in result if a["is_unlocked"]]),
-        "achievements": result
+        "achievements": result,
+        "newly_unlocked": [{"name": a.name, "xp_reward": a.xp_reward} for a in newly_unlocked]
     }
 
 

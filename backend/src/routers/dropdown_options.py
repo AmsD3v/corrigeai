@@ -147,3 +147,48 @@ def delete_dropdown_option(
     db.commit()
     
     return {"message": "Option deleted successfully"}
+
+
+# ============================================
+# Endpoints para Estados e Cidades Brasileiras
+# ============================================
+
+class StateResponse(BaseModel):
+    id: int
+    code: str
+    name: str
+    
+    class Config:
+        from_attributes = True
+
+class CityResponse(BaseModel):
+    id: int
+    name: str
+    state_code: str
+    
+    class Config:
+        from_attributes = True
+
+
+@router.get("/api/states", response_model=List[StateResponse])
+def get_states(db: Session = Depends(get_db)):
+    """Retorna todos os estados brasileiros ordenados por nome"""
+    from ..models_complementary import BrazilState
+    
+    states = db.query(BrazilState).order_by(BrazilState.name).all()
+    return states
+
+
+@router.get("/api/cities", response_model=List[CityResponse])
+def get_cities(state_code: str | None = None, db: Session = Depends(get_db)):
+    """Retorna cidades, opcionalmente filtradas por estado"""
+    from ..models_complementary import BrazilCity
+    
+    query = db.query(BrazilCity)
+    
+    if state_code:
+        query = query.filter(BrazilCity.state_code == state_code.upper())
+    
+    cities = query.order_by(BrazilCity.name).all()
+    return cities
+

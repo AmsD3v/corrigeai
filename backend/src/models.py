@@ -80,6 +80,10 @@ class Correction(Base):
     improvements = Column(Text, nullable=False)
     general_comments = Column(Text, nullable=False)
     
+    # Snapshot dos critérios usados na correção (JSON)
+    # Garante que a exibição use os mesmos critérios da correção original
+    criteria_snapshot = Column(Text, nullable=True)
+    
     corrected_at = Column(DateTime, default=datetime.utcnow)
     
     submission = relationship("Submission", back_populates="correction")
@@ -307,3 +311,19 @@ class UserChallenge(Base):
     
     period_start = Column(DateTime, nullable=False)
     completed_at = Column(DateTime, nullable=True)
+
+
+# ==================== AI PROFESSOR CHAT ====================
+class ChatMessage(Base):
+    """Persisted chat messages with AI Professor (Tutor)"""
+    __tablename__ = "chat_message"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    submission_id = Column(Integer, ForeignKey("submission.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False, index=True)
+    
+    role = Column(String, nullable=False)  # 'user' or 'assistant'
+    content = Column(Text, nullable=False)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)

@@ -80,7 +80,23 @@ async def submit_essay(
             detail=f"Créditos insuficientes. Necessário: {required_credits}, Disponível: {total_available} (Grátis: {current_user.free_credits or 0}, CorriCoins: {current_user.credits})",
         )
 
-
+    # PROTEÇÃO ANTI-DUPLICAÇÃO: Rejeitar submissões idênticas nos últimos 30 segundos
+    from datetime import datetime, timedelta
+    time_threshold = datetime.utcnow() - timedelta(seconds=30)
+    
+    existing_recent = db.query(models.Submission).filter(
+        models.Submission.owner_id == current_user.id,
+        models.Submission.title == submission.title,
+        models.Submission.submitted_at > time_threshold
+    ).first()
+    
+    if existing_recent:
+        logging.warning(f"⚠️ SUBMISSÃO DUPLICADA REJEITADA - User: {current_user.email}, Title: {submission.title}")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Submissão duplicada detectada. Aguarde alguns segundos antes de tentar novamente."
+        )
+    
     db_submission = models.Submission(
         **submission.model_dump(), owner_id=current_user.id
     )
@@ -161,6 +177,7 @@ def list_my_submissions(
                 "submitted_at": submission.submitted_at,
                 "status": submission.status,
                 "correction_type": getattr(submission, 'correction_type', 'advanced'),
+                "exam_type": getattr(submission, 'exam_type', 'enem'),  # Vestibular
                 "score": correction.total_score if correction else None,
                 "has_correction": correction is not None
             })
@@ -174,6 +191,161 @@ def list_my_submissions(
         }
     except Exception as e:
         logging.error(f"Erro ao listar submissões: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/my-submissions/development-stats")
+def get_development_stats(
+    exam_type: str = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """
+    Get development statistics for the user including competency averages and score history.
+    Used by the Meu Desenvolvimento page.
+    Optional exam_type filter to show stats for a specific vestibular.
+    Uses specific competencies for each vestibular.
+    """
+    from ..exam_criteria import get_exam_criteria
+    import json
+    
+    try:
+        # First, get all unique exam_types for this user
+        all_submissions = db.query(models.Submission).filter(
+            models.Submission.owner_id == current_user.id,
+            models.Submission.status == "completed"
+        ).all()
+        
+        available_exam_types = list(set([
+            s.exam_type for s in all_submissions if s.exam_type
+        ]))
+        available_exam_types.sort()
+        
+        # Build query with optional exam_type filter
+        query = db.query(models.Submission).filter(
+            models.Submission.owner_id == current_user.id,
+            models.Submission.status == "completed"
+        )
+        
+        if exam_type and exam_type != "all":
+            query = query.filter(models.Submission.exam_type == exam_type)
+        
+        submissions = query.order_by(models.Submission.submitted_at.asc()).all()
+        
+        if not submissions:
+            return {
+                "has_data": False,
+                "competencies": [],
+                "score_history": [],
+                "best_competencies": [],
+                "worst_competencies": [],
+                "available_exam_types": available_exam_types,
+                "exam_info": None
+            }
+        
+        # Determine which exam criteria to use
+        # If filtering by specific exam, use that exam's criteria
+        # Otherwise, use ENEM as default for "all"
+        selected_exam_type = exam_type if exam_type and exam_type != "all" else "enem"
+        exam_criteria = get_exam_criteria(selected_exam_type)
+        
+        num_competencies = len(exam_criteria.competencies)
+        competency_totals = [0] * num_competencies
+        count = 0
+        score_history = []
+        
+        for submission in submissions:
+            correction = db.query(models.Correction).filter(
+                models.Correction.submission_id == submission.id
+            ).first()
+            
+            if correction:
+                # Add scores for each competency
+                if num_competencies >= 1 and correction.competence_1_score:
+                    competency_totals[0] += correction.competence_1_score
+                if num_competencies >= 2 and correction.competence_2_score:
+                    competency_totals[1] += correction.competence_2_score
+                if num_competencies >= 3 and correction.competence_3_score:
+                    competency_totals[2] += correction.competence_3_score
+                if num_competencies >= 4 and correction.competence_4_score:
+                    competency_totals[3] += correction.competence_4_score
+                if num_competencies >= 5 and correction.competence_5_score:
+                    competency_totals[4] += correction.competence_5_score
+                count += 1
+                
+                score_history.append({
+                    "essay_id": submission.id,
+                    "title": submission.title or "Redação sem título",
+                    "score": correction.total_score,
+                    "date": submission.submitted_at.isoformat() if submission.submitted_at else None,
+                    "exam_type": submission.exam_type
+                })
+        
+        if count == 0:
+            return {
+                "has_data": False,
+                "competencies": [],
+                "score_history": [],
+                "best_competencies": [],
+                "worst_competencies": [],
+                "available_exam_types": available_exam_types,
+                "exam_info": None
+            }
+        
+        # Calculate averages using exam-specific criteria
+        competencies = []
+        for i in range(num_competencies):
+            max_score = exam_criteria.weights[i] if i < len(exam_criteria.weights) else 200
+            avg_score = round(competency_totals[i] / count) if count > 0 else 0
+            percentage = round((avg_score / max_score) * 100) if max_score > 0 else 0
+            
+            # Get competency name (split on ":" for short name)
+            full_name = exam_criteria.competencies[i] if i < len(exam_criteria.competencies) else f"Competência {i+1}"
+            if ":" in full_name:
+                name, description = full_name.split(":", 1)
+                name = name.strip()
+                description = description.strip()
+            else:
+                name = f"Competência {i+1}"
+                description = full_name
+            
+            competencies.append({
+                "id": i + 1,
+                "name": name,
+                "description": description,
+                "score": avg_score,
+                "max_score": max_score,
+                "percentage": percentage
+            })
+        
+        # Find best and worst
+        if competencies:
+            max_score = max(c["score"] for c in competencies)
+            min_score = min(c["score"] for c in competencies)
+            
+            best_competencies = [c for c in competencies if c["score"] == max_score]
+            worst_competencies = [c for c in competencies if c["score"] == min_score]
+        else:
+            best_competencies = []
+            worst_competencies = []
+        
+        return {
+            "has_data": True,
+            "competencies": competencies,
+            "score_history": score_history,
+            "best_competencies": best_competencies,
+            "worst_competencies": worst_competencies,
+            "available_exam_types": available_exam_types,
+            "exam_info": {
+                "id": selected_exam_type,
+                "name": exam_criteria.name,
+                "short_name": exam_criteria.short_name,
+                "max_score": exam_criteria.max_score,
+                "num_competencies": num_competencies
+            }
+        }
+    except Exception as e:
+        logging.error(f"Erro ao buscar estatísticas de desenvolvimento: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -252,7 +424,8 @@ def get_my_submission_details(
             "competence_5_feedback": correction.competence_5_feedback or "",
             "strengths": correction.strengths or [],
             "improvements": correction.improvements or [],
-            "general_comments": correction.general_comments or ""
+            "general_comments": correction.general_comments or "",
+            "criteria_snapshot": correction.criteria_snapshot  # Snapshot dos critérios usados
         }
     
     return result

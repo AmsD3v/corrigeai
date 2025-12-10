@@ -445,31 +445,41 @@ async def generate_theme_with_gemini(category: str) -> str:
 
 # ===== PREMIUM CORRECTION FUNCTIONS =====
 
-# Refinement prompt
-REFINEMENT_PROMPT = """Você é um ESPECIALISTA PREMIUM em redação ENEM nota 1000.
+def create_refinement_prompt(exam_type: str, groq_result: dict, content: str) -> str:
+    """
+    Cria prompt de refinement dinâmico baseado em exam_criteria.py.
+    Isso garante que Premium funcione corretamente para todos os vestibulares.
+    """
+    from .exam_criteria import get_exam_criteria
+    criteria = get_exam_criteria(exam_type)
+    
+    # Formata competências com pesos corretos do vestibular
+    comp_scores = []
+    for i, comp in enumerate(criteria.competencies, 1):
+        score = groq_result.get(f'competence_{i}_score', 0)
+        max_score = int(criteria.weights[i-1])
+        comp_scores.append(f"Competência {i} ({comp}): {score}/{max_score}")
+    
+    # Gera campos JSON dinamicamente baseado no número de competências
+    num_comps = len(criteria.competencies)
+    json_fields = ",\n  ".join([f'"competence_{i}_premium_insights": "..."' for i in range(1, num_comps+1)])
+    
+    return f"""Você é um ESPECIALISTA PREMIUM em redação {criteria.short_name}.
 
-Recebeu esta correção inicial:
+Recebeu esta correção inicial para o vestibular {criteria.short_name} (nota máxima: {criteria.max_score}):
 
 **NOTAS:**
-Competência 1: {comp1_score}/200
-Competência 2: {comp2_score}/200
-Competência 3: {comp3_score}/200
-Competência 4: {comp4_score}/200
-Competência 5: {comp5_score}/200
+{chr(10).join(comp_scores)}
 
-Para CADA competência, adicione insights premium com:
-1. Exemplos práticos do texto
-2. Como redações nota 1000 fazem
+Para CADA competência avaliada, adicione insights premium específicos para {criteria.short_name} com:
+1. Exemplos práticos extraídos do texto
+2. Como redações excelentes deste vestibular fazem
 3. Sugestão estratégica avançada
 
 Retorne JSON:
 {{
-  "competence_1_premium_insights": "...",
-  "competence_2_premium_insights": "...",
-  "competence_3_premium_insights": "...",
-  "competence_4_premium_insights": "...",
-  "competence_5_premium_insights": "...",
-  "general_premium_insights": "Visão estratégica geral"
+  {json_fields},
+  "general_premium_insights": "Visão estratégica geral para {criteria.short_name}"
 }}
 
 Texto:
@@ -477,36 +487,35 @@ Texto:
 """
 
 
-async def refine_with_gemini(title: str, theme: str, content: str, groq_result: dict, api_key: str) -> dict:
-    """Refine Groq correction with Gemini premium insights"""
+async def refine_with_gemini(title: str, theme: str, content: str, groq_result: dict, api_key: str, exam_type: str = 'enem') -> dict:
+    """Refine Groq correction with Gemini premium insights - suporta multi-vestibular"""
     try:
         import google.generativeai as genai
+        from .exam_criteria import get_exam_criteria
         
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel('gemini-2.0-flash')
         
-        # Prepare prompt
-        prompt = REFINEMENT_PROMPT.format(
-            comp1_score=groq_result.get('competence_1_score', 0),
-            comp2_score=groq_result.get('competence_2_score', 0),
-            comp3_score=groq_result.get('competence_3_score', 0),
-            comp4_score=groq_result.get('competence_4_score', 0),
-            comp5_score=groq_result.get('competence_5_score', 0),
-            content=content
-        )
+        # Usar prompt dinâmico baseado em exam_type
+        prompt = create_refinement_prompt(exam_type, groq_result, content)
         
-        print(f"📤 Sending to Gemini for refinement...")
+        print(f"📤 Sending to Gemini for refinement ({exam_type.upper()})...")
         response = model.generate_content(prompt)
         text = response.text.strip()
         
         insights = extract_json_robust(text)
-        print(f"✅ Gemini refinement completed")
+        print(f"✅ Gemini refinement completed for {exam_type.upper()}")
         return insights
         
     except Exception as e:
         print(f"❌ Gemini refinement error: {e}")
-        # Return empty insights if fails
-        return {f"competence_{i}_premium_insights": "" for i in range(1, 6)}
+        # Retorna insights vazios para o número de competências do vestibular
+        try:
+            from .exam_criteria import get_exam_criteria
+            criteria = get_exam_criteria(exam_type)
+            return {f"competence_{i}_premium_insights": "" for i in range(1, len(criteria.competencies)+1)}
+        except:
+            return {f"competence_{i}_premium_insights": "" for i in range(1, 6)}
 
 
 def combine_corrections(groq_result: dict, gemini_insights: dict) -> dict:
@@ -567,9 +576,9 @@ async def correct_essay_premium(title: str, theme: str, content: str, exam_type:
         # Fallback to 8B model if 70B fails
         groq_result = await retry_with_backoff(run_groq_8b, max_retries=2)
     
-    # Step 2: Gemini refinement
-    print("Step 2/3: Gemini refinement...")
-    gemini_insights = await refine_with_gemini(title, theme, content, groq_result, api_key_gemini)
+    # Step 2: Gemini refinement - passa exam_type para usar escala correta
+    print(f"Step 2/3: Gemini refinement for {exam_type.upper()}...")
+    gemini_insights = await refine_with_gemini(title, theme, content, groq_result, api_key_gemini, exam_type)
     
     # Step 3: Combine
     print("Step 3/3: Combining corrections...")

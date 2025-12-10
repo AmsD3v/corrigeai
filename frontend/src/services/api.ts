@@ -6,7 +6,7 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   // Public routes that don't need authentication
-  const publicRoutes = ['/users/', '/login', '/register'];
+  const publicRoutes = ['/users/', '/login', '/cadastro'];
   const isPublicRoute = publicRoutes.some(route => config.url?.includes(route));
 
   // Only add token if it's not a public route

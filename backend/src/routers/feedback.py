@@ -11,6 +11,7 @@ router = APIRouter(prefix="/feedback", tags=["feedback"])
 
 # Configure Resend
 resend.api_key = os.getenv("RESEND_API_KEY")
+print(f"📧 Resend API Key configurada: {'✅ Sim' if resend.api_key else '❌ Não'}")
 
 @router.post("/")
 async def send_feedback(
@@ -21,6 +22,10 @@ async def send_feedback(
     """
     Enviar feedback do usuário por email
     """
+    print(f"📥 Recebendo feedback de {current_user.email}")
+    print(f"   Tipo: {feedback.type}")
+    print(f"   Mensagem: {feedback.message[:50]}...")
+    
     try:
         # Mapear tipo de feedback para label
         type_labels = {
@@ -55,25 +60,43 @@ async def send_feedback(
         </div>
         """
         
-        # Enviar email via Resend
-        from_email = os.getenv("FEEDBACK_FROM_EMAIL", "onboarding@resend.dev")
+        # Verificar API key antes de enviar
+        if not resend.api_key:
+            print("❌ RESEND_API_KEY não está configurada!")
+            raise HTTPException(
+                status_code=500,
+                detail="Configuração de email inválida. Contate o suporte."
+            )
+        
+        # Enviar email via Resend - usar domínio verificado!
+        from_email = os.getenv("FEEDBACK_FROM_EMAIL", "noreply@corrigeai.online")
+        to_email = os.getenv("FEEDBACK_EMAIL", "feedback@corrigeai.online")
+        
+        print(f"📤 Enviando email de {from_email} para {to_email}")
+        
         params = {
             "from": f"CorrigeAI <{from_email}>",
-            "to": [os.getenv("FEEDBACK_EMAIL", "feedback@corrigeai.online")],
+            "to": [to_email],
             "subject": f"[{tipo_label}] Novo Feedback de {current_user.full_name or current_user.email}",
             "html": html_content
         }
         
         email = resend.Emails.send(params)
+        print(f"✅ Email enviado com sucesso! ID: {email}")
         
         return {
             "success": True,
             "message": "Feedback enviado com sucesso! Obrigado pela sua contribuição."
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
-        print(f"Erro ao enviar feedback: {str(e)}")
+        print(f"❌ Erro ao enviar feedback: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=500,
             detail="Erro ao enviar feedback. Tente novamente mais tarde."
         )
+

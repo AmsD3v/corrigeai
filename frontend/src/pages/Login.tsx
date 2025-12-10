@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
+import PasswordInput from '../components/PasswordInput';
 
 type AuthMode = 'login' | 'forgot-email' | 'forgot-token' | 'new-password';
 
@@ -22,6 +23,11 @@ const Login: React.FC = () => {
   const [tokenDigits, setTokenDigits] = useState(['', '', '', '', '', '']);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // Estados para toggle de senha
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -120,6 +126,23 @@ const Login: React.FC = () => {
     // Auto-focus próximo campo
     if (value && index < 5) {
       tokenInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleTokenPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+
+    if (pastedData.length > 0) {
+      const newDigits = [...tokenDigits];
+      for (let i = 0; i < pastedData.length && i < 6; i++) {
+        newDigits[i] = pastedData[i];
+      }
+      setTokenDigits(newDigits);
+
+      // Focus no último campo preenchido ou no próximo vazio
+      const focusIndex = Math.min(pastedData.length, 5);
+      tokenInputRefs.current[focusIndex]?.focus();
     }
   };
 
@@ -237,18 +260,13 @@ const Login: React.FC = () => {
                     />
                   </div>
 
-                  <div>
-                    <label htmlFor="password" className="block text-white font-semibold mb-2">Senha</label>
-                    <input
-                      type="password"
-                      id="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="w-full px-4 py-2 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
-                    />
-                  </div>
+                  <PasswordInput
+                    id="password"
+                    label="Senha"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
 
                   <div className="flex items-center justify-between">
                     <button
@@ -276,13 +294,13 @@ const Login: React.FC = () => {
 
                   <div className="text-center text-[#94A3B8] text-sm">
                     Ainda não tem conta?{' '}
-                                    <button
-                  type="button"
-                  onClick={() => navigate('/register')}
-                  className="text-[#3B82F6] font-semibold hover:underline bg-transparent border-none cursor-pointer"
-                >
-                  Criar conta
-                </button>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/cadastro')}
+                      className="text-[#3B82F6] font-semibold hover:underline bg-transparent border-none cursor-pointer"
+                    >
+                      Criar conta
+                    </button>
                   </div>
                 </form>
               )}
@@ -366,6 +384,7 @@ const Login: React.FC = () => {
                           value={tokenDigits[index]}
                           onChange={(e) => handleTokenInput(index, e.target.value)}
                           onKeyDown={(e) => handleTokenKeyDown(index, e)}
+                          onPaste={handleTokenPaste}
                           className="w-12 h-14 text-center text-2xl font-bold bg-[#0B1121] border-2 border-[#334155] rounded-lg text-white focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
                         />
                       ))}
@@ -405,26 +424,62 @@ const Login: React.FC = () => {
                 <div className="space-y-6">
                   <div>
                     <label htmlFor="new-password" className="block text-white font-semibold mb-2">Nova senha</label>
-                    <input
-                      type="password"
-                      id="new-password"
-                      placeholder="Mínimo 6 caracteres"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showNewPassword ? "text" : "password"}
+                        id="new-password"
+                        placeholder="Mínimo 6 caracteres"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full px-4 py-3 pr-12 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-white transition-colors z-10 cursor-pointer p-1"
+                      >
+                        {showNewPassword ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                          </svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div>
                     <label htmlFor="confirm-password" className="block text-white font-semibold mb-2">Confirmar nova senha</label>
-                    <input
-                      type="password"
-                      id="confirm-password"
-                      placeholder="Digite a senha novamente"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-4 py-3 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        id="confirm-password"
+                        placeholder="Digite a senha novamente"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full px-4 py-3 pr-12 bg-[#0B1121] border border-[#334155] rounded-lg text-white placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-white transition-colors z-10 cursor-pointer p-1"
+                      >
+                        {showConfirmPassword ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                          </svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   {error && (
@@ -453,7 +508,7 @@ const Login: React.FC = () => {
           </div>
 
           {/* RIGHT: CHARACTER - Desktop Only */}
-          <div className="hidden lg:flex order-1 lg:order-2 justify-start lg:justify-start relative z-20 lg:ml-[-80px]">
+          <div className="hidden lg:flex order-1 lg:order-2 justify-start lg:justify-start relative z-20 lg:ml-[-55px]">
             <div className="relative">
               <img
                 src="/owl-thumbs-up.png"

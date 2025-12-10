@@ -47,17 +47,16 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
     user.reset_token_expires = expires_at
     db.commit()
     
-    # Criar HTML com dígitos separados (inline-block + line-height para centralizar)
+    # Criar HTML com dígitos em tabela (mais compatível com email clients mobile)
     digits = list(reset_token)
-    digit_boxes = ""
+    digit_cells = ""
     for digit in digits:
-        digit_boxes += f"""
-        <div style="width: 50px; height: 56px; border: 2px solid #3B82F6; border-radius: 8px; 
-                    display: inline-block; font-size: 28px; font-weight: bold; margin: 0 5px; 
-                    background: #F0F7FF; text-align: center; color: #1a202c; 
-                    line-height: 56px;">
-            {digit}
-        </div>
+        digit_cells += f"""
+            <td style="width: 40px; height: 48px; border: 2px solid #3B82F6; border-radius: 8px; 
+                        font-size: 24px; font-weight: bold; 
+                        background: #F0F7FF; text-align: center; color: #1a202c;">
+                {digit}
+            </td>
         """
     
     # Enviar email
@@ -74,55 +73,63 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
             </head>
             <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f3f4f6;">
-                <div style="max-width: 600px; margin: 40px auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="max-width: 600px; margin: 20px auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     
-                    <!-- Header com Table -->
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
-                        <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                    <!-- Header -->
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; text-align: center;">
+                        <table cellpadding="0" cellspacing="0" border="0" width="100%">
                             <tr>
-                                <td style="font-size: 48px; padding-right: 12px; vertical-align: middle;">🦉</td>
-                                <td style="vertical-align: middle;">
-                                    <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700; line-height: 1;">CorrigeAI</h1>
+                                <td align="center">
+                                    <table cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td style="font-size: 36px; padding-right: 10px; vertical-align: middle;">🦉</td>
+                                            <td style="vertical-align: middle;">
+                                                <span style="color: white; font-size: 24px; font-weight: 700;">CorrigeAI</span>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </td>
                             </tr>
                         </table>
                     </div>
                     
                     <!-- Content -->
-                    <div style="padding: 40px 30px;">
-                        <h2 style="color: #1a202c; margin-top: 0; font-size: 22px;">🔐 Seu código de verificação</h2>
+                    <div style="padding: 30px 20px;">
+                        <h2 style="color: #1a202c; margin-top: 0; font-size: 20px; text-align: center;">🔐 Seu código de verificação</h2>
                         
-                        <p style="color: #4a5568; font-size: 16px; line-height: 1.6;">
+                        <p style="color: #4a5568; font-size: 15px; line-height: 1.6;">
                             Olá <strong>{user.full_name or 'Usuário'}</strong>,
                         </p>
                         
-                        <p style="color: #4a5568; font-size: 16px; line-height: 1.6;">
+                        <p style="color: #4a5568; font-size: 15px; line-height: 1.6;">
                             Recebemos uma solicitação para redefinir sua senha. Use o código abaixo:
                         </p>
                         
-                        <!-- Token Boxes -->
-                        <div style="text-align: center; margin: 30px 0;">
-                            {digit_boxes}
-                        </div>
+                        <!-- Token Boxes usando Table para garantir uma linha só -->
+                        <table cellpadding="0" cellspacing="4" border="0" align="center" style="margin: 25px auto;">
+                            <tr>
+                                {digit_cells}
+                            </tr>
+                        </table>
                         
                         <!-- Instructions -->
-                        <div style="background: #f7fafc; border-left: 4px solid #3b82f6; padding: 16px; border-radius: 4px; margin: 24px 0;">
+                        <div style="background: #f7fafc; border-left: 4px solid #3b82f6; padding: 14px; border-radius: 4px; margin: 20px 0;">
                             <p style="margin: 0; color: #2d3748; font-size: 14px;">
                                 <strong>⏰ Este código expira em 1 hora.</strong>
                             </p>
-                            <p style="margin: 8px 0 0 0; color: #4a5568; font-size: 14px;">
+                            <p style="margin: 6px 0 0 0; color: #4a5568; font-size: 13px;">
                                 Digite-o na tela de recuperação de senha.
                             </p>
                         </div>
                         
-                        <p style="color: #718096; font-size: 14px; line-height: 1.6; margin-top: 24px;">
+                        <p style="color: #718096; font-size: 13px; line-height: 1.6; margin-top: 20px;">
                             Se você não solicitou este código, ignore este email. Sua senha permanecerá inalterada.
                         </p>
                     </div>
                     
                     <!-- Footer -->
-                    <div style="background: #f7fafc; padding: 24px 30px; border-top: 1px solid #e2e8f0;">
-                        <p style="margin: 0; color: #718096; font-size: 12px; text-align: center;">
+                    <div style="background: #f7fafc; padding: 20px; border-top: 1px solid #e2e8f0;">
+                        <p style="margin: 0; color: #718096; font-size: 11px; text-align: center;">
                             <strong>CorrigeAI</strong> - Plataforma de Correção de Redações<br>
                             Este é um email automático, por favor não responda.
                         </p>

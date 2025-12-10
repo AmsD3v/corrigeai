@@ -127,6 +127,84 @@ async def get_all_transactions(
         })
     return result
 
+
+@router.patch("/admin/transactions/{transaction_id}/approve")
+async def approve_transaction(
+    transaction_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """
+    Approve a pending transaction and add coins to user (admin only)
+    """
+    from datetime import datetime
+    
+    transaction = db.query(models.Transaction).filter(
+        models.Transaction.id == transaction_id
+    ).first()
+    
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transação não encontrada")
+    
+    if transaction.status != "pending":
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Transação já está com status: {transaction.status}"
+        )
+    
+    # Update transaction status
+    transaction.status = "approved"
+    transaction.approved_at = datetime.utcnow()
+    
+    # Add coins to user
+    user = db.query(models.User).filter(models.User.id == transaction.user_id).first()
+    if user:
+        total_coins = transaction.coins_amount + transaction.bonus_coins
+        user.credits = (user.credits or 0) + total_coins
+    
+    db.commit()
+    
+    return {
+        "message": f"Transação aprovada! {transaction.coins_amount + transaction.bonus_coins} CorriCoins adicionados.",
+        "transaction_id": transaction_id,
+        "status": "approved"
+    }
+
+
+@router.patch("/admin/transactions/{transaction_id}/reject")
+async def reject_transaction(
+    transaction_id: int,
+    reason: Optional[dict] = None,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """
+    Reject a pending transaction (admin only)
+    """
+    transaction = db.query(models.Transaction).filter(
+        models.Transaction.id == transaction_id
+    ).first()
+    
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transação não encontrada")
+    
+    if transaction.status != "pending":
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Transação já está com status: {transaction.status}"
+        )
+    
+    # Update transaction status
+    transaction.status = "rejected"
+    
+    db.commit()
+    
+    return {
+        "message": "Transação rejeitada.",
+        "transaction_id": transaction_id,
+        "status": "rejected"
+    }
+
 @router.get("/admin/submissions")
 async def get_all_submissions(
     skip: int = Query(0, ge=0),
@@ -347,6 +425,151 @@ async def get_admin_stats(
         raise HTTPException(status_code=500, detail=f"Erro ao buscar estatísticas: {str(e)}")
 
 
+@router.get("/admin/user-growth")
+async def get_user_growth(
+    months: int = 6,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """
+    Retorna dados de crescimento de usuários por mês para o gráfico.
+    """
+    from sqlalchemy import func, extract
+    from datetime import datetime, timedelta
+    from calendar import monthrange
+    
+    try:
+        now = datetime.utcnow()
+        data = []
+        
+        # Buscar contagem de usuários por mês nos últimos N meses
+        for i in range(months - 1, -1, -1):
+            # Calcular data do mês
+            month_date = now - timedelta(days=i * 30)  # Aproximação
+            year = month_date.year
+            month = month_date.month
+            
+            # Primeiro e último dia do mês
+            first_day = datetime(year, month, 1)
+            last_day_num = monthrange(year, month)[1]
+            last_day = datetime(year, month, last_day_num, 23, 59, 59)
+            
+            # Contar usuários cadastrados neste mês
+            count = db.query(func.count(models.User.id)).filter(
+                models.User.created_at >= first_day,
+                models.User.created_at <= last_day
+            ).scalar() or 0
+            
+            # Nome do mês em português
+            month_names = ['', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
+                          'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+            
+            data.append({
+                "month": month_names[month],
+                "year": year,
+                "users": count
+            })
+        
+        return data
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar crescimento: {str(e)}")
+
+
+@router.get("/admin/recent-activities")
+async def get_recent_activities(
+    limit: int = 10,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """
+    Retorna as atividades recentes do sistema para o dashboard admin.
+    Combina: novos usuários, redações submetidas e transações.
+    """
+    from sqlalchemy import func
+    from datetime import datetime, timedelta
+    
+    try:
+        activities = []
+        
+        # 1. Últimos usuários cadastrados
+        recent_users = db.query(models.User).order_by(
+            models.User.created_at.desc()
+        ).limit(5).all()
+        
+        for user in recent_users:
+            if user.created_at:
+                activities.append({
+                    "id": f"user_{user.id}",
+                    "type": "user",
+                    "description": f"Novo usuário: {user.full_name or user.email}",
+                    "time": user.created_at.isoformat(),
+                    "timestamp": user.created_at
+                })
+        
+        # 2. Últimas redações submetidas
+        recent_submissions = db.query(models.Submission).join(models.User).order_by(
+            models.Submission.submitted_at.desc()
+        ).limit(5).all()
+        
+        for sub in recent_submissions:
+            if sub.submitted_at:
+                user = db.query(models.User).filter(models.User.id == sub.owner_id).first()
+                user_name = user.full_name or user.email if user else "Usuário"
+                status_text = "corrigida" if sub.status == "completed" else "submetida"
+                activities.append({
+                    "id": f"essay_{sub.id}",
+                    "type": "essay",
+                    "description": f"Redação {status_text}: {sub.title or 'Sem título'} ({user_name})",
+                    "time": sub.submitted_at.isoformat(),
+                    "timestamp": sub.submitted_at
+                })
+        
+        # 3. Últimas transações
+        recent_transactions = db.query(models.Transaction).join(models.User).order_by(
+            models.Transaction.created_at.desc()
+        ).limit(5).all()
+        
+        for tx in recent_transactions:
+            if tx.created_at:
+                user = db.query(models.User).filter(models.User.id == tx.user_id).first()
+                user_name = user.full_name or user.email if user else "Usuário"
+                status_emoji = "✅" if tx.status == "approved" else "⏳" if tx.status == "pending" else "❌"
+                activities.append({
+                    "id": f"tx_{tx.id}",
+                    "type": "purchase",
+                    "description": f"{status_emoji} Transação R${tx.price/100:.2f}: {user_name}",
+                    "time": tx.created_at.isoformat(),
+                    "timestamp": tx.created_at
+                })
+        
+        # Ordenar por timestamp descendente e pegar os N mais recentes
+        activities.sort(key=lambda x: x["timestamp"], reverse=True)
+        activities = activities[:limit]
+        
+        # Formatar tempo relativo
+        now = datetime.utcnow()
+        for activity in activities:
+            delta = now - activity["timestamp"]
+            if delta.days > 0:
+                activity["time"] = f"há {delta.days} dia(s)"
+            elif delta.seconds >= 3600:
+                hours = delta.seconds // 3600
+                activity["time"] = f"há {hours} hora(s)"
+            elif delta.seconds >= 60:
+                minutes = delta.seconds // 60
+                activity["time"] = f"há {minutes} minuto(s)"
+            else:
+                activity["time"] = "agora mesmo"
+            # Remover timestamp do retorno
+            del activity["timestamp"]
+        
+        return activities
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar atividades: {str(e)}")
+
+
 @router.get("/admin/analytics")
 async def get_admin_analytics(
     db: Session = Depends(get_db),
@@ -452,6 +675,74 @@ async def get_admin_analytics(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar analytics: {str(e)}")
+
+
+@router.get("/admin/growth-timeline")
+async def get_growth_timeline(
+    months: int = 6,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """
+    Retorna dados de crescimento ao longo do tempo para o gráfico de linhas.
+    Inclui: usuários novos, redações e receita por mês.
+    """
+    from sqlalchemy import func
+    from datetime import datetime, timedelta
+    from calendar import monthrange
+    
+    try:
+        now = datetime.utcnow()
+        data = []
+        
+        month_names = ['', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
+                      'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+        
+        for i in range(months - 1, -1, -1):
+            # Calcular data do mês
+            month_date = now - timedelta(days=i * 30)
+            year = month_date.year
+            month = month_date.month
+            
+            # Primeiro e último dia do mês
+            first_day = datetime(year, month, 1)
+            last_day_num = monthrange(year, month)[1]
+            last_day = datetime(year, month, last_day_num, 23, 59, 59)
+            
+            # Novos usuários no mês
+            new_users = db.query(func.count(models.User.id)).filter(
+                models.User.created_at >= first_day,
+                models.User.created_at <= last_day
+            ).scalar() or 0
+            
+            # Redações completadas no mês
+            essays = db.query(func.count(models.Submission.id)).filter(
+                models.Submission.submitted_at >= first_day,
+                models.Submission.submitted_at <= last_day,
+                models.Submission.status == "completed"
+            ).scalar() or 0
+            
+            # Receita do mês (em reais)
+            revenue_cents = db.query(func.sum(models.Transaction.price)).filter(
+                models.Transaction.created_at >= first_day,
+                models.Transaction.created_at <= last_day,
+                models.Transaction.status == "approved"
+            ).scalar() or 0
+            revenue = revenue_cents / 100
+            
+            data.append({
+                "month": month_names[month],
+                "year": year,
+                "label": f"{month_names[month]}/{str(year)[2:]}",
+                "users": new_users,
+                "essays": essays,
+                "revenue": round(revenue, 2)
+            })
+        
+        return data
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar timeline: {str(e)}")
 
 
 @router.get("/admin/feedback-stats")

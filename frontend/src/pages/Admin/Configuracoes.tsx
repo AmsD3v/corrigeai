@@ -14,6 +14,9 @@ interface Settings {
     togetherApiKey?: string;
     maintenanceMode: boolean;
     creditValue: number; // Valor por CorriCoin em reais
+    // Gamification settings
+    lessonCooldownHours: number;
+    lessonRepeatXpPercent: number;
     packages: {
         id: string;
         name: string;
@@ -43,6 +46,9 @@ const Configuracoes = () => {
         togetherApiKey: import.meta.env.VITE_TOGETHER_API_KEY || '',
         maintenanceMode: false,
         creditValue: 2.20, // Valor padrão por CorriCoin
+        // Gamification defaults
+        lessonCooldownHours: 168,  // 7 dias padrão
+        lessonRepeatXpPercent: 50, // 50% do XP na repetição
         packages: []
     });
 
@@ -64,7 +70,10 @@ const Configuracoes = () => {
                 geminiApiKey: response.data.gemini_api_key || prev.geminiApiKey,
                 groqApiKey: response.data.groq_api_key || prev.groqApiKey,
                 hfToken: response.data.hf_token || prev.hfToken,
-                togetherApiKey: response.data.together_api_key || prev.togetherApiKey
+                togetherApiKey: response.data.together_api_key || prev.togetherApiKey,
+                // Gamification
+                lessonCooldownHours: response.data.lesson_cooldown_hours ?? prev.lessonCooldownHours,
+                lessonRepeatXpPercent: response.data.lesson_repeat_xp_percent ?? prev.lessonRepeatXpPercent
             }));
         } catch (error) {
             console.error('Error loading settings:', error);
@@ -109,7 +118,10 @@ const Configuracoes = () => {
                 gemini_api_key: settings.geminiApiKey,
                 groq_api_key: settings.groqApiKey,
                 hf_token: settings.hfToken,
-                together_api_key: settings.togetherApiKey
+                together_api_key: settings.togetherApiKey,
+                // Gamification settings
+                lesson_cooldown_hours: settings.lessonCooldownHours,
+                lesson_repeat_xp_percent: settings.lessonRepeatXpPercent
             });
 
             // Save packages to API
@@ -458,6 +470,114 @@ const Configuracoes = () => {
                         {settings.aiProvider === 'huggingface' && 'Obtenha em: https://huggingface.co/settings/tokens'}
                         {settings.aiProvider === 'together' && 'Obtenha em: https://api.together.xyz/settings/api-keys'}
                     </p>
+                </div>
+            </div>
+
+            {/* Gamification Settings */}
+            <div style={{
+                background: '#1a1f2e',
+                border: '1px solid #a78bfa40',
+                borderRadius: '12px',
+                padding: '24px',
+                marginBottom: '24px'
+            }}>
+                <h2 style={{
+                    fontSize: '18px',
+                    fontWeight: '700',
+                    color: '#fff',
+                    marginBottom: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                }}>
+                    🎮 Configurações de Gamificação
+                </h2>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                    {/* Lesson Cooldown */}
+                    <div>
+                        <label style={{
+                            display: 'block',
+                            fontSize: '14px',
+                            color: '#94a3b8',
+                            marginBottom: '8px',
+                            fontWeight: '500'
+                        }}>
+                            ⏰ Tempo de Renovação das Lições (horas)
+                        </label>
+                        <input
+                            type="number"
+                            min="1"
+                            value={settings.lessonCooldownHours}
+                            onChange={(e) => {
+                                const value = Math.max(1, parseInt(e.target.value) || 1);
+                                setSettings(prev => ({ ...prev, lessonCooldownHours: value }));
+                            }}
+                            style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                background: '#0f1419',
+                                border: '1px solid #334155',
+                                borderRadius: '8px',
+                                color: '#fff',
+                                fontSize: '14px'
+                            }}
+                        />
+                        <p style={{
+                            fontSize: '12px',
+                            color: '#64748b',
+                            marginTop: '8px'
+                        }}>
+                            Mínimo: 1 hora. Tempo até a lição estar disponível novamente após conclusão.
+                            <br />
+                            <span style={{ color: '#a78bfa' }}>
+                                Atual: {settings.lessonCooldownHours}h = {Math.floor(settings.lessonCooldownHours / 24)} dias e {settings.lessonCooldownHours % 24}h
+                            </span>
+                        </p>
+                    </div>
+
+                    {/* Repeat XP Percent */}
+                    <div>
+                        <label style={{
+                            display: 'block',
+                            fontSize: '14px',
+                            color: '#94a3b8',
+                            marginBottom: '8px',
+                            fontWeight: '500'
+                        }}>
+                            ✨ XP ao Refazer Lição (%)
+                        </label>
+                        <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={settings.lessonRepeatXpPercent}
+                            onChange={(e) => {
+                                const value = Math.max(0, Math.min(100, parseInt(e.target.value) || 0));
+                                setSettings(prev => ({ ...prev, lessonRepeatXpPercent: value }));
+                            }}
+                            style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                background: '#0f1419',
+                                border: '1px solid #334155',
+                                borderRadius: '8px',
+                                color: '#fff',
+                                fontSize: '14px'
+                            }}
+                        />
+                        <p style={{
+                            fontSize: '12px',
+                            color: '#64748b',
+                            marginTop: '8px'
+                        }}>
+                            Percentual do XP original ao refazer uma lição já concluída.
+                            <br />
+                            <span style={{ color: '#10b981' }}>
+                                Ex: Lição de 100 XP → Repetição dá {settings.lessonRepeatXpPercent} XP
+                            </span>
+                        </p>
+                    </div>
                 </div>
             </div>
 

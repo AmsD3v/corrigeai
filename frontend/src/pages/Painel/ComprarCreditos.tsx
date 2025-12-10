@@ -343,25 +343,6 @@ const ComprarCreditos = () => {
                             PIX: Instantâneo | Cartão: Até 2 minutos | Boleto: Até 2 dias úteis
                         </div>
                     </div>
-
-                    <div>
-                        <div style={{
-                            fontSize: '16px',
-                            fontWeight: '600',
-                            color: '#fff',
-                            marginBottom: '8px'
-                        }}>
-                            ♾️ Créditos Vitalícios
-                        </div>
-                        <div style={{
-                            fontSize: '14px',
-                            color: '#94a3b8',
-                            lineHeight: '1.6'
-                        }}>
-                            Seus créditos nunca expiram! Use quando quiser, sem prazo de validade.
-                        </div>
-                    </div>
-
                     <div>
                         <div style={{
                             fontSize: '16px',

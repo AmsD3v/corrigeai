@@ -109,6 +109,17 @@ async def process_correction(submission_id: int, db: Session):
         if ai_total > 0 and abs(ai_total - calculated_total) < 10:
             final_total = ai_total
 
+        # Create criteria snapshot for consistent display
+        from .exam_criteria import get_exam_criteria
+        criteria = get_exam_criteria(exam_type)
+        criteria_snapshot = json.dumps({
+            "exam_type": exam_type,
+            "short_name": criteria.short_name,
+            "max_score": criteria.max_score,
+            "competencies": criteria.competencies,
+            "weights": [float(w) for w in criteria.weights]
+        }, ensure_ascii=False)
+        
         # Save correction
         db_correction = models.Correction(
             submission_id=submission.id,
@@ -125,7 +136,8 @@ async def process_correction(submission_id: int, db: Session):
             competence_5_feedback=correction_data.get('competence_5_feedback', 'Sem feedback'),
             strengths=strengths,
             improvements=improvements,
-            general_comments=correction_data.get('general_comments', 'Sem comentários gerais')
+            general_comments=correction_data.get('general_comments', 'Sem comentários gerais'),
+            criteria_snapshot=criteria_snapshot
         )
         
         db.add(db_correction)
@@ -135,6 +147,16 @@ async def process_correction(submission_id: int, db: Session):
         print(f"   - Total score sendo salvo: {db_correction.total_score}")
         submission.status = "completed"
         db.commit()
+        
+        # ===== CHECK AND UNLOCK ACHIEVEMENTS =====
+        try:
+            from .routers.gamification import check_exam_achievements
+            unlocked = check_exam_achievements(db, submission.owner_id, exam_type, db_correction.total_score)
+            if unlocked:
+                print(f"🏆 Conquistas desbloqueadas: {[a['name'] for a in unlocked]}")
+        except Exception as ach_error:
+            logger.warning(f"⚠️ Erro ao verificar conquistas: {ach_error}")
+        # ==========================================
         
         logger.info(f"✅ Correção concluída para submissão {submission_id}")
         print(f"✅ ==== CORRECTION COMPLETED ====\n")

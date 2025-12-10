@@ -11,7 +11,7 @@ const Feedback = () => {
     const maxChars = 1000;
 
     const feedbackTypes = [
-        { value: 'sugestao', label: 'Sug estão' },
+        { value: 'sugestao', label: 'Sugestão' },
         { value: 'bug', label: 'Reportar Bug' },
         { value: 'reclamacao', label: 'Reclamação' },
         { value: 'elogio', label: 'Elogio' },
@@ -41,7 +41,25 @@ const Feedback = () => {
             setMessage('');
         } catch (error: any) {
             console.error('Erro ao enviar feedback:', error);
-            const errorMsg = error.response?.data?.detail || 'Erro ao enviar feedback. Tente novamente mais tarde.';
+            // FastAPI validation errors come as array in detail
+            let errorMsg = 'Erro ao enviar feedback. Tente novamente mais tarde.';
+
+            if (error.response?.data?.detail) {
+                const detail = error.response.data.detail;
+                if (Array.isArray(detail)) {
+                    // Pydantic validation errors
+                    errorMsg = detail.map((e: any) => {
+                        const msg = e.msg || e.message || String(e);
+                        // Remove 'Value error, ' prefix from Pydantic messages
+                        return msg.replace(/^Value error,\s*/i, '');
+                    }).join('. ');
+                } else if (typeof detail === 'string') {
+                    errorMsg = detail;
+                } else if (detail.msg) {
+                    errorMsg = detail.msg;
+                }
+            }
+
             setErrorMessage(errorMsg);
         } finally {
             setIsSubmitting(false);

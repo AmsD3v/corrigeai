@@ -20,6 +20,7 @@ interface Correction {
     strengths: string[] | string;
     improvements: string[] | string;
     general_comments: string;
+    criteria_snapshot?: string;  // JSON com critérios usados na correção
 }
 
 interface Essay {
@@ -379,9 +380,30 @@ const RedacaoDetalhes = () => {
         );
     }
 
-    // Determine current exam criteria
-    const currentExamKey = essay.exam_type?.toLowerCase() || 'enem';
-    const currentExam = EXAM_CRITERIA[currentExamKey] || EXAM_CRITERIA['enem'];
+    // Determine current exam criteria - PRIORIZA criteria_snapshot da correção
+    let currentExam: { name: string; max_score: number; competencies: string[]; weights: number[] };
+
+    if (essay.correction?.criteria_snapshot) {
+        try {
+            const snapshot = JSON.parse(essay.correction.criteria_snapshot);
+            currentExam = {
+                name: snapshot.short_name || 'ENEM',
+                max_score: snapshot.max_score || 1000,
+                competencies: snapshot.competencies || [],
+                weights: snapshot.weights || []
+            };
+            console.log('📌 Using criteria_snapshot:', currentExam.name);
+        } catch (e) {
+            console.warn('Failed to parse criteria_snapshot, using fallback:', e);
+            const currentExamKey = essay.exam_type?.toLowerCase() || 'enem';
+            currentExam = EXAM_CRITERIA[currentExamKey] || EXAM_CRITERIA['enem'];
+        }
+    } else {
+        // Fallback para EXAM_CRITERIA local (correções antigas)
+        const currentExamKey = essay.exam_type?.toLowerCase() || 'enem';
+        currentExam = EXAM_CRITERIA[currentExamKey] || EXAM_CRITERIA['enem'];
+        console.log('📌 Using local EXAM_CRITERIA fallback:', currentExam.name);
+    }
 
     const getScoreColor = (score: number, max: number = 200) => {
         const percentage = score / max;
@@ -588,14 +610,16 @@ const RedacaoDetalhes = () => {
                                     </div>
 
                                     {(() => {
-                                        // Parse feedback sections with flexible regex
-                                        // Accepts variations: "✅ Pontos Fortes:", "✅Pontos Fortes", etc.
-                                        const pontosMatch = feedback?.match(/✅\s*Pontos?\s*Fortes?:?\s*([\s\S]*?)(?=⚠️|$)/i);
-                                        const melhoriasMatch = feedback?.match(/⚠️\s*O?\s*que\s*melhorar:?\s*([\s\S]*?)$/i);
+                                        // Parse feedback sections with VERY flexible regex
+                                        // Accepts: "✅ Pontos Fortes:", "Pontos Fortes:", "✅Pontos Fortes", etc.
+                                        // Emoji is now OPTIONAL via (?:✅\s*)?
+                                        const pontosMatch = feedback?.match(/(?:✅\s*)?Pontos?\s*Fortes?:?\s*([\s\S]*?)(?=(?:⚠️\s*)?O\s*que\s*melhorar|⚠️|💎|$)/i);
+                                        const melhoriasMatch = feedback?.match(/(?:⚠️\s*)?O?\s*que\s*melhorar:?\s*([\s\S]*?)(?=💎|$)/i);
 
-                                        // Extract analysis (everything before ✅)
-                                        const analiseMatch = feedback?.match(/^([\s\S]*?)(?=✅)/);
+                                        // Extract analysis (everything before ✅ or "Pontos Fortes")
+                                        const analiseMatch = feedback?.match(/^([\s\S]*?)(?=(?:✅\s*)?Pontos?\s*Fortes?|💎)/i);
                                         let analise = analiseMatch?.[1]?.replace(/Análise:?|📊.*?:/gi, '').trim() || '';
+
                                         const pontosFortes = pontosMatch?.[1]?.trim() || '';
                                         const melhorias = melhoriasMatch?.[1]?.trim() || '';
 

@@ -1,0 +1,22 @@
+{
+    "name": "CorrigeAI - Correção de Redação com IA",
+    "short_name": "CorrigeAI",
+    "description": "Corrija suas redações com inteligência artificial para ENEM e vestibulares",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#4F46E5",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

@@ -45,7 +45,7 @@ function App() {
       <Routes>
         <Route path="/" element={token ? <Navigate to="/painel" /> : <LandingPage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/cadastro" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 

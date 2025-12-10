@@ -17,15 +17,42 @@ const AIProfessorChat = ({ submissionId }: AIProfessorChatProps) => {
     const [inputMessage, setInputMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [messagesRemaining, setMessagesRemaining] = useState(10);
+    const [isMobile, setIsMobile] = useState(false);
+    const [historyLoaded, setHistoryLoaded] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    // Detectar mobile
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // Auto-scroll to bottom
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    // Removed: No longer loads welcome message automatically
-    // The welcome message will come with the first user message
+    // Load chat history when opened
+    useEffect(() => {
+        if (isOpen && !historyLoaded) {
+            loadChatHistory();
+        }
+    }, [isOpen]);
+
+    const loadChatHistory = async () => {
+        try {
+            const response = await api.get(`/ai-tutor/history/${submissionId}`);
+            setMessages(response.data.messages || []);
+            setMessagesRemaining(response.data.messages_remaining || 10);
+            setHistoryLoaded(true);
+        } catch (error) {
+            console.error('Erro ao carregar histórico:', error);
+            setHistoryLoaded(true); // Mark as loaded even on error to prevent retry loop
+        }
+    };
+
 
     const sendMessage = async () => {
         if (!inputMessage.trim() || isLoading) return;
@@ -54,20 +81,23 @@ const AIProfessorChat = ({ submissionId }: AIProfessorChatProps) => {
                 onClick={() => setIsOpen(true)}
                 style={{
                     position: 'fixed',
-                    bottom: '24px',
-                    right: '24px',
+                    bottom: isMobile ? '16px' : '24px',
+                    right: isMobile ? '16px' : '24px',
                     background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '50px',
-                    padding: '14px 24px',
+                    borderRadius: isMobile ? '50%' : '50px',
+                    padding: isMobile ? '14px' : '14px 24px',
+                    width: isMobile ? '56px' : 'auto',
+                    height: isMobile ? '56px' : 'auto',
                     fontSize: '14px',
                     fontWeight: '600',
                     cursor: 'pointer',
                     boxShadow: '0 8px 20px rgba(79, 70, 229, 0.4)',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
+                    justifyContent: 'center',
+                    gap: isMobile ? '0' : '10px',
                     zIndex: 1000,
                     transition: 'all 0.3s ease'
                 }}
@@ -80,8 +110,8 @@ const AIProfessorChat = ({ submissionId }: AIProfessorChatProps) => {
                     e.currentTarget.style.boxShadow = '0 8px 20px rgba(79, 70, 229, 0.4)';
                 }}
             >
-                <span style={{ fontSize: '20px' }}>🎓</span>
-                Professor IA precisa de ajuda?
+                <span style={{ fontSize: isMobile ? '24px' : '20px' }}>🎓</span>
+                {!isMobile && 'Professor IA precisa de ajuda?'}
             </button>
         );
     }
@@ -89,14 +119,17 @@ const AIProfessorChat = ({ submissionId }: AIProfessorChatProps) => {
     return (
         <div style={{
             position: 'fixed',
-            bottom: '24px',
-            right: '24px',
-            width: '400px',
-            height: '600px',
+            bottom: isMobile ? '0' : '24px',
+            right: isMobile ? '0' : '24px',
+            left: isMobile ? '0' : 'auto',
+            top: isMobile ? '0' : 'auto',
+            width: isMobile ? '100%' : '400px',
+            height: isMobile ? '100%' : '600px',
+            maxWidth: isMobile ? '100vw' : '400px',
             background: '#1a1f2e',
-            border: '1px solid #334155',
-            borderRadius: '16px',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+            border: isMobile ? 'none' : '1px solid #334155',
+            borderRadius: isMobile ? '0' : '16px',
+            boxShadow: isMobile ? 'none' : '0 20px 60px rgba(0, 0, 0, 0.5)',
             display: 'flex',
             flexDirection: 'column',
             zIndex: 1000,

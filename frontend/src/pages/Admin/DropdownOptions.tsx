@@ -16,7 +16,9 @@ const CATEGORIES = [
     { value: 'school_level', label: 'Ano/Nível Escolar' },
     { value: 'enem_attempts', label: 'Tentativas ENEM' },
     { value: 'main_goal', label: 'Objetivo Principal' },
-    { value: 'study_method', label: 'Método de Estudo' }
+    { value: 'study_method', label: 'Método de Estudo' },
+    { value: 'state', label: 'Estado' },
+    { value: 'city', label: 'Cidade' }
 ];
 
 const DropdownOptionsAdmin = () => {
