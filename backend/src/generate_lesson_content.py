@@ -114,6 +114,7 @@ IMPORTANTE:
             return None
         except Exception as e:
             error_str = str(e)
+            print(f"  🔍 Debug - Erro: {error_str[:200]}")  # Log primeiro 200 chars do erro
             if "429" in error_str or "quota" in error_str.lower() or "rate" in error_str.lower():
                 wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
                 print(f"  ⏳ Rate limit! Aguardando {wait_time}s...")
