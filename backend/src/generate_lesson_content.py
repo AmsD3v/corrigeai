@@ -1,6 +1,6 @@
 """
 Script para gerar conteúdo completo (explicação + quiz) para todas as lições.
-Usa a API do Groq para gerar explicações detalhadas das competências e 3 perguntas de quiz.
+Usa a API do Google Gemini para gerar explicações detalhadas das competências e 3 perguntas de quiz.
 """
 import os
 import sys
@@ -15,11 +15,11 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:CorrigeAI20
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# API Key do Groq
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+# API Key do Gemini
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 
-def generate_lesson_content(client, exam_type: str, competency_name: str, lesson_type: str, lesson_order: int) -> dict:
+def generate_lesson_content(model, exam_type: str, competency_name: str, lesson_type: str, lesson_order: int) -> dict:
     """
     Gera conteúdo completo da lição: explicação + quiz
     lesson_type: 'Introdução', 'Praticando', 'Aprofundando', 'Erros Comuns', 'Dominando'
@@ -79,18 +79,12 @@ IMPORTANTE:
 - As perguntas devem testar compreensão real, não apenas memorização
 - Use linguagem clara e acessível
 - O campo "correct" é o índice (0-3) da alternativa correta
+- Responda APENAS com o JSON, sem texto adicional
 """
     
     try:
-        from groq import Groq
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,
-            max_tokens=2000
-        )
-        
-        response_text = response.choices[0].message.content.strip()
+        response = model.generate_content(prompt)
+        response_text = response.text.strip()
         
         # Extrair JSON da resposta
         if "```json" in response_text:
@@ -120,12 +114,14 @@ IMPORTANTE:
 
 
 def main():
-    if not GROQ_API_KEY:
-        print("❌ GROQ_API_KEY não configurada!")
+    if not GEMINI_API_KEY:
+        print("❌ GEMINI_API_KEY não configurada!")
         return
     
-    from groq import Groq
-    client = Groq(api_key=GROQ_API_KEY)
+    import google.generativeai as genai
+    genai.configure(api_key=GEMINI_API_KEY)
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    
     db = SessionLocal()
     
     try:
@@ -161,7 +157,7 @@ def main():
             
             print(f"\n[{i+1}/{len(lessons)}] {exam_type.upper()} C{competency} L{order}: {competency_name[:40]}...")
             
-            result = generate_lesson_content(client, exam_type, competency_name, title, order)
+            result = generate_lesson_content(model, exam_type, competency_name, title, order)
             
             if result:
                 # Salvar no banco
@@ -178,8 +174,8 @@ def main():
             else:
                 error_count += 1
             
-            # Rate limiting - esperar 1.5 segundos entre requisições
-            time.sleep(1.5)
+            # Rate limiting - esperar 0.5 segundos entre requisições (Gemini é mais rápido)
+            time.sleep(0.5)
         
         print(f"\n\n{'='*50}")
         print(f"✅ Lições atualizadas com sucesso: {success_count}")
