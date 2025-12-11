@@ -161,3 +161,14 @@ app.include_router(gamification.router, tags=["gamification"])
 # Exam Criteria router (centralizes vestibular criteria for frontend)
 from .routers import exam_criteria_router
 app.include_router(exam_criteria_router.router, tags=["exam-criteria"])
+
+# Blog router
+from .routers import blog
+app.include_router(blog.router, prefix="/api/blog", tags=["blog"])
+
+# Serve uploaded files (blog images)
+from fastapi.staticfiles import StaticFiles
+import os
+upload_dir = "/app/uploads"
+if os.path.exists(upload_dir):
+    app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")

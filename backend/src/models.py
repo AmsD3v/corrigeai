@@ -327,3 +327,62 @@ class ChatMessage(Base):
     content = Column(Text, nullable=False)
     
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+# ==================== BLOG SYSTEM ====================
+
+class BlogTag(Base):
+    """Blog post tags/categories"""
+    __tablename__ = "blog_tag"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False, unique=True, index=True)
+    slug = Column(String, nullable=False, unique=True, index=True)
+    color = Column(String, default="#4F46E5")  # Hex color for tag display
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    posts = relationship("BlogPost", secondary="blog_post_tag", back_populates="tags")
+
+
+class BlogPost(Base):
+    """Blog posts for SEO content"""
+    __tablename__ = "blog_post"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False, index=True)
+    slug = Column(String, nullable=False, unique=True, index=True)
+    excerpt = Column(Text, nullable=True)  # Short description for listing
+    content = Column(Text, nullable=False)  # Markdown content
+    cover_image = Column(String, nullable=True)  # URL to cover image
+    
+    # SEO fields
+    meta_title = Column(String, nullable=True)
+    meta_description = Column(String, nullable=True)
+    
+    # Publishing
+    is_published = Column(Boolean, default=False)
+    published_at = Column(DateTime, nullable=True)
+    
+    # Author
+    author_id = Column(Integer, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    author = relationship("User")
+    tags = relationship("BlogTag", secondary="blog_post_tag", back_populates="posts")
+
+
+# Association table for many-to-many relationship between BlogPost and BlogTag
+from sqlalchemy import Table
+blog_post_tag = Table(
+    'blog_post_tag',
+    Base.metadata,
+    Column('post_id', Integer, ForeignKey('blog_post.id', ondelete='CASCADE'), primary_key=True),
+    Column('tag_id', Integer, ForeignKey('blog_tag.id', ondelete='CASCADE'), primary_key=True)
+)

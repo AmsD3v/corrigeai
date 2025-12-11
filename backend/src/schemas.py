@@ -386,3 +386,79 @@ class CorrectionFeedbackResponse(BaseModel):
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
+
+
+# ==================== BLOG SCHEMAS ====================
+
+class BlogTagBase(BaseModel):
+    name: str
+    slug: str
+    color: Optional[str] = "#4F46E5"
+
+class BlogTagCreate(BlogTagBase):
+    pass
+
+class BlogTagResponse(BlogTagBase):
+    id: int
+    created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class BlogPostBase(BaseModel):
+    title: str
+    slug: str
+    excerpt: Optional[str] = None
+    content: str
+    cover_image: Optional[str] = None
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+    is_published: bool = False
+    tag_ids: Optional[List[int]] = []
+
+class BlogPostCreate(BlogPostBase):
+    pass
+
+class BlogPostUpdate(BaseModel):
+    title: Optional[str] = None
+    slug: Optional[str] = None
+    excerpt: Optional[str] = None
+    content: Optional[str] = None
+    cover_image: Optional[str] = None
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+    is_published: Optional[bool] = None
+    tag_ids: Optional[List[int]] = None
+
+class BlogPostResponse(BaseModel):
+    id: int
+    title: str
+    slug: str
+    excerpt: Optional[str] = None
+    content: str
+    cover_image: Optional[str] = None
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+    is_published: bool
+    published_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+    author_id: Optional[int] = None
+    tags: List[BlogTagResponse] = []
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class BlogPostListResponse(BaseModel):
+    """Simplified response for listing posts"""
+    id: int
+    title: str
+    slug: str
+    excerpt: Optional[str] = None
+    cover_image: Optional[str] = None
+    is_published: bool
+    published_at: Optional[datetime] = None
+    created_at: datetime
+    tags: List[BlogTagResponse] = []
+    
+    model_config = ConfigDict(from_attributes=True)

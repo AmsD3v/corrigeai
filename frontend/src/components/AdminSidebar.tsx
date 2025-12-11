@@ -19,6 +19,7 @@ const AdminSidebar = ({ activePage }: AdminSidebarProps) => {
         { path: '/admin/configuracoes', label: 'Configurações', icon: '⚙️' },
         { path: '/admin/analytics', label: 'Analytics', icon: '📈' },
         { path: '/admin/feedback-stats', label: 'Feedback Stats', icon: '💬' },
+        { path: '/admin/blog', label: 'Blog', icon: '📰' },
     ];
 
     const handleLogout = () => {

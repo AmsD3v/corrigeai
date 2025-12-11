@@ -31,6 +31,10 @@ import FeedbackStats from './pages/Admin/FeedbackStats';
 import PagamentoSucesso from './pages/Painel/PagamentoSucesso';
 import PagamentoFalha from './pages/Painel/PagamentoFalha';
 import PagamentoPendente from './pages/Painel/PagamentoPendente';
+import Blog from './pages/Blog';
+import BlogPostPage from './pages/BlogPost';
+import BlogAdmin from './pages/Admin/BlogAdmin';
+import BlogEditor from './pages/Admin/BlogEditor';
 
 
 
@@ -48,6 +52,10 @@ function App() {
         <Route path="/cadastro" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+        {/* Blog Público */}
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
 
         {/* Rotas Protegidas */}
         <Route element={<ProtectedRoute />}>
@@ -78,6 +86,9 @@ function App() {
           <Route path="/admin/analytics" element={<Analytics />} />
           <Route path="/admin/dropdown-options" element={<DropdownOptions />} />
           <Route path="/admin/feedback-stats" element={<FeedbackStats />} />
+          <Route path="/admin/blog" element={<BlogAdmin />} />
+          <Route path="/admin/blog/novo" element={<BlogEditor />} />
+          <Route path="/admin/blog/editar/:id" element={<BlogEditor />} />
         </Route>
 
       </Routes>
