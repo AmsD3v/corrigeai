@@ -484,11 +484,12 @@ async def get_achievements(
     # Get user's gamification profile
     profile = get_or_create_gamification(db, current_user.id)
     
-    # Calculate stats for the selected exam type
+    # Calculate stats for the selected exam type ONLY
     # Essays count for this specific exam type
     essays_for_exam = db.query(func.count(models.Submission.id)).filter(
         models.Submission.owner_id == current_user.id,
-        models.Submission.exam_type == exam_type.lower()
+        models.Submission.exam_type == exam_type.lower(),
+        models.Submission.status == "completed"
     ).scalar() or 0
     
     # Max score for this specific exam type
@@ -508,37 +509,29 @@ async def get_achievements(
         models.Lesson.exam_type == exam_type.lower()
     ).scalar() or 0
     
-    # Global essays count (for global achievements)
-    global_essays = db.query(func.count(models.Submission.id)).filter(
-        models.Submission.owner_id == current_user.id
-    ).scalar() or 0
+    logging.info(f"🔍 get_achievements: user={current_user.id}, exam={exam_type}, essays={essays_for_exam}, max_score={max_score_for_exam}, lessons={lessons_for_exam}")
     
     result = []
     newly_unlocked = []  # Track newly unlocked achievements
     
     for a in achievements:
-        # Determine if unlocked based on achievement type and exam_type
+        # Determine if unlocked based on exam-specific stats
+        # ALL achievements (global or specific) are evaluated against the selected exam_type
         is_unlocked = False
         was_already_unlocked = a.id in unlocked_ids
         
-        if a.exam_type is None:
-            # Global achievement - use global stats or profile
-            if a.condition_type == "essays_count":
-                is_unlocked = global_essays >= a.condition_value
-            elif a.condition_type == "streak":
-                is_unlocked = profile.current_streak >= a.condition_value
-            else:
-                is_unlocked = was_already_unlocked
+        # Use exam-specific stats for ALL achievements when viewing a specific exam
+        if a.condition_type == "essays_submitted":
+            is_unlocked = essays_for_exam >= a.condition_value
+        elif a.condition_type == "score_achieved":
+            is_unlocked = max_score_for_exam >= a.condition_value
+        elif a.condition_type == "lessons_completed":
+            is_unlocked = lessons_for_exam >= a.condition_value
+        elif a.condition_type == "streak_days":
+            # Streak is global, not per exam
+            is_unlocked = profile.current_streak >= a.condition_value
         else:
-            # Exam-specific achievement - use exam-specific stats
-            if a.condition_type == "essays_count":
-                is_unlocked = essays_for_exam >= a.condition_value
-            elif a.condition_type == "score":
-                is_unlocked = max_score_for_exam >= a.condition_value
-            elif a.condition_type == "lessons":
-                is_unlocked = lessons_for_exam >= a.condition_value
-            else:
-                is_unlocked = was_already_unlocked
+            is_unlocked = was_already_unlocked
         
         # PERSIST newly unlocked achievement and add XP
         if is_unlocked and not was_already_unlocked:
