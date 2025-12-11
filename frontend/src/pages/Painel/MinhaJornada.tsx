@@ -967,23 +967,18 @@ const LessonModal = ({ lesson, onClose, onComplete }: { lesson: any, onClose: ()
                             </button>
                         )}
                         {quiz.length === 0 && (
-                            <button
-                                onClick={() => onComplete(lesson.id, 100)}
-                                style={{
-                                    width: '100%',
-                                    padding: '16px',
-                                    background: '#10b981',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    color: '#fff',
-                                    fontSize: '16px',
-                                    fontWeight: '600',
-                                    cursor: 'pointer',
-                                    marginTop: '24px'
-                                }}
-                            >
-                                ✅ Marcar como Concluída
-                            </button>
+                            <div style={{
+                                padding: '16px',
+                                background: 'rgba(234, 179, 8, 0.1)',
+                                border: '1px solid rgba(234, 179, 8, 0.3)',
+                                borderRadius: '8px',
+                                color: '#fbbf24',
+                                fontSize: '14px',
+                                textAlign: 'center',
+                                marginTop: '24px'
+                            }}>
+                                ⚠️ Quiz sendo gerado. Tente novamente em alguns minutos.
+                            </div>
                         )}
                     </>
                 )}
