@@ -44,8 +44,8 @@ const TopBar = ({ userCredits = 0, userCoins = 0 }: TopBarProps) => {
                 className="flex items-center gap-3 cursor-pointer"
                 onClick={() => navigate('/painel')}
             >
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#4F46E5] to-[#818cf8] rounded-lg flex items-center justify-center text-xl md:text-2xl">
-                    🦉
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#4F46E5] to-[#818cf8] rounded-lg flex items-center justify-center overflow-hidden">
+                    <img src="/owl_custom.png" alt="Logo" className="w-full h-full object-cover" />
                 </div>
                 <span className="hidden sm:inline text-lg md:text-xl font-bold text-white">
                     Corrige<span className="text-[#4F46E5]">AI</span>

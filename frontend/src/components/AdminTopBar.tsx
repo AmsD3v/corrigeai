@@ -29,9 +29,12 @@ const AdminTopBar = () => {
                 }}
             >
                 <div style={{
-                    fontSize: '28px'
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '8px',
+                    overflow: 'hidden'
                 }}>
-                    🦉
+                    <img src="/owl_custom.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 <div>
                     <div style={{
