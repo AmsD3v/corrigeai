@@ -82,35 +82,49 @@ IMPORTANTE:
 - Responda APENAS com o JSON, sem texto adicional
 """
     
-    try:
-        response = model.generate_content(prompt)
-        response_text = response.text.strip()
-        
-        # Extrair JSON da resposta
-        if "```json" in response_text:
-            response_text = response_text.split("```json")[1].split("```")[0].strip()
-        elif "```" in response_text:
-            response_text = response_text.split("```")[1].split("```")[0].strip()
-        
-        result = json.loads(response_text)
-        
-        # Validar estrutura
-        if "content" not in result or "quiz" not in result:
-            print(f"  ⚠️ Resposta inválida: faltam campos")
-            return None
+    max_retries = 3
+    retry_delay = 60  # Start with 60 seconds
+    
+    for attempt in range(max_retries):
+        try:
+            response = model.generate_content(prompt)
+            response_text = response.text.strip()
             
-        if not isinstance(result["quiz"], list) or len(result["quiz"]) != 3:
-            print(f"  ⚠️ Quiz inválido: não tem 3 perguntas")
-            return None
+            # Extrair JSON da resposta
+            if "```json" in response_text:
+                response_text = response_text.split("```json")[1].split("```")[0].strip()
+            elif "```" in response_text:
+                response_text = response_text.split("```")[1].split("```")[0].strip()
             
-        return result
-        
-    except json.JSONDecodeError as e:
-        print(f"  ❌ Erro ao parsear JSON: {e}")
-        return None
-    except Exception as e:
-        print(f"  ❌ Erro ao gerar conteúdo: {e}")
-        return None
+            result = json.loads(response_text)
+            
+            # Validar estrutura
+            if "content" not in result or "quiz" not in result:
+                print(f"  ⚠️ Resposta inválida: faltam campos")
+                return None
+                
+            if not isinstance(result["quiz"], list) or len(result["quiz"]) != 3:
+                print(f"  ⚠️ Quiz inválido: não tem 3 perguntas")
+                return None
+                
+            return result
+            
+        except json.JSONDecodeError as e:
+            print(f"  ❌ Erro ao parsear JSON: {e}")
+            return None
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "quota" in error_str.lower() or "rate" in error_str.lower():
+                wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
+                print(f"  ⏳ Rate limit! Aguardando {wait_time}s...")
+                time.sleep(wait_time)
+                continue
+            else:
+                print(f"  ❌ Erro ao gerar conteúdo: {e}")
+                return None
+    
+    print(f"  ❌ Falhou após {max_retries} tentativas")
+    return None
 
 
 def main():
