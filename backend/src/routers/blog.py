@@ -289,3 +289,73 @@ async def upload_image(
     
     # Return URL (adjust based on your server configuration)
     return {"url": f"/uploads/blog/{filename}"}
+
+
+# ==================== AI IMAGE GENERATION ====================
+
+from pydantic import BaseModel
+import httpx
+import base64
+
+class GenerateImageRequest(BaseModel):
+    title: str
+    excerpt: Optional[str] = None
+
+@router.post("/admin/generate-cover-image")
+async def generate_cover_image(
+    request: GenerateImageRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Generate a cover image for blog post using Stability AI (admin only)"""
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Acesso negado")
+    
+    try:
+        from ..core.config import settings
+        
+        # Create prompt for image generation
+        prompt = f"""Professional blog cover image for educational article about:
+{request.title}
+{request.excerpt if request.excerpt else ''}
+
+Style: Modern, clean, minimalist design. Blue and purple gradient colors.
+Professional educational blog about writing and exam preparation.
+No text in the image. Abstract, conceptual visualization."""
+
+        # Stability AI API call
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.stability.ai/v2beta/stable-image/generate/core",
+                headers={
+                    "Authorization": f"Bearer {settings.STABILITY_API_KEY}",
+                    "Accept": "image/*"
+                },
+                files={"none": ''},
+                data={
+                    "prompt": prompt,
+                    "output_format": "png",
+                    "aspect_ratio": "16:9"
+                },
+                timeout=60.0
+            )
+        
+        if response.status_code == 200:
+            # Save the generated image
+            os.makedirs(UPLOAD_DIR, exist_ok=True)
+            filename = f"ai_{uuid.uuid4()}.png"
+            filepath = os.path.join(UPLOAD_DIR, filename)
+            
+            # Save image bytes
+            with open(filepath, "wb") as f:
+                f.write(response.content)
+            
+            return {"url": f"/uploads/blog/{filename}"}
+        else:
+            error_detail = response.text
+            print(f"Stability AI Error: {response.status_code} - {error_detail}")
+            raise HTTPException(status_code=500, detail=f"Erro ao gerar imagem: {error_detail}")
+            
+    except Exception as e:
+        print(f"Erro ao gerar imagem: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro ao gerar imagem: {str(e)}")

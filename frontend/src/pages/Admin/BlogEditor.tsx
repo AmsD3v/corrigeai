@@ -37,6 +37,7 @@ const BlogEditor = () => {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [generatingImage, setGeneratingImage] = useState(false);
     const [showPreview, setShowPreview] = useState(true);
 
     useEffect(() => {
@@ -146,6 +147,27 @@ const BlogEditor = () => {
             alert('Erro ao fazer upload da imagem');
         } finally {
             setUploading(false);
+        }
+    };
+
+    const handleGenerateImage = async () => {
+        if (!title.trim()) {
+            alert('Digite um título primeiro para gerar a imagem');
+            return;
+        }
+
+        try {
+            setGeneratingImage(true);
+            const response = await api.post('/api/blog/admin/generate-cover-image', {
+                title,
+                excerpt: excerpt || null
+            });
+            setCoverImage(response.data.url);
+        } catch (error: any) {
+            console.error('Erro ao gerar imagem:', error);
+            alert(error.response?.data?.detail || 'Erro ao gerar imagem com IA');
+        } finally {
+            setGeneratingImage(false);
         }
     };
 
@@ -339,6 +361,23 @@ const BlogEditor = () => {
                                 }}
                             >
                                 {uploading ? 'Enviando...' : '📷 Upload'}
+                            </button>
+                            <button
+                                onClick={handleGenerateImage}
+                                disabled={generatingImage || !title.trim()}
+                                style={{
+                                    padding: '10px 16px',
+                                    background: generatingImage ? '#334155' : 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    color: '#fff',
+                                    cursor: (generatingImage || !title.trim()) ? 'not-allowed' : 'pointer',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    opacity: !title.trim() ? 0.5 : 1
+                                }}
+                            >
+                                {generatingImage ? '⏳ Gerando...' : '🎨 Gerar com IA'}
                             </button>
                             <input
                                 type="text"
