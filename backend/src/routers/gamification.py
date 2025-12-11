@@ -125,13 +125,13 @@ def check_achievements(db: Session, user_id: int) -> list:
     for achievement in achievements:
         earned = False
         
-        if achievement.condition_type == "essays_count" and essays_count >= achievement.condition_value:
+        if achievement.condition_type == "essays_submitted" and essays_count >= achievement.condition_value:
             earned = True
-        elif achievement.condition_type == "score" and max_score >= achievement.condition_value:
+        elif achievement.condition_type == "score_achieved" and max_score >= achievement.condition_value:
             earned = True
-        elif achievement.condition_type == "streak" and profile.current_streak >= achievement.condition_value:
+        elif achievement.condition_type == "streak_days" and profile.current_streak >= achievement.condition_value:
             earned = True
-        elif achievement.condition_type == "lessons" and profile.lessons_completed >= achievement.condition_value:
+        elif achievement.condition_type == "lessons_completed" and profile.lessons_completed >= achievement.condition_value:
             earned = True
         
         if earned:
@@ -194,9 +194,9 @@ def check_exam_achievements(db: Session, user_id: int, exam_type: str, score: in
     for achievement in achievements:
         earned = False
         
-        if achievement.condition_type == "essays_count" and essays_for_exam >= achievement.condition_value:
+        if achievement.condition_type == "essays_submitted" and essays_for_exam >= achievement.condition_value:
             earned = True
-        elif achievement.condition_type == "score" and score >= achievement.condition_value:
+        elif achievement.condition_type == "score_achieved" and score >= achievement.condition_value:
             earned = True
         
         if earned:
