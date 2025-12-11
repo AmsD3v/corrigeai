@@ -227,6 +227,136 @@ def check_exam_achievements(db: Session, user_id: int, exam_type: str, score: in
     return unlocked
 
 
+def process_essay_completed(db: Session, user_id: int, exam_type: str, score: int) -> dict:
+    """
+    Process gamification rewards when an essay is corrected.
+    Called from correction_service.py after saving correction.
+    
+    Returns dict with:
+    - xp_earned: Total XP earned
+    - new_level: New level if leveled up
+    - achievements: List of new achievements
+    - challenges_completed: List of completed challenges
+    """
+    result = {
+        "xp_earned": 0,
+        "new_level": None,
+        "level_up": False,
+        "achievements": [],
+        "challenges_completed": []
+    }
+    
+    try:
+        # Get or create gamification profile
+        profile = get_or_create_gamification(db, user_id)
+        old_level, _, _, _ = calculate_level(profile.xp_total)
+        
+        # === 1. BASE XP FOR ESSAY ===
+        base_xp = 25  # Base XP for any correction
+        
+        # Bonus XP based on score (0-1000)
+        bonus_xp = int(score / 40)  # Up to 25 bonus XP for 1000 score
+        
+        total_xp = base_xp + bonus_xp
+        profile.xp_total += total_xp
+        result["xp_earned"] = total_xp
+        
+        logging.info(f"📝 Correção processada: +{total_xp} XP (base: {base_xp}, bônus: {bonus_xp})")
+        
+        # === 2. UPDATE STREAK ===
+        update_streak(db, profile)
+        
+        # === 3. CHECK GLOBAL ACHIEVEMENTS ===
+        global_achievements = check_achievements(db, user_id)
+        
+        # === 4. CHECK EXAM-SPECIFIC ACHIEVEMENTS ===
+        exam_achievements = check_exam_achievements(db, user_id, exam_type, score)
+        
+        result["achievements"] = global_achievements + exam_achievements
+        
+        # === 5. UPDATE CHALLENGE PROGRESS ===
+        today = datetime.utcnow()
+        
+        # Find active challenges with action_type = 'essay'
+        active_challenges = db.query(models.Challenge).filter(
+            models.Challenge.is_active == True,
+            models.Challenge.action_type == "essay"
+        ).all()
+        
+        for challenge in active_challenges:
+            # Determine period start based on challenge type
+            if challenge.challenge_type == "daily":
+                period_start = today.replace(hour=0, minute=0, second=0, microsecond=0)
+            else:  # weekly
+                period_start = today - timedelta(days=today.weekday())
+                period_start = period_start.replace(hour=0, minute=0, second=0, microsecond=0)
+            
+            # Get or create user challenge progress
+            user_challenge = db.query(models.UserChallenge).filter(
+                models.UserChallenge.user_id == user_id,
+                models.UserChallenge.challenge_id == challenge.id,
+                models.UserChallenge.period_start >= period_start
+            ).first()
+            
+            if not user_challenge:
+                user_challenge = models.UserChallenge(
+                    user_id=user_id,
+                    challenge_id=challenge.id,
+                    progress=0,
+                    period_start=period_start
+                )
+                db.add(user_challenge)
+                db.flush()
+            
+            # Increment progress if not already completed
+            if not user_challenge.is_completed:
+                user_challenge.progress += 1
+                
+                # Check if completed
+                if user_challenge.progress >= challenge.target_count:
+                    user_challenge.is_completed = True
+                    user_challenge.completed_at = today
+                    
+                    # Award challenge rewards
+                    profile.xp_total += challenge.xp_reward
+                    result["xp_earned"] += challenge.xp_reward
+                    
+                    if challenge.coin_reward > 0:
+                        user = db.query(models.User).filter(models.User.id == user_id).first()
+                        if user:
+                            user.free_credits = (user.free_credits or 0) + challenge.coin_reward
+                    
+                    result["challenges_completed"].append({
+                        "title": challenge.title,
+                        "xp_reward": challenge.xp_reward,
+                        "coin_reward": challenge.coin_reward
+                    })
+                    
+                    logging.info(f"🎯 Desafio completado: {challenge.title} (+{challenge.xp_reward} XP)")
+        
+        # === 6. CHECK FOR LEVEL UP ===
+        new_level, new_name, _, _ = calculate_level(profile.xp_total)
+        if new_level > old_level:
+            profile.level = new_level
+            result["level_up"] = True
+            result["new_level"] = {
+                "level": new_level,
+                "name": new_name
+            }
+            logging.info(f"🎉 Level up! {old_level} -> {new_level} ({new_name})")
+        
+        db.commit()
+        
+        logging.info(f"✅ Gamificação processada: {result}")
+        return result
+        
+    except Exception as e:
+        logging.error(f"❌ Erro ao processar gamificação: {e}")
+        import traceback
+        logging.error(traceback.format_exc())
+        return result
+
+
 async def generate_ai_quiz(lesson_title: str, lesson_content: str, num_questions: int = 3) -> list:
     """Generate quiz questions using AI based on lesson content"""
     try:

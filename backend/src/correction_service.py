@@ -148,14 +148,19 @@ async def process_correction(submission_id: int, db: Session):
         submission.status = "completed"
         db.commit()
         
-        # ===== CHECK AND UNLOCK ACHIEVEMENTS =====
+        # ===== PROCESS GAMIFICATION =====
         try:
-            from .routers.gamification import check_exam_achievements
-            unlocked = check_exam_achievements(db, submission.owner_id, exam_type, db_correction.total_score)
-            if unlocked:
-                print(f"🏆 Conquistas desbloqueadas: {[a['name'] for a in unlocked]}")
-        except Exception as ach_error:
-            logger.warning(f"⚠️ Erro ao verificar conquistas: {ach_error}")
+            from .routers.gamification import process_essay_completed
+            gamification_result = process_essay_completed(db, submission.owner_id, exam_type, db_correction.total_score)
+            print(f"🎮 Gamificação: +{gamification_result['xp_earned']} XP")
+            if gamification_result['achievements']:
+                print(f"🏆 Conquistas: {[a['name'] for a in gamification_result['achievements']]}")
+            if gamification_result['challenges_completed']:
+                print(f"🎯 Desafios: {[c['title'] for c in gamification_result['challenges_completed']]}")
+            if gamification_result['level_up']:
+                print(f"🎉 Level up! Novo nível: {gamification_result['new_level']['name']}")
+        except Exception as gam_error:
+            logger.warning(f"⚠️ Erro ao processar gamificação: {gam_error}")
         # ==========================================
         
         logger.info(f"✅ Correção concluída para submissão {submission_id}")
