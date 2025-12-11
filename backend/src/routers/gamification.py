@@ -109,30 +109,42 @@ def check_achievements(db: Session, user_id: int) -> list:
     
     profile = get_or_create_gamification(db, user_id)
     
+    logging.info(f"🔍 check_achievements: user_id={user_id}, essays={essays_count}, max_score={max_score}, streak={profile.current_streak}, lessons={profile.lessons_completed}")
+    
     existing_ids = db.query(models.UserAchievement.achievement_id).filter(
         models.UserAchievement.user_id == user_id
     ).all()
     existing_ids = [a[0] for a in existing_ids]
     
+    logging.info(f"🔍 Conquistas já desbloqueadas: {existing_ids}")
+    
     # IMPORTANT: Only check GLOBAL achievements (exam_type IS NULL)
-    # Exam-specific achievements are handled in /achievements endpoint
     achievements = db.query(models.Achievement).filter(
         models.Achievement.is_active == True,
-        models.Achievement.exam_type == None,  # Only global achievements
-        ~models.Achievement.id.in_(existing_ids) if existing_ids else True
+        models.Achievement.exam_type.is_(None)  # Use is_(None) instead of == None
     ).all()
     
+    logging.info(f"🔍 Total conquistas globais ativas: {len(achievements)}")
+    
     for achievement in achievements:
+        # Skip if already unlocked
+        if achievement.id in existing_ids:
+            continue
+            
         earned = False
         
         if achievement.condition_type == "essays_submitted" and essays_count >= achievement.condition_value:
             earned = True
+            logging.info(f"✅ Conquista '{achievement.name}' earned: essays_count({essays_count}) >= {achievement.condition_value}")
         elif achievement.condition_type == "score_achieved" and max_score >= achievement.condition_value:
             earned = True
+            logging.info(f"✅ Conquista '{achievement.name}' earned: max_score({max_score}) >= {achievement.condition_value}")
         elif achievement.condition_type == "streak_days" and profile.current_streak >= achievement.condition_value:
             earned = True
+            logging.info(f"✅ Conquista '{achievement.name}' earned: streak({profile.current_streak}) >= {achievement.condition_value}")
         elif achievement.condition_type == "lessons_completed" and profile.lessons_completed >= achievement.condition_value:
             earned = True
+            logging.info(f"✅ Conquista '{achievement.name}' earned: lessons({profile.lessons_completed}) >= {achievement.condition_value}")
         
         if earned:
             user_achievement = models.UserAchievement(
@@ -147,7 +159,7 @@ def check_achievements(db: Session, user_id: int) -> list:
             if achievement.coin_reward > 0:
                 user = db.query(models.User).filter(models.User.id == user_id).first()
                 if user:
-                    user.free_credits += achievement.coin_reward
+                    user.free_credits = (user.free_credits or 0) + achievement.coin_reward
             
             unlocked.append({
                 "code": achievement.code,
@@ -157,9 +169,13 @@ def check_achievements(db: Session, user_id: int) -> list:
                 "xp_reward": achievement.xp_reward,
                 "coin_reward": achievement.coin_reward
             })
+            logging.info(f"🏆 Conquista desbloqueada: {achievement.name}")
     
     if unlocked:
         db.commit()
+        logging.info(f"🎉 Total conquistas desbloqueadas: {len(unlocked)}")
+    else:
+        logging.info(f"ℹ️ Nenhuma nova conquista desbloqueada")
     
     return unlocked
 
