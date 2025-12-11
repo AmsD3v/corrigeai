@@ -568,8 +568,8 @@ def get_correction(
                     competence_3_feedback="Falha na correção",
                     competence_4_feedback="Falha na correção",
                     competence_5_feedback="Falha na correção",
-                    strengths=[],
-                    improvements=[],
+                    strengths="[]",
+                    improvements="[]",
                     general_comments="⚠️ Ocorreu uma falha ao processar sua redação com a IA. Isso pode acontecer por instabilidade momentânea. Por favor, tente enviar novamente ou entre em contato com o suporte.",
                     corrected_at=submission.submitted_at,
                     exam_type=submission.exam_type or "enem"
