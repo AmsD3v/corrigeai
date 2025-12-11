@@ -830,7 +830,7 @@ const LandingPage = () => {
             {/* Timeline Steps */}
             <div className="desktop-only" style={{ position: 'relative', marginBottom: '60px' }}>
               {/* Connecting Line */}
-              <div style={{
+              <div className="reveal-on-scroll" style={{
                 position: 'absolute',
                 top: '32px',
                 left: '20%',
@@ -838,7 +838,7 @@ const LandingPage = () => {
                 height: '2px',
                 background: 'linear-gradient(90deg, transparent 0%, #334155 10%, #334155 90%, transparent 100%)',
                 zIndex: 0
-              }} className="reveal-on-scroll" />
+              }} />
 
               {/* Steps Container */}
               <div className="timeline-steps">
