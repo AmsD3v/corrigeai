@@ -1441,7 +1441,7 @@ const LandingPage = () => {
                 justifyContent: 'center',
                 overflow: 'hidden'
               }}>
-                <img src="/owl_custom.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src="/owl_custom.png" alt="Logo" style={{ width: '85%', height: '85%', objectFit: 'contain' }} />
               </div>
               <span style={{ fontSize: '18px', fontWeight: '700', color: '#fff' }}>CorrigeAI</span>
             </div>
