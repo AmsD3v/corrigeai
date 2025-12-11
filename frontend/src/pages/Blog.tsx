@@ -37,7 +37,7 @@ const Blog = () => {
         try {
             setLoading(true);
             const params = selectedTag ? `?tag_slug=${selectedTag}` : '';
-            const response = await api.get(`/blog/posts${params}`);
+            const response = await api.get(`/api/blog/posts${params}`);
             setPosts(response.data);
         } catch (error) {
             console.error('Erro ao carregar posts:', error);
@@ -48,7 +48,7 @@ const Blog = () => {
 
     const loadTags = async () => {
         try {
-            const response = await api.get('/blog/tags');
+            const response = await api.get('/api/blog/tags');
             setTags(response.data);
         } catch (error) {
             console.error('Erro ao carregar tags:', error);

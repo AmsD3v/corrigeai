@@ -61,7 +61,7 @@ const BlogEditor = () => {
 
     const loadTags = async () => {
         try {
-            const response = await api.get('/blog/tags');
+            const response = await api.get('/api/blog/tags');
             setAvailableTags(response.data);
         } catch (error) {
             console.error('Erro ao carregar tags:', error);
@@ -71,7 +71,7 @@ const BlogEditor = () => {
     const loadPost = async () => {
         try {
             setLoading(true);
-            const response = await api.get(`/blog/admin/posts/${id}`);
+            const response = await api.get(`/api/blog/admin/posts/${id}`);
             const post = response.data;
             setTitle(post.title);
             setSlug(post.slug);
@@ -113,9 +113,9 @@ const BlogEditor = () => {
             };
 
             if (isEditing) {
-                await api.put(`/blog/admin/posts/${id}`, postData);
+                await api.put(`/api/blog/admin/posts/${id}`, postData);
             } else {
-                await api.post('/blog/admin/posts', postData);
+                await api.post('/api/blog/admin/posts', postData);
             }
 
             navigate('/admin/blog');
@@ -136,7 +136,7 @@ const BlogEditor = () => {
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await api.post('/blog/admin/upload-image', formData, {
+            const response = await api.post('/api/blog/admin/upload-image', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
@@ -160,7 +160,7 @@ const BlogEditor = () => {
                 .replace(/[^a-z0-9]+/g, '-')
                 .replace(/^-|-$/g, '');
 
-            const response = await api.post('/blog/admin/tags', {
+            const response = await api.post('/api/blog/admin/tags', {
                 name: newTagName,
                 slug: tagSlug,
                 color: '#4F46E5'

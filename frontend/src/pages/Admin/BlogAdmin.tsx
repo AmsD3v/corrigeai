@@ -35,7 +35,7 @@ const BlogAdmin = () => {
     const loadPosts = async () => {
         try {
             setLoading(true);
-            const response = await api.get('/blog/admin/posts');
+            const response = await api.get('/api/blog/admin/posts');
             setPosts(response.data);
         } catch (error) {
             console.error('Erro ao carregar posts:', error);
@@ -49,7 +49,7 @@ const BlogAdmin = () => {
 
         try {
             setDeleting(id);
-            await api.delete(`/blog/admin/posts/${id}`);
+            await api.delete(`/api/blog/admin/posts/${id}`);
             setPosts(posts.filter(p => p.id !== id));
         } catch (error) {
             console.error('Erro ao deletar post:', error);
@@ -61,7 +61,7 @@ const BlogAdmin = () => {
 
     const handleTogglePublish = async (post: BlogPost) => {
         try {
-            await api.put(`/blog/admin/posts/${post.id}`, {
+            await api.put(`/api/blog/admin/posts/${post.id}`, {
                 is_published: !post.is_published
             });
             setPosts(posts.map(p =>

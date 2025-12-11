@@ -74,7 +74,7 @@ const BlogPost = () => {
     const loadPost = async () => {
         try {
             setLoading(true);
-            const response = await api.get(`/blog/posts/${slug}`);
+            const response = await api.get(`/api/blog/posts/${slug}`);
             setPost(response.data);
         } catch (error: any) {
             console.error('Erro ao carregar post:', error);
