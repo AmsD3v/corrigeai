@@ -110,8 +110,63 @@ const Configuracoes = () => {
         }
     };
 
+    // Valida se a chave API corresponde ao provedor selecionado
+    const validateApiKey = (provider: string, key: string): { valid: boolean; message: string } => {
+        if (!key || key.trim() === '') {
+            return { valid: false, message: `Chave API não configurada para ${provider}` };
+        }
+
+        const keyLower = key.trim().toLowerCase();
+        const keyOriginal = key.trim();
+
+        switch (provider) {
+            case 'gemini':
+                if (!keyOriginal.startsWith('AIza')) {
+                    return { valid: false, message: 'Chave Gemini deve começar com "AIza". Você selecionou Gemini mas a chave parece ser de outro provedor.' };
+                }
+                break;
+            case 'groq':
+                if (!keyLower.startsWith('gsk_')) {
+                    return { valid: false, message: 'Chave Groq deve começar com "gsk_". Você selecionou Groq mas a chave parece ser de outro provedor.' };
+                }
+                break;
+            case 'huggingface':
+                if (!keyLower.startsWith('hf_')) {
+                    return { valid: false, message: 'Chave HuggingFace deve começar com "hf_". Você selecionou HuggingFace mas a chave parece ser de outro provedor.' };
+                }
+                break;
+            case 'together':
+                // Together keys don't have a consistent prefix, but shouldn't match other providers
+                if (keyOriginal.startsWith('AIza') || keyLower.startsWith('gsk_') || keyLower.startsWith('hf_')) {
+                    return { valid: false, message: 'A chave parece ser de outro provedor (Gemini, Groq ou HuggingFace), não do Together AI.' };
+                }
+                break;
+        }
+
+        return { valid: true, message: '' };
+    };
+
+    // Obtém a chave atual baseado no provedor
+    const getCurrentApiKey = (): string => {
+        switch (settings.aiProvider) {
+            case 'groq': return settings.groqApiKey || '';
+            case 'huggingface': return settings.hfToken || '';
+            case 'together': return settings.togetherApiKey || '';
+            default: return settings.geminiApiKey || '';
+        }
+    };
+
     const handleSaveSettings = async () => {
         try {
+            // Validar chave API antes de salvar
+            const currentKey = getCurrentApiKey();
+            const validation = validateApiKey(settings.aiProvider || 'gemini', currentKey);
+
+            if (!validation.valid) {
+                alert(`⚠️ Erro de validação:\n\n${validation.message}`);
+                return;
+            }
+
             // Save AI provider and keys to API
             await api.post('/api/settings', {
                 active_ai_provider: settings.aiProvider,

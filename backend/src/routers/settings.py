@@ -47,6 +47,47 @@ async def update_settings(
     db: Session = Depends(get_db),
     admin_user: models.User = Depends(get_current_admin_user)
 ):
+    # Validar chave API vs provedor selecionado
+    def validate_api_key(provider: str, key: str) -> tuple[bool, str]:
+        if not key or key.strip() == '':
+            return False, f"Chave API não configurada para {provider}"
+        
+        key_stripped = key.strip()
+        
+        if provider == 'gemini':
+            if not key_stripped.startswith('AIza'):
+                return False, 'Chave Gemini deve começar com "AIza". Verifique se você selecionou o provedor correto.'
+        elif provider == 'groq':
+            if not key_stripped.lower().startswith('gsk_'):
+                return False, 'Chave Groq deve começar com "gsk_". Verifique se você selecionou o provedor correto.'
+        elif provider == 'huggingface':
+            if not key_stripped.lower().startswith('hf_'):
+                return False, 'Chave HuggingFace deve começar com "hf_". Verifique se você selecionou o provedor correto.'
+        elif provider == 'together':
+            # Together não tem prefixo fixo, mas não deveria ser de outros provedores
+            if key_stripped.startswith('AIza') or key_stripped.lower().startswith('gsk_') or key_stripped.lower().startswith('hf_'):
+                return False, 'A chave parece ser de outro provedor (Gemini, Groq ou HuggingFace), não do Together AI.'
+        
+        return True, ''
+
+    # Validar se a chave corresponde ao provedor
+    if settings_update.active_ai_provider:
+        provider = settings_update.active_ai_provider
+        key = ''
+        
+        if provider == 'gemini':
+            key = settings_update.gemini_api_key or ''
+        elif provider == 'groq':
+            key = settings_update.groq_api_key or ''
+        elif provider == 'huggingface':
+            key = settings_update.hf_token or ''
+        elif provider == 'together':
+            key = settings_update.together_api_key or ''
+        
+        is_valid, error_msg = validate_api_key(provider, key)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=error_msg)
+
     settings = db.query(models.Settings).first()
     if not settings:
         settings = models.Settings()
