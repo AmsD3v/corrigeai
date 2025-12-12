@@ -54,3 +54,5 @@ coverage/
 
 # Specific
 corrigeai.db
+sql_app.db
+*.backup
