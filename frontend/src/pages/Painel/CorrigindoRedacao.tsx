@@ -55,49 +55,70 @@ const CorrigindoRedacao = () => {
       });
     }, 500);
 
-    // Call AI correction service
-    const correctEssay = async () => {
+    // Poll for correction result (essay was already submitted by RedigirRedacao)
+    const fetchCorrection = async () => {
       try {
-        const { essayService } = await import('../../services/essayService');
+        const { default: apiClient } = await import('../../services/api');
 
-        console.log('🚀 Iniciando correção com IA...');
+        console.log('🔍 Buscando correção da redação...');
 
-        const result = await essayService.submitAndCorrect({
-          title: essayData.title,
-          theme: essayData.theme,
-          content: essayData.content,
-          plan_type: essayData.correction_type as 'basic' | 'premium',
-          correction_type: essayData.correction_type,
-          exam_type: essayData.exam_type || 'enem' // ADICIONAR exam_type
-        });
+        // Poll until correction is ready (max 60 seconds)
+        const maxAttempts = 30;
+        let attempts = 0;
 
-        console.log('✅ Correção concluída!', result);
+        while (attempts < maxAttempts) {
+          try {
+            const response = await apiClient.get(`/get-correction/${id}`);
 
-        // Save correction result to localStorage
-        localStorage.setItem(`correction_${id}`, JSON.stringify({
-          ...result.correction,
-          exam_type: result.essay.exam_type || essayData.exam_type || 'enem'
-        }));
+            if (response.status === 200 && response.data) {
+              console.log('✅ Correção encontrada!', response.data);
 
-        // Update essay data with status completed
-        localStorage.setItem(`essay_${id}`, JSON.stringify({
-          ...essayData,
-          status: 'completed',  // ✅ CRITICAL: Set status to completed!
-          exam_type: result.essay.exam_type || essayData.exam_type || 'enem'
-        }));
+              // Save correction result to localStorage
+              localStorage.setItem(`correction_${id}`, JSON.stringify({
+                ...response.data,
+                exam_type: response.data.exam_type || essayData.exam_type || 'enem'
+              }));
 
-        // Complete progress
-        setProgress(100);
+              // Update essay data with status completed
+              localStorage.setItem(`essay_${id}`, JSON.stringify({
+                ...essayData,
+                status: 'completed',
+                exam_type: response.data.exam_type || essayData.exam_type || 'enem'
+              }));
 
-        // Navigate to result page after a short delay
+              // Complete progress
+              setProgress(100);
+
+              // Navigate to result page after a short delay
+              setTimeout(() => {
+                clearInterval(interval);
+                navigate(`/painel/redacao/${id}/resultado`);
+              }, 1000);
+
+              return; // Exit polling
+            }
+          } catch (error: any) {
+            // 202 means still processing, keep polling
+            if (error.response?.status === 202) {
+              console.log('⏳ Correção em andamento, aguardando...');
+            } else {
+              console.error('❌ Erro ao buscar correção:', error);
+            }
+          }
+
+          attempts++;
+          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds between attempts
+        }
+
+        // Timeout - navigate anyway
+        console.warn('⚠️ Timeout ao buscar correção, navegando para resultado...');
         setTimeout(() => {
           clearInterval(interval);
           navigate(`/painel/redacao/${id}/resultado`);
         }, 1000);
 
       } catch (error) {
-        console.error('❌ Erro ao corrigir redação:', error);
-        // Still navigate to result page (will show mock data)
+        console.error('❌ Erro ao buscar correção:', error);
         setTimeout(() => {
           clearInterval(interval);
           navigate(`/painel/redacao/${id}/resultado`);
@@ -105,7 +126,7 @@ const CorrigindoRedacao = () => {
       }
     };
 
-    correctEssay();
+    fetchCorrection();
 
     return () => {
       clearInterval(interval);

@@ -162,12 +162,13 @@ const BlogPost = () => {
                     </Link>
                 </nav>
 
-                {/* Cover Image */}
+                {/* Cover Image with Title Overlay */}
                 {post.cover_image && (
                     <div style={{
                         borderRadius: '16px',
                         overflow: 'hidden',
-                        marginBottom: '32px'
+                        marginBottom: '32px',
+                        position: 'relative'
                     }}>
                         <img
                             src={post.cover_image}
@@ -175,15 +176,64 @@ const BlogPost = () => {
                             style={{
                                 width: '100%',
                                 height: 'auto',
+                                minHeight: '300px',
                                 maxHeight: '400px',
-                                objectFit: 'cover'
+                                objectFit: 'cover',
+                                display: 'block'
                             }}
                         />
+                        {/* Gradient Overlay */}
+                        <div style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.2) 100%)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'flex-end',
+                            padding: '32px'
+                        }}>
+                            {/* Title on image */}
+                            <h1 style={{
+                                fontSize: 'clamp(24px, 5vw, 40px)',
+                                fontWeight: '800',
+                                color: '#fff',
+                                margin: 0,
+                                lineHeight: '1.2',
+                                textShadow: '0 2px 10px rgba(0,0,0,0.5)'
+                            }}>
+                                {post.title}
+                            </h1>
+                            {/* Tags below title */}
+                            {post.tags.length > 0 && (
+                                <div style={{
+                                    display: 'flex',
+                                    gap: '8px',
+                                    marginTop: '16px',
+                                    flexWrap: 'wrap'
+                                }}>
+                                    {post.tags.map(tag => (
+                                        <span
+                                            key={tag.id}
+                                            style={{
+                                                padding: '4px 12px',
+                                                borderRadius: '12px',
+                                                background: tag.color,
+                                                color: '#fff',
+                                                fontSize: '12px',
+                                                fontWeight: '600'
+                                            }}
+                                        >
+                                            {tag.name}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
 
-                {/* Tags */}
-                {post.tags.length > 0 && (
+                {/* Tags - only show here if no cover image (otherwise shown in overlay) */}
+                {!post.cover_image && post.tags.length > 0 && (
                     <div style={{
                         display: 'flex',
                         gap: '8px',
@@ -210,16 +260,18 @@ const BlogPost = () => {
                     </div>
                 )}
 
-                {/* Title */}
-                <h1 style={{
-                    fontSize: '40px',
-                    fontWeight: '800',
-                    color: '#fff',
-                    marginBottom: '16px',
-                    lineHeight: '1.3'
-                }}>
-                    {post.title}
-                </h1>
+                {/* Title - only show here if no cover image (otherwise shown in overlay) */}
+                {!post.cover_image && (
+                    <h1 style={{
+                        fontSize: '40px',
+                        fontWeight: '800',
+                        color: '#fff',
+                        marginBottom: '16px',
+                        lineHeight: '1.3'
+                    }}>
+                        {post.title}
+                    </h1>
+                )}
 
                 {/* Date */}
                 <div style={{

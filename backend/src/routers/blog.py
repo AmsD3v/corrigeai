@@ -307,37 +307,63 @@ async def generate_cover_image(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Generate a cover image for blog post using Stability AI (admin only)"""
+    """Generate a cover image for blog post using Hugging Face Inference API (admin only)"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Acesso negado")
     
     try:
-        from ..core.config import settings
+        import os
         
-        # Create prompt for image generation
-        prompt = f"""Professional blog cover image for educational article about:
-{request.title}
-{request.excerpt if request.excerpt else ''}
+        # Get HF_TOKEN from environment or database settings
+        hf_token = os.getenv('HF_TOKEN')
+        if not hf_token:
+            # Try to get from database settings
+            from ..models import Settings as SettingsModel
+            db_settings = db.query(SettingsModel).first()
+            if db_settings and db_settings.hf_token:
+                hf_token = db_settings.hf_token
+        
+        if not hf_token:
+            raise HTTPException(
+                status_code=500, 
+                detail="HF_TOKEN não configurado. Configure em Configurações > Chaves de API."
+            )
+        
+        # Create prompt for image generation (writing/education theme)
+        prompt = f"""Professional blog cover for educational writing platform.
+Theme: Essay writing, education, ENEM exam preparation.
 
-Style: Modern, clean, minimalist design. Blue and purple gradient colors.
-Professional educational blog about writing and exam preparation.
-No text in the image. Abstract, conceptual visualization."""
+Visual elements: Elegant fountain pen, open notebook, flowing ink, 
+paper sheets, soft bokeh lights, study desk atmosphere.
 
-        # Stability AI API call
+Style: Modern, premium, blue and purple gradient tones, 
+cinematic lighting, shallow depth of field, abstract and artistic.
+
+NO TEXT in the image. High quality, 16:9 aspect ratio.
+
+Context: {request.title}"""
+
+        # Hugging Face Inference API - Stable Diffusion XL
+        model_id = "stabilityai/stable-diffusion-xl-base-1.0"
+        api_url = f"https://router.huggingface.co/hf-inference/models/{model_id}"
+        
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                "https://api.stability.ai/v2beta/stable-image/generate/core",
+                api_url,
                 headers={
-                    "Authorization": f"Bearer {settings.STABILITY_API_KEY}",
-                    "Accept": "image/*"
+                    "Authorization": f"Bearer {hf_token}",
+                    "Content-Type": "application/json"
                 },
-                files={"none": ''},
-                data={
-                    "prompt": prompt,
-                    "output_format": "png",
-                    "aspect_ratio": "16:9"
+                json={
+                    "inputs": prompt,
+                    "parameters": {
+                        "width": 1024,
+                        "height": 576,  # 16:9 aspect ratio
+                        "num_inference_steps": 30,
+                        "guidance_scale": 7.5
+                    }
                 },
-                timeout=60.0
+                timeout=120.0  # Longer timeout for image generation
             )
         
         if response.status_code == 200:
@@ -351,11 +377,22 @@ No text in the image. Abstract, conceptual visualization."""
                 f.write(response.content)
             
             return {"url": f"/uploads/blog/{filename}"}
+        elif response.status_code == 503:
+            # Model is loading
+            error_data = response.json() if response.headers.get('content-type', '').startswith('application/json') else {}
+            estimated_time = error_data.get('estimated_time', 30)
+            raise HTTPException(
+                status_code=503, 
+                detail=f"Modelo carregando. Aguarde ~{int(estimated_time)}s e tente novamente."
+            )
         else:
             error_detail = response.text
-            print(f"Stability AI Error: {response.status_code} - {error_detail}")
+            print(f"Hugging Face Error: {response.status_code} - {error_detail}")
             raise HTTPException(status_code=500, detail=f"Erro ao gerar imagem: {error_detail}")
             
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Erro ao gerar imagem: {e}")
         raise HTTPException(status_code=500, detail=f"Erro ao gerar imagem: {str(e)}")
+

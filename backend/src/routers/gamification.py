@@ -133,16 +133,17 @@ def check_achievements(db: Session, user_id: int) -> list:
             
         earned = False
         
-        if achievement.condition_type == "essays_submitted" and essays_count >= achievement.condition_value:
+        # Match condition_type values from database: essays_count, score, lessons, streak
+        if achievement.condition_type == "essays_count" and essays_count >= achievement.condition_value:
             earned = True
             logging.info(f"✅ Conquista '{achievement.name}' earned: essays_count({essays_count}) >= {achievement.condition_value}")
-        elif achievement.condition_type == "score_achieved" and max_score >= achievement.condition_value:
+        elif achievement.condition_type == "score" and max_score >= achievement.condition_value:
             earned = True
             logging.info(f"✅ Conquista '{achievement.name}' earned: max_score({max_score}) >= {achievement.condition_value}")
-        elif achievement.condition_type == "streak_days" and profile.current_streak >= achievement.condition_value:
+        elif achievement.condition_type == "streak" and profile.current_streak >= achievement.condition_value:
             earned = True
             logging.info(f"✅ Conquista '{achievement.name}' earned: streak({profile.current_streak}) >= {achievement.condition_value}")
-        elif achievement.condition_type == "lessons_completed" and profile.lessons_completed >= achievement.condition_value:
+        elif achievement.condition_type == "lessons" and profile.lessons_completed >= achievement.condition_value:
             earned = True
             logging.info(f"✅ Conquista '{achievement.name}' earned: lessons({profile.lessons_completed}) >= {achievement.condition_value}")
         
@@ -210,10 +211,13 @@ def check_exam_achievements(db: Session, user_id: int, exam_type: str, score: in
     for achievement in achievements:
         earned = False
         
-        if achievement.condition_type == "essays_submitted" and essays_for_exam >= achievement.condition_value:
+        # Match condition_type values from database: essays_count, score, lessons, streak
+        if achievement.condition_type == "essays_count" and essays_for_exam >= achievement.condition_value:
             earned = True
-        elif achievement.condition_type == "score_achieved" and score >= achievement.condition_value:
+            logging.info(f"✅ Conquista '{achievement.name}' earned: essays_count({essays_for_exam}) >= {achievement.condition_value}")
+        elif achievement.condition_type == "score" and score >= achievement.condition_value:
             earned = True
+            logging.info(f"✅ Conquista '{achievement.name}' earned: score({score}) >= {achievement.condition_value}")
         
         if earned:
             user_achievement = models.UserAchievement(
@@ -293,10 +297,10 @@ def process_essay_completed(db: Session, user_id: int, exam_type: str, score: in
         # === 5. UPDATE CHALLENGE PROGRESS ===
         today = datetime.utcnow()
         
-        # Find active challenges with action_type = 'essay'
+        # Find active challenges with action_type = 'submit_essay'
         active_challenges = db.query(models.Challenge).filter(
             models.Challenge.is_active == True,
-            models.Challenge.action_type == "essay"
+            models.Challenge.action_type == "submit_essay"
         ).all()
         
         for challenge in active_challenges:
@@ -521,13 +525,14 @@ async def get_achievements(
         was_already_unlocked = a.id in unlocked_ids
         
         # Use exam-specific stats for ALL achievements when viewing a specific exam
-        if a.condition_type == "essays_submitted":
+        # Match condition_type values from database: essays_count, score, lessons, streak
+        if a.condition_type == "essays_count":
             is_unlocked = essays_for_exam >= a.condition_value
-        elif a.condition_type == "score_achieved":
+        elif a.condition_type == "score":
             is_unlocked = max_score_for_exam >= a.condition_value
-        elif a.condition_type == "lessons_completed":
+        elif a.condition_type == "lessons":
             is_unlocked = lessons_for_exam >= a.condition_value
-        elif a.condition_type == "streak_days":
+        elif a.condition_type == "streak":
             # Streak is global, not per exam
             is_unlocked = profile.current_streak >= a.condition_value
         else:
@@ -807,6 +812,59 @@ async def complete_lesson(
             
             next_lesson_id = next_lesson.id
             db.commit()
+    
+    # === UPDATE CHALLENGE PROGRESS FOR LESSONS ===
+    if not is_repeat:
+        # Find active challenges with action_type = 'complete_lesson'
+        lesson_challenges = db.query(models.Challenge).filter(
+            models.Challenge.is_active == True,
+            models.Challenge.action_type == "complete_lesson"
+        ).all()
+        
+        for challenge in lesson_challenges:
+            # Determine period start based on challenge type
+            if challenge.challenge_type == "daily":
+                period_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            else:  # weekly
+                period_start = now - timedelta(days=now.weekday())
+                period_start = period_start.replace(hour=0, minute=0, second=0, microsecond=0)
+            
+            # Get or create user challenge progress
+            user_challenge = db.query(models.UserChallenge).filter(
+                models.UserChallenge.user_id == current_user.id,
+                models.UserChallenge.challenge_id == challenge.id,
+                models.UserChallenge.period_start >= period_start
+            ).first()
+            
+            if not user_challenge:
+                user_challenge = models.UserChallenge(
+                    user_id=current_user.id,
+                    challenge_id=challenge.id,
+                    progress=0,
+                    period_start=period_start
+                )
+                db.add(user_challenge)
+                db.flush()
+            
+            # Increment progress if not already completed
+            if not user_challenge.is_completed:
+                user_challenge.progress += 1
+                
+                # Check if completed
+                if user_challenge.progress >= challenge.target_count:
+                    user_challenge.is_completed = True
+                    user_challenge.completed_at = now
+                    
+                    # Award challenge rewards
+                    profile.xp_total += challenge.xp_reward
+                    xp_gained += challenge.xp_reward
+                    
+                    if challenge.coin_reward > 0:
+                        current_user.free_credits = (current_user.free_credits or 0) + challenge.coin_reward
+                    
+                    logging.info(f"🎯 Desafio de lição completado: {challenge.title} (+{challenge.xp_reward} XP)")
+        
+        db.commit()
     
     new_achievements = check_achievements(db, current_user.id)
     

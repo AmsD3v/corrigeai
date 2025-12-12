@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Header = () => {
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { user, logout, isLoading } = useAuth();
 
     const scrollToSection = (id: string) => {
         const el = document.getElementById(id);
@@ -141,37 +143,63 @@ const Header = () => {
                             gap: 12,
                         }}
                     >
-                        <button
-                            onClick={() => navigate('/login')}
-                            style={{
-                                background: 'transparent',
-                                border: '1px solid #4b5563',
-                                borderRadius: 999,
-                                padding: '8px 16px',
-                                color: '#e5e7eb',
-                                fontSize: 14,
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                            }}
-                        >
-                            Entrar
-                        </button>
-                        <button
-                            onClick={() => navigate('/cadastro')}
-                            style={{
-                                background: '#4F46E5',
-                                border: 'none',
-                                borderRadius: 999,
-                                padding: '8px 20px',
-                                color: '#fff',
-                                fontSize: 14,
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                            }}
-                        >
-                            Começar correção grátis
-                        </button>
+                        {!isLoading && user ? (
+                            <>
+                                <span style={{ color: '#94a3b8', fontSize: 14 }}>
+                                    Olá, {user.full_name?.split(' ')[0] || 'Usuário'}
+                                </span>
+                                <button
+                                    onClick={() => navigate('/painel')}
+                                    style={{
+                                        background: '#4F46E5',
+                                        border: 'none',
+                                        borderRadius: 999,
+                                        padding: '8px 20px',
+                                        color: '#fff',
+                                        fontSize: 14,
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                >
+                                    Meu Painel
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={() => navigate('/login')}
+                                    style={{
+                                        background: 'transparent',
+                                        border: '1px solid #4b5563',
+                                        borderRadius: 999,
+                                        padding: '8px 16px',
+                                        color: '#e5e7eb',
+                                        fontSize: 14,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                >
+                                    Entrar
+                                </button>
+                                <button
+                                    onClick={() => navigate('/cadastro')}
+                                    style={{
+                                        background: '#4F46E5',
+                                        border: 'none',
+                                        borderRadius: 999,
+                                        padding: '8px 20px',
+                                        color: '#fff',
+                                        fontSize: 14,
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                >
+                                    Começar correção grátis
+                                </button>
+                            </>
+                        )}
                     </div>
 
                     {/* DIREITA: Hambúrguer com rotação */}
@@ -350,50 +378,82 @@ const Header = () => {
                                 animation: 'fadeInUp 0.4s ease-out 0.35s both',
                             }}
                         >
-                            <button
-                                onClick={() => {
-                                    navigate('/login');
-                                    setMobileMenuOpen(false);
-                                }}
-                                style={{
-                                    width: '85%',
-                                    maxWidth: '260px',
-                                    background: 'transparent',
-                                    border: '2px solid #4b5563',
-                                    borderRadius: 999,
-                                    padding: '10px',
-                                    color: '#ffffff',
-                                    fontSize: 14,
-                                    fontWeight: 600,
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
-                                    margin: '0 auto',
-                                }}
-                            >
-                                Entrar
-                            </button>
-                            <button
-                                onClick={() => {
-                                    navigate('/cadastro');
-                                    setMobileMenuOpen(false);
-                                }}
-                                style={{
-                                    width: '85%',
-                                    maxWidth: '260px',
-                                    background: '#4F46E5',
-                                    border: 'none',
-                                    borderRadius: 999,
-                                    padding: '11px',
-                                    color: '#fff',
-                                    fontSize: 14,
-                                    fontWeight: 600,
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
-                                    margin: '0 auto',
-                                }}
-                            >
-                                Criar conta
-                            </button>
+                            {!isLoading && user ? (
+                                <>
+                                    <span style={{ color: '#94a3b8', fontSize: 14, marginBottom: 8 }}>
+                                        Olá, {user.full_name?.split(' ')[0] || 'Usuário'}
+                                    </span>
+                                    <button
+                                        onClick={() => {
+                                            navigate('/painel');
+                                            setMobileMenuOpen(false);
+                                        }}
+                                        style={{
+                                            width: '85%',
+                                            maxWidth: '260px',
+                                            background: '#4F46E5',
+                                            border: 'none',
+                                            borderRadius: 999,
+                                            padding: '11px',
+                                            color: '#fff',
+                                            fontSize: 14,
+                                            fontWeight: 600,
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                            margin: '0 auto',
+                                        }}
+                                    >
+                                        Meu Painel
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={() => {
+                                            navigate('/login');
+                                            setMobileMenuOpen(false);
+                                        }}
+                                        style={{
+                                            width: '85%',
+                                            maxWidth: '260px',
+                                            background: 'transparent',
+                                            border: '2px solid #4b5563',
+                                            borderRadius: 999,
+                                            padding: '10px',
+                                            color: '#ffffff',
+                                            fontSize: 14,
+                                            fontWeight: 600,
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                            margin: '0 auto',
+                                        }}
+                                    >
+                                        Entrar
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            navigate('/cadastro');
+                                            setMobileMenuOpen(false);
+                                        }}
+                                        style={{
+                                            width: '85%',
+                                            maxWidth: '260px',
+                                            background: '#4F46E5',
+                                            border: 'none',
+                                            borderRadius: 999,
+                                            padding: '11px',
+                                            color: '#fff',
+                                            fontSize: 14,
+                                            fontWeight: 600,
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                            margin: '0 auto',
+                                        }}
+                                    >
+                                        Criar conta
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
