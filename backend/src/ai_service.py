@@ -440,30 +440,27 @@ async def correct_with_gemini(title: str, theme: str, content: str, api_key: str
 
 async def correct_essay_with_gemini(title: str, theme: str, content: str, exam_type: str = 'enem') -> dict:
     """
-    Main correction function - routes to active provider
-    Maintains backward compatibility with existing code
+    Main correction function for ADVANCED correction - uses simplified CORRECTION_PROMPT
+    Routes to active provider
     """
     provider, api_key = get_active_provider()
     
     if not api_key:
         raise Exception(f"API key not configured for provider: {provider}")
     
-    print(f"🤖 Using AI provider: {AI_PROVIDERS[provider]['name']}")
-    logger.info(f"Using AI provider: {AI_PROVIDERS[provider]['name']}")
+    print(f"🤖 Using AI provider: {AI_PROVIDERS[provider]['name']} (AVANÇADA)")
+    logger.info(f"Using AI provider: {AI_PROVIDERS[provider]['name']} for ADVANCED correction")
+    
+    # Use simplified CORRECTION_PROMPT for ADVANCED correction (not prompt_builder)
+    prompt = CORRECTION_PROMPT.format(title=title, theme=theme or "", content=content)
     
     # Define wrapper functions for retry
     async def run_groq():
-        # Import prompt_builder to use specific prompts
-        from .prompt_builder import create_correction_prompt
-        prompt = create_correction_prompt(exam_type, title, theme, content)
         return await correct_with_groq_custom_prompt(
             title, theme, content, api_key, prompt, model="llama-3.1-8b-instant"
         )
         
     async def run_gemini():
-        # Import prompt_builder to use specific prompts
-        from .prompt_builder import create_correction_prompt
-        prompt = create_correction_prompt(exam_type, title, theme, content)
         return await correct_with_gemini_custom_prompt(title, theme, content, api_key, prompt)
 
     try:
@@ -473,8 +470,6 @@ async def correct_essay_with_gemini(title: str, theme: str, content: str, exam_t
            return await retry_with_backoff(run_gemini, max_retries=3)
         elif provider == 'cerebras':
             async def run_cerebras():
-                from .prompt_builder import create_correction_prompt
-                prompt = create_correction_prompt(exam_type, title, theme, content)
                 return await correct_with_cerebras_custom_prompt(title, theme, content, api_key, prompt)
             return await retry_with_backoff(run_cerebras, max_retries=3)
         elif provider == 'huggingface':
