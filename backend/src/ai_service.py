@@ -224,63 +224,71 @@ def get_active_provider() -> tuple[str, Optional[str]]:
     else:
         SL = SessionLocal
     
-    # Get active provider from database
+    # Get correction provider and key from database
     db = SL()
     try:
         settings = db.query(Settings).first()
         if settings:
-            active_provider = settings.active_ai_provider
-            print(f"📊 Database says active provider: {active_provider}")
+            active_provider = getattr(settings, 'correction_provider', None) or settings.active_ai_provider
+            correction_api_key = getattr(settings, 'correction_api_key', None) or ''
+            print(f"📊 Database correction_provider: {active_provider}")
+            print(f"🔑 Correction API key configured: {bool(correction_api_key)}")
         else:
-            active_provider = "groq"  # Default fallback
+            active_provider = "groq"
+            correction_api_key = ''
             print(f"⚠️ No settings in DB, using default: {active_provider}")
     finally:
         db.close()
     
-    # Get API key from environment for the active provider
+    # Usar chave do banco ou fallback para variáveis de ambiente
     if active_provider == "groq":
-        groq_key = os.getenv('GROQ_API_KEY')
-        print(f"GROQ_API_KEY present: {bool(groq_key)}")
-        if groq_key:
-            print(f"✅ Using GROQ provider with key: {groq_key[:20]}...")
+        api_key = correction_api_key or os.getenv('GROQ_API_KEY')
+        if api_key:
+            print(f"✅ Using GROQ provider")
             logger.info("Using Groq AI provider")
-            return ('groq', groq_key)
+            return ('groq', api_key)
         else:
-            print("❌ Groq selected but no API key in .env!")
-            logger.error("Groq selected but GROQ_API_KEY not configured in .env")
+            print("❌ Groq selected but no API key!")
+            logger.error("Groq selected but no API key configured")
             return ('groq', None)
     
     elif active_provider == "gemini":
-        gemini_key = os.getenv('GEMINI_API_KEY')
-        print(f"GEMINI_API_KEY present: {bool(gemini_key)}")
-        if gemini_key:
+        api_key = correction_api_key or os.getenv('GEMINI_API_KEY')
+        if api_key:
             print(f"✅ Using GEMINI provider")
             logger.info("Using Gemini AI provider")
-            return ('gemini', gemini_key)
+            return ('gemini', api_key)
         else:
-            print("❌ Gemini selected but no API key in .env!")
-            logger.error("Gemini selected but GEMINI_API_KEY not configured in .env")
+            print("❌ Gemini selected but no API key!")
+            logger.error("Gemini selected but no API key configured")
             return ('gemini', None)
     
     elif active_provider == "huggingface":
-        hf_token = os.getenv('HF_TOKEN')
-        print(f"HF_TOKEN present: {bool(hf_token)}")
-        if hf_token:
+        api_key = correction_api_key or os.getenv('HF_TOKEN')
+        if api_key:
             print(f"✅ Using HuggingFace provider")
-            return ('huggingface', hf_token)
+            return ('huggingface', api_key)
         else:
-            print("❌ HuggingFace selected but no API key in .env!")
+            print("❌ HuggingFace selected but no API key!")
             return ('huggingface', None)
     
     elif active_provider == "together":
-        together_key = os.getenv('TOGETHER_API_KEY')
-        print(f"TOGETHER_API_KEY present: {bool(together_key)}")
-        if together_key:
+        api_key = correction_api_key or os.getenv('TOGETHER_API_KEY')
+        if api_key:
             print(f"✅ Using Together AI provider")
-            return ('together', together_key)
+            return ('together', api_key)
         else:
-            print("❌ Together selected but no API key in .env!")
+            print("❌ Together selected but no API key!")
             return ('together', None)
+    
+    elif active_provider == "cerebras":
+        api_key = correction_api_key or os.getenv('CEREBRAS_API_KEY')
+        if api_key:
+            print(f"🧠 Using Cerebras provider")
+            return ('cerebras', api_key)
+        else:
+            print("❌ Cerebras selected but no API key!")
+            return ('cerebras', None)
     
     # Unknown provider
     print(f"❌ Unknown provider in database: {active_provider}")
@@ -320,6 +328,45 @@ async def correct_with_groq(title: str, theme: str, content: str, api_key: str) 
     except Exception as e:
         print(f"❌ Groq error: {e}")
         logger.error(f"Groq error: {e}")
+        raise
+
+
+async def correct_with_cerebras(title: str, theme: str, content: str, api_key: str) -> dict:
+    """Correct essay using Cerebras API (OpenAI-compatible)"""
+    try:
+        from openai import OpenAI
+        
+        # Cerebras usa API compatível com OpenAI
+        client = OpenAI(
+            api_key=api_key,
+            base_url="https://api.cerebras.ai/v1"
+        )
+        
+        prompt = CORRECTION_PROMPT.format(title=title, theme=theme or "", content=content)
+        
+        print(f"🧠 Sending to Cerebras: {title}")
+        logger.info(f"Sending to Cerebras: {title}")
+        
+        response = client.chat.completions.create(
+            model="llama-3.3-70b",  # Cerebras Llama 3.3 70B
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=2048
+        )
+        
+        text = response.choices[0].message.content.strip()
+        
+        data = extract_json_robust(text)
+        data['strengths'] = json.dumps(data.get('strengths', []), ensure_ascii=False)
+        data['improvements'] = json.dumps(data.get('improvements', []), ensure_ascii=False)
+        
+        print(f"✅ Cerebras correction completed. Score: {data.get('total_score')}")
+        logger.info(f"Cerebras correction completed. Score: {data.get('total_score')}")
+        return data
+        
+    except Exception as e:
+        print(f"❌ Cerebras error: {e}")
+        logger.error(f"Cerebras error: {e}")
         raise
 
 
@@ -399,6 +446,12 @@ async def correct_essay_with_gemini(title: str, theme: str, content: str, exam_t
             return await retry_with_backoff(run_groq, max_retries=3)
         elif provider == 'gemini':
            return await retry_with_backoff(run_gemini, max_retries=3)
+        elif provider == 'cerebras':
+            async def run_cerebras():
+                from .prompt_builder import create_correction_prompt
+                prompt = create_correction_prompt(exam_type, title, theme, content)
+                return await correct_with_cerebras_custom_prompt(title, theme, content, api_key, prompt)
+            return await retry_with_backoff(run_cerebras, max_retries=3)
         elif provider == 'huggingface':
             # TODO: Implement HuggingFace
             raise Exception("HuggingFace provider not implemented yet")
@@ -542,49 +595,88 @@ def combine_corrections(groq_result: dict, gemini_insights: dict) -> dict:
 
 async def correct_essay_premium(title: str, theme: str, content: str, exam_type: str = 'enem', api_key_groq: str = '', api_key_gemini: str = '') -> dict:
     """
-    Premium correction: Groq (initial) + Gemini (refinement)
-    Now supports multiple exam types with specific criteria.
-    """
-    print(f"🌟 === PREMIUM CORRECTION ({exam_type.upper()}) (Groq + Gemini) ===")
+    Premium correction: Dupla correção paralela (Groq + Gemini) + Árbitro
     
-    # Import prompt_builder to use exam-specific prompts
+    Fluxo:
+    1. Groq 70B e Gemini corrigem em paralelo
+    2. Compara notas - se diferença > 40pts em qualquer competência:
+       → Árbitro (Groq 8B) decide
+    3. Senão: média ponderada (Groq 60%, Gemini 40%)
+    """
+    import asyncio
+    
+    print(f"🌟 === PREMIUM CORRECTION V2 ({exam_type.upper()}) - DUPLA CORREÇÃO + ÁRBITRO ===")
+    
+    # Import prompt_builder para prompts específicos por vestibular
     from .prompt_builder import create_correction_prompt
     
-    # Get exam-specific prompt
+    # Cria prompt específico para o vestibular
     prompt = create_correction_prompt(exam_type, title, theme, content)
     print(f"✅ Prompt específico para {exam_type.upper()} criado")
     
-    # Step 1: Groq initial correction with custom prompt
-    print(f"Step 1/3: Groq initial correction for {exam_type.upper()}...")
+    # ===== STEP 1: CORREÇÃO PARALELA =====
+    print(f"Step 1/3: Correção paralela (Groq 70B + Gemini)...")
     
-    async def run_groq_70b():
-        return await correct_with_groq_custom_prompt(
-            title, theme, content, api_key_groq, prompt, model="llama-3.3-70b-versatile"
+    async def run_groq():
+        try:
+            return await retry_with_backoff(
+                lambda: correct_with_groq_custom_prompt(
+                    title, theme, content, api_key_groq, prompt, model="llama-3.3-70b-versatile"
+                ),
+                max_retries=2
+            )
+        except Exception as e:
+            print(f"⚠️ Groq 70B falhou: {e}. Tentando 8B...")
+            return await correct_with_groq_custom_prompt(
+                title, theme, content, api_key_groq, prompt, model="llama-3.1-8b-instant"
+            )
+    
+    async def run_gemini():
+        try:
+            return await correct_with_gemini_custom_prompt(
+                title, theme, content, api_key_gemini, prompt
+            )
+        except Exception as e:
+            print(f"⚠️ Gemini falhou: {e}")
+            return None
+    
+    # Executa em paralelo
+    results = await asyncio.gather(run_groq(), run_gemini(), return_exceptions=True)
+    
+    groq_result = results[0] if not isinstance(results[0], Exception) else None
+    gemini_result = results[1] if not isinstance(results[1], Exception) else None
+    
+    # Tratamento de erros
+    if groq_result is None and gemini_result is None:
+        raise Exception("Ambas IAs falharam na correção")
+    
+    if groq_result is None:
+        print("⚠️ Apenas Gemini retornou. Usando resultado único.")
+        return gemini_result
+    
+    if gemini_result is None:
+        print("⚠️ Apenas Groq retornou. Usando resultado único com insights antigos.")
+        gemini_insights = await refine_with_gemini(title, theme, content, groq_result, api_key_gemini, exam_type)
+        return combine_corrections(groq_result, gemini_insights)
+    
+    print(f"✅ Groq Score: {groq_result.get('total_score')} | Gemini Score: {gemini_result.get('total_score')}")
+    
+    # ===== STEP 2: VERIFICAR DIVERGÊNCIA =====
+    print(f"Step 2/3: Verificando divergências...")
+    needs_arb, divergent_comps = check_needs_arbitration(groq_result, gemini_result, threshold=40)
+    
+    # ===== STEP 3: ÁRBITRO OU MÉDIA =====
+    if needs_arb:
+        print(f"Step 3/3: Chamando árbitro para {len(divergent_comps)} competência(s)...")
+        final_result = await arbitrate_scores(
+            groq_result, gemini_result, divergent_comps, 
+            content, api_key_groq, exam_type
         )
-        
-    async def run_groq_8b():
-        return await correct_with_groq_custom_prompt(
-            title, theme, content, api_key_groq, prompt, model="llama-3.1-8b-instant"
-        )
+    else:
+        print(f"Step 3/3: Calculando média ponderada...")
+        final_result = average_scores(groq_result, gemini_result)
     
-    try:
-        # Premium uses the BEST model (70B) with retry
-        groq_result = await retry_with_backoff(run_groq_70b, max_retries=2)
-    except Exception as e:
-        print(f"⚠️ Erro com modelo 70B: {e}. Tentando fallback para 8B...")
-        logger.warning(f"Erro com modelo 70B: {e}. Tentando fallback para 8B...")
-        # Fallback to 8B model if 70B fails
-        groq_result = await retry_with_backoff(run_groq_8b, max_retries=2)
-    
-    # Step 2: Gemini refinement - passa exam_type para usar escala correta
-    print(f"Step 2/3: Gemini refinement for {exam_type.upper()}...")
-    gemini_insights = await refine_with_gemini(title, theme, content, groq_result, api_key_gemini, exam_type)
-    
-    # Step 3: Combine
-    print("Step 3/3: Combining corrections...")
-    final_result = combine_corrections(groq_result, gemini_insights)
-    
-    print(f"✅ Premium correction completed. Score: {final_result.get('total_score')}")
+    print(f"✅ Premium V2 completed. Score: {final_result.get('total_score')}")
     return final_result
 
 
@@ -658,3 +750,215 @@ async def correct_with_gemini_custom_prompt(title: str, theme: str, content: str
     except Exception as e:
         logger.error(f"Gemini error: {e}")
         raise
+
+
+async def correct_with_cerebras_custom_prompt(title: str, theme: str, content: str, api_key: str, custom_prompt: str) -> dict:
+    """Correct essay using Cerebras API with custom prompt (for exam-specific prompts)"""
+    try:
+        from openai import OpenAI
+        
+        # Cerebras usa API compatível com OpenAI
+        client = OpenAI(
+            api_key=api_key,
+            base_url="https://api.cerebras.ai/v1"
+        )
+        
+        print(f"🧠 Sending to Cerebras: {title}")
+        logger.info(f"Sending to Cerebras: {title}")
+        
+        response = client.chat.completions.create(
+            model="llama-3.3-70b",
+            messages=[{"role": "user", "content": custom_prompt}],
+            temperature=0.2,
+            max_tokens=2048
+        )
+        
+        text = response.choices[0].message.content.strip()
+        data = extract_json_robust(text)
+        data['strengths'] = json.dumps(data.get('strengths', []), ensure_ascii=False)
+        data['improvements'] = json.dumps(data.get('improvements', []), ensure_ascii=False)
+        
+        print(f"✅ Cerebras correction completed. Score: {data.get('total_score')}")
+        logger.info(f"Cerebras correction completed. Score: {data.get('total_score')}")
+        return data
+        
+    except Exception as e:
+        print(f"❌ Cerebras error: {e}")
+        logger.error(f"Cerebras error: {e}")
+        raise
+
+
+# ===== DUAL CORRECTION + ARBITRATOR FUNCTIONS =====
+
+def average_scores(groq_result: dict, gemini_result: dict, groq_weight: float = 0.6) -> dict:
+    """
+    Calcula média ponderada das notas de Groq e Gemini.
+    Combina feedbacks de ambas IAs.
+    Default: Groq 60%, Gemini 40%
+    """
+    gemini_weight = 1.0 - groq_weight
+    combined = {}
+    
+    # Média ponderada das notas
+    for i in range(1, 6):
+        score_key = f"competence_{i}_score"
+        groq_score = groq_result.get(score_key, 0) or 0
+        gemini_score = gemini_result.get(score_key, 0) or 0
+        
+        # Média ponderada arredondada para múltiplo de 20 (escala ENEM)
+        avg = groq_score * groq_weight + gemini_score * gemini_weight
+        combined[score_key] = int(round(avg / 20) * 20)  # Arredonda para 0, 20, 40, 60...
+        
+        # Combina feedbacks
+        feedback_key = f"competence_{i}_feedback"
+        groq_fb = groq_result.get(feedback_key, "")
+        gemini_fb = gemini_result.get(feedback_key, "")
+        combined[feedback_key] = f"{groq_fb}\n\n💎 **Segunda Análise:**\n{gemini_fb}" if gemini_fb else groq_fb
+    
+    # Total
+    combined['total_score'] = sum(combined.get(f"competence_{i}_score", 0) for i in range(1, 6))
+    
+    # Outros campos
+    combined['strengths'] = groq_result.get('strengths', '[]')
+    combined['improvements'] = groq_result.get('improvements', '[]')
+    combined['general_comments'] = f"{groq_result.get('general_comments', '')}\n\n💎 **Análise Complementar:**\n{gemini_result.get('general_comments', '')}"
+    
+    print(f"📊 Média ponderada calculada. Total: {combined['total_score']}")
+    return combined
+
+
+def check_needs_arbitration(groq_result: dict, gemini_result: dict, threshold: int = 40) -> tuple[bool, list]:
+    """
+    Verifica se há discrepância significativa entre as correções.
+    Retorna (precisa_arbitragem, lista_competencias_divergentes)
+    """
+    divergent_comps = []
+    
+    for i in range(1, 6):
+        score_key = f"competence_{i}_score"
+        groq_score = groq_result.get(score_key, 0) or 0
+        gemini_score = gemini_result.get(score_key, 0) or 0
+        diff = abs(groq_score - gemini_score)
+        
+        if diff > threshold:
+            divergent_comps.append({
+                'competence': i,
+                'groq_score': groq_score,
+                'gemini_score': gemini_score,
+                'difference': diff
+            })
+            print(f"⚠️ Divergência C{i}: Groq={groq_score} vs Gemini={gemini_score} (diff={diff})")
+    
+    needs_arb = len(divergent_comps) > 0
+    if needs_arb:
+        print(f"🔔 ARBITRAGEM NECESSÁRIA para {len(divergent_comps)} competência(s)")
+    else:
+        print(f"✅ Notas concordantes (threshold={threshold})")
+    
+    return needs_arb, divergent_comps
+
+
+def create_arbitration_prompt(groq_result: dict, gemini_result: dict, divergent_comps: list, content: str, exam_type: str) -> str:
+    """Cria prompt para o árbitro decidir entre notas discrepantes"""
+    from .exam_criteria import get_exam_criteria
+    criteria = get_exam_criteria(exam_type)
+    
+    divergence_text = ""
+    for div in divergent_comps:
+        i = div['competence']
+        comp_name = criteria.competencies[i-1] if i <= len(criteria.competencies) else f"Competência {i}"
+        divergence_text += f"""
+**Competência {i} ({comp_name}):**
+- IA 1 (Groq): {div['groq_score']}/200
+- IA 2 (Gemini): {div['gemini_score']}/200
+- Diferença: {div['difference']} pontos
+"""
+    
+    return f"""Você é um ÁRBITRO ESPECIALISTA em correção de redações {criteria.short_name}.
+
+Duas IAs corrigiram a mesma redação e discordam significativamente em algumas competências:
+{divergence_text}
+
+Analise a redação abaixo e DECIDA a nota correta para cada competência divergente.
+Use a escala oficial: 0, 40, 80, 120, 160 ou 200.
+
+IMPORTANTE: Sua decisão deve ser baseada nos critérios oficiais do {criteria.short_name}.
+Seja preciso e justo.
+
+Retorne APENAS JSON no formato:
+{{
+  "arbitrated_scores": {{
+    "competence_1_score": <sua decisão ou null se não divergiu>,
+    "competence_2_score": <sua decisão ou null se não divergiu>,
+    "competence_3_score": <sua decisão ou null se não divergiu>,
+    "competence_4_score": <sua decisão ou null se não divergiu>,
+    "competence_5_score": <sua decisão ou null se não divergiu>
+  }},
+  "justification": "Breve justificativa para as decisões"
+}}
+
+REDAÇÃO:
+{content}
+"""
+
+
+async def arbitrate_scores(groq_result: dict, gemini_result: dict, divergent_comps: list, 
+                           content: str, api_key: str, exam_type: str) -> dict:
+    """
+    Usa uma terceira IA (Groq 8B - mais rápido) para decidir entre notas divergentes.
+    Retorna resultado final combinado.
+    """
+    print(f"⚖️ Iniciando arbitragem para {len(divergent_comps)} competências...")
+    
+    try:
+        from groq import Groq
+        
+        prompt = create_arbitration_prompt(groq_result, gemini_result, divergent_comps, content, exam_type)
+        
+        client = Groq(api_key=api_key)
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",  # Modelo rápido para arbitragem
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1,
+            max_tokens=1024
+        )
+        
+        text = response.choices[0].message.content.strip()
+        arb_data = extract_json_robust(text)
+        arbitrated = arb_data.get('arbitrated_scores', {})
+        justification = arb_data.get('justification', '')
+        
+        print(f"⚖️ Árbitro decidiu: {arbitrated}")
+        print(f"📝 Justificativa: {justification[:100]}...")
+        
+        # Monta resultado final
+        combined = groq_result.copy()
+        
+        for i in range(1, 6):
+            score_key = f"competence_{i}_score"
+            arb_score = arbitrated.get(score_key)
+            
+            if arb_score is not None:
+                # Usa nota do árbitro
+                combined[score_key] = int(arb_score)
+                combined[f"competence_{i}_feedback"] += f"\n\n⚖️ **Nota Arbitrada:** Esta competência teve divergência entre corretores e foi reavaliada."
+            else:
+                # Usa média das IAs para competências não divergentes
+                groq_score = groq_result.get(score_key, 0) or 0
+                gemini_score = gemini_result.get(score_key, 0) or 0
+                combined[score_key] = int(round((groq_score * 0.6 + gemini_score * 0.4) / 20) * 20)
+        
+        # Recalcula total
+        combined['total_score'] = sum(combined.get(f"competence_{i}_score", 0) for i in range(1, 6))
+        
+        # Adiciona justificativa ao comentário geral
+        combined['general_comments'] += f"\n\n⚖️ **Nota de Arbitragem:**\n{justification}"
+        
+        print(f"✅ Arbitragem concluída. Total: {combined['total_score']}")
+        return combined
+        
+    except Exception as e:
+        print(f"❌ Erro na arbitragem: {e}. Usando média simples como fallback.")
+        logger.error(f"Arbitration error: {e}")
+        return average_scores(groq_result, gemini_result)
+

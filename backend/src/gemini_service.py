@@ -121,7 +121,7 @@ async def get_ai_tutor_response(
     conversation_history: list
 ) -> str:
     """
-    Get AI tutor response for essay correction questions using Groq
+    Get AI tutor response for essay correction questions using configured provider
     
     Args:
         user_message: User's question
@@ -133,20 +133,66 @@ async def get_ai_tutor_response(
         AI tutor response text
     """
     try:
-        # Check API key
-        groq_key = settings.GROQ_API_KEY
-        if not groq_key or groq_key == "placeholder_key":
-            logger.error("GROQ_API_KEY not configured for AI Tutor")
+        # Get tutor provider from database
+        from .database import SessionLocal, init_db_engine
+        from .models import Settings
+        import os
+        
+        # Ensure SessionLocal is initialized
+        SL = SessionLocal
+        if SL is None:
+            init_db_engine()
+            from .database import SessionLocal as SL_new
+            SL = SL_new
+        
+        db = SL()
+        try:
+            db_settings = db.query(Settings).first()
+            if db_settings:
+                tutor_provider = getattr(db_settings, 'tutor_provider', 'groq') or 'groq'
+                tutor_api_key = getattr(db_settings, 'tutor_api_key', None) or ''
+            else:
+                tutor_provider = 'groq'
+                tutor_api_key = ''
+        finally:
+            db.close()
+        
+        logger.info(f"AI Tutor using provider: {tutor_provider}")
+        logger.info(f"AI Tutor API key configured: {bool(tutor_api_key)}")
+        
+        # Usar chave do banco ou fallback para variáveis de ambiente
+        if tutor_api_key:
+            api_key = tutor_api_key
+        elif tutor_provider == 'groq':
+            api_key = os.getenv('GROQ_API_KEY')
+        elif tutor_provider == 'gemini':
+            api_key = os.getenv('GEMINI_API_KEY')
+        elif tutor_provider == 'huggingface':
+            api_key = os.getenv('HF_TOKEN')
+        elif tutor_provider == 'together':
+            api_key = os.getenv('TOGETHER_API_KEY')
+        else:
+            api_key = os.getenv('GROQ_API_KEY')  # fallback
+        
+        if not api_key or api_key == "placeholder_key":
+            logger.error(f"API key not configured for AI Tutor ({tutor_provider})")
             return (
-                "Desculpe, o Professor IA não está configurado no momento. "
+                f"Desculpe, o Professor IA não está configurado no momento ({tutor_provider}). "
                 "Entre em contato com o suporte. 🤖"
             )
         
         logger.info(f"AI Tutor request: {user_message[:50]}...")
         
+        # For now, only Groq is implemented for tutor
+        if tutor_provider != 'groq':
+            logger.warning(f"Tutor provider {tutor_provider} not implemented, falling back to Groq")
+            api_key = settings.GROQ_API_KEY or os.getenv('GROQ_API_KEY')
+            if not api_key:
+                return "Desculpe, o Professor IA não está disponível no momento. 🤖"
+        
         # Import Groq
         from groq import Groq
-        client = Groq(api_key=groq_key)
+        client = Groq(api_key=api_key)
         
         # PRIORIZAR criteria_snapshot da correção (garante consistência)
         import json

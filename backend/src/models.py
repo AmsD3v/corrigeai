@@ -145,8 +145,27 @@ class Settings(Base):
     __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True, default=1)
-    active_ai_provider = Column(String, default="groq")
+    active_ai_provider = Column(String, default="groq")  # Legacy
     
+    # Provedores por função
+    correction_provider = Column(String, default="groq")
+    image_provider = Column(String, default="huggingface")
+    tutor_provider = Column(String, default="groq")
+    theme_provider = Column(String, default="groq")
+    
+    # Chaves API por função (separadas)
+    correction_api_key = Column(String, nullable=True)
+    image_api_key = Column(String, nullable=True)
+    tutor_api_key = Column(String, nullable=True)
+    theme_api_key = Column(String, nullable=True)
+    premium_gemini_api_key = Column(String, nullable=True)  # Chave extra para correção Premium
+    premium_provider = Column(String, default="gemini")  # Provedor para segunda correção Premium
+    
+    # Fallback provider (quando o provedor principal falhar)
+    fallback_provider = Column(String, default="groq")
+    fallback_api_key = Column(String, nullable=True)
+    
+    # Chaves legadas (mantidas por compatibilidade)
     gemini_api_key = Column(String, nullable=True)
     groq_api_key = Column(String, nullable=True)
     hf_token = Column(String, nullable=True)

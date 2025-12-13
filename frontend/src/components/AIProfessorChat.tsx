@@ -20,6 +20,7 @@ const AIProfessorChat = ({ submissionId }: AIProfessorChatProps) => {
     const [isMobile, setIsMobile] = useState(false);
     const [historyLoaded, setHistoryLoaded] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     // Detectar mobile
     useEffect(() => {
@@ -38,6 +39,10 @@ const AIProfessorChat = ({ submissionId }: AIProfessorChatProps) => {
     useEffect(() => {
         if (isOpen && !historyLoaded) {
             loadChatHistory();
+        }
+        // Focar no input quando abrir o chat
+        if (isOpen) {
+            setTimeout(() => inputRef.current?.focus(), 100);
         }
     }, [isOpen]);
 
@@ -270,6 +275,7 @@ const AIProfessorChat = ({ submissionId }: AIProfessorChatProps) => {
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <input
+                        ref={inputRef}
                         type="text"
                         value={inputMessage}
                         onChange={(e) => setInputMessage(e.target.value)}

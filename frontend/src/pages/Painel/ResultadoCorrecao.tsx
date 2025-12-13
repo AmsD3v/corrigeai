@@ -181,7 +181,7 @@ const ResultadoCorrecao = () => {
                         borderRadius: '16px',
                         padding: '64px 48px',
                         position: 'relative',
-                        overflow: 'hidden'
+                        overflow: 'visible'
                     }}>
                         {/* Exam Badge */}
                         <div style={{
@@ -200,18 +200,40 @@ const ResultadoCorrecao = () => {
                             {currentExam.name}
                         </div>
 
-                        {/* Confetti effect */}
+                        {/* Confetti particles effect - Explosão para cima e chuva pela tela */}
                         {showConfetti && (
-                            <div style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                pointerEvents: 'none',
-                                background: 'radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, transparent 70%)',
-                                animation: 'fadeIn 0.5s ease-in'
-                            }} />
+                            <>
+                                {/* 150 partículas de confete */}
+                                {[...Array(150)].map((_, i) => {
+                                    const randomX = (Math.random() - 0.5) * 1200; // espalhamento horizontal maior
+                                    const randomDelay = Math.random() * 0.4;
+                                    const size = Math.random() * 12 + 5;
+                                    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#FF85A2', '#7FDBFF', '#B10DC9', '#01FF70', '#FF4757', '#2ED573', '#FFA502', '#3742FA'];
+
+                                    return (
+                                        <div
+                                            key={i}
+                                            style={{
+                                                position: 'absolute',
+                                                left: '50%',
+                                                top: '100px',
+                                                marginLeft: '-6px',
+                                                width: `${size}px`,
+                                                height: `${size}px`,
+                                                background: colors[i % colors.length],
+                                                borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+                                                animation: `confettiUp ${2.5 + Math.random()}s ease-out forwards`,
+                                                animationDelay: `${randomDelay}s`,
+                                                opacity: 0,
+                                                pointerEvents: 'none',
+                                                zIndex: 9999,
+                                                ['--x' as any]: `${randomX}px`,
+                                                ['--fall' as any]: `${500 + Math.random() * 500}px`
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </>
                         )}
 
                         {/* Success Icon */}
@@ -225,7 +247,7 @@ const ResultadoCorrecao = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontSize: '48px',
-                            animation: 'scaleIn 0.5s ease-out',
+                            animation: showConfetti ? 'iconCelebrate 0.6s ease-out' : 'scaleIn 0.5s ease-out',
                             position: 'relative',
                             zIndex: 1
                         }}>
@@ -410,6 +432,37 @@ const ResultadoCorrecao = () => {
         @keyframes fadeIn {
           0% { opacity: 0; }
           100% { opacity: 1; }
+        }
+        
+        @keyframes iconCelebrate {
+          0% { transform: scale(1); }
+          25% { transform: scale(1.2) rotate(-5deg); }
+          50% { transform: scale(1.1) rotate(5deg); }
+          75% { transform: scale(1.15) rotate(-3deg); }
+          100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        @keyframes confettiUp {
+          0% { 
+            opacity: 1; 
+            transform: translate(0, 0) rotate(0deg) scale(0);
+          }
+          15% { 
+            opacity: 1; 
+            transform: translate(calc(var(--x) * 0.3), -200px) rotate(180deg) scale(1);
+          }
+          30% { 
+            opacity: 1; 
+            transform: translate(calc(var(--x) * 0.6), -280px) rotate(360deg) scale(1);
+          }
+          50% { 
+            opacity: 1; 
+            transform: translate(calc(var(--x) * 0.8), -300px) rotate(540deg) scale(1);
+          }
+          100% { 
+            opacity: 0; 
+            transform: translate(var(--x), var(--fall)) rotate(1080deg) scale(0.5);
+          }
         }
       `}</style>
         </PanelLayout >

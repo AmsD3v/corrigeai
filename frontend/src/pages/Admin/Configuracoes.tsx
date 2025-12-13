@@ -7,14 +7,23 @@ interface Settings {
     siteName: string;
     contactEmail: string;
     supportEmail: string;
-    geminiApiKey: string;
-    aiProvider?: string;
-    groqApiKey?: string;
-    hfToken?: string;
-    togetherApiKey?: string;
+    // Provedores por função
+    correctionProvider: string;
+    imageProvider: string;
+    tutorProvider: string;
+    themeProvider: string;
+    // Chaves API por função (separadas)
+    correctionApiKey: string;
+    imageApiKey: string;
+    tutorApiKey: string;
+    themeApiKey: string;
+    premiumGeminiApiKey: string;  // Chave Gemini extra para Premium
+    premiumProvider: string;  // Provedor para segunda correção Premium
+    fallbackProvider: string;  // Fallback quando provedor principal falhar
+    fallbackApiKey: string;
+    // Outros
     maintenanceMode: boolean;
-    creditValue: number; // Valor por CorriCoin em reais
-    // Gamification settings
+    creditValue: number;
     lessonCooldownHours: number;
     lessonRepeatXpPercent: number;
     packages: {
@@ -34,29 +43,47 @@ interface Settings {
     }[];
 }
 
+interface ApiKeyErrors {
+    correction?: string;
+    image?: string;
+    tutor?: string;
+    theme?: string;
+    premium?: string;
+    fallback?: string;
+}
+
 const Configuracoes = () => {
     const [settings, setSettings] = useState<Settings>({
         siteName: 'CorrigeAI',
         contactEmail: 'contato@corrigeai.com',
         supportEmail: 'suporte@corrigeai.com',
-        geminiApiKey: import.meta.env.VITE_GEMINI_API_KEY || '',
-        aiProvider: 'groq',  // Default to Groq (recommended)
-        groqApiKey: import.meta.env.VITE_GROQ_API_KEY || '',
-        hfToken: import.meta.env.VITE_HF_TOKEN || '',
-        togetherApiKey: import.meta.env.VITE_TOGETHER_API_KEY || '',
+        // Provedores por função
+        correctionProvider: 'groq',
+        imageProvider: 'huggingface',
+        tutorProvider: 'groq',
+        themeProvider: 'groq',
+        // Chaves API por função
+        correctionApiKey: '',
+        imageApiKey: '',
+        tutorApiKey: '',
+        themeApiKey: '',
+        premiumGeminiApiKey: '',
+        premiumProvider: 'gemini',
+        fallbackProvider: 'groq',
+        fallbackApiKey: '',
+        // Outros
         maintenanceMode: false,
-        creditValue: 2.20, // Valor padrão por CorriCoin
-        // Gamification defaults
-        lessonCooldownHours: 168,  // 7 dias padrão
-        lessonRepeatXpPercent: 50, // 50% do XP na repetição
+        creditValue: 2.20,
+        lessonCooldownHours: 168,
+        lessonRepeatXpPercent: 50,
         packages: []
     });
 
     const [saved, setSaved] = useState(false);
-    const [showApiKey, setShowApiKey] = useState(false);
+    const [showApiKeys, setShowApiKeys] = useState<{ [key: string]: boolean }>({});
+    const [apiKeyErrors, setApiKeyErrors] = useState<ApiKeyErrors>({});
 
     useEffect(() => {
-        // Load AI provider from API
         fetchSettings();
         fetchPackages();
     }, []);
@@ -66,19 +93,23 @@ const Configuracoes = () => {
             const response = await api.get('/api/settings');
             setSettings(prev => ({
                 ...prev,
-                aiProvider: response.data.active_ai_provider,
-                geminiApiKey: response.data.gemini_api_key || prev.geminiApiKey,
-                groqApiKey: response.data.groq_api_key || prev.groqApiKey,
-                hfToken: response.data.hf_token || prev.hfToken,
-                togetherApiKey: response.data.together_api_key || prev.togetherApiKey,
-                // Gamification
+                correctionProvider: response.data.correction_provider || 'groq',
+                imageProvider: response.data.image_provider || 'huggingface',
+                tutorProvider: response.data.tutor_provider || 'groq',
+                themeProvider: response.data.theme_provider || 'groq',
+                correctionApiKey: response.data.correction_api_key || '',
+                imageApiKey: response.data.image_api_key || '',
+                tutorApiKey: response.data.tutor_api_key || '',
+                themeApiKey: response.data.theme_api_key || '',
+                premiumGeminiApiKey: response.data.premium_gemini_api_key || '',
+                premiumProvider: response.data.premium_provider || 'gemini',
+                fallbackProvider: response.data.fallback_provider || 'groq',
+                fallbackApiKey: response.data.fallback_api_key || '',
                 lessonCooldownHours: response.data.lesson_cooldown_hours ?? prev.lessonCooldownHours,
                 lessonRepeatXpPercent: response.data.lesson_repeat_xp_percent ?? prev.lessonRepeatXpPercent
             }));
         } catch (error) {
             console.error('Error loading settings:', error);
-            // Default to groq if error
-            setSettings(prev => ({ ...prev, aiProvider: 'groq' }));
         }
     };
 
@@ -113,7 +144,7 @@ const Configuracoes = () => {
     // Valida se a chave API corresponde ao provedor selecionado
     const validateApiKey = (provider: string, key: string): { valid: boolean; message: string } => {
         if (!key || key.trim() === '') {
-            return { valid: false, message: `Chave API não configurada para ${provider}` };
+            return { valid: false, message: 'Chave API não configurada' };
         }
 
         const keyLower = key.trim().toLowerCase();
@@ -122,23 +153,27 @@ const Configuracoes = () => {
         switch (provider) {
             case 'gemini':
                 if (!keyOriginal.startsWith('AIza')) {
-                    return { valid: false, message: 'Chave Gemini deve começar com "AIza". Você selecionou Gemini mas a chave parece ser de outro provedor.' };
+                    return { valid: false, message: 'Chave Gemini deve começar com "AIza"' };
                 }
                 break;
             case 'groq':
                 if (!keyLower.startsWith('gsk_')) {
-                    return { valid: false, message: 'Chave Groq deve começar com "gsk_". Você selecionou Groq mas a chave parece ser de outro provedor.' };
+                    return { valid: false, message: 'Chave Groq deve começar com "gsk_"' };
                 }
                 break;
             case 'huggingface':
                 if (!keyLower.startsWith('hf_')) {
-                    return { valid: false, message: 'Chave HuggingFace deve começar com "hf_". Você selecionou HuggingFace mas a chave parece ser de outro provedor.' };
+                    return { valid: false, message: 'Chave HuggingFace deve começar com "hf_"' };
                 }
                 break;
             case 'together':
-                // Together keys don't have a consistent prefix, but shouldn't match other providers
-                if (keyOriginal.startsWith('AIza') || keyLower.startsWith('gsk_') || keyLower.startsWith('hf_')) {
-                    return { valid: false, message: 'A chave parece ser de outro provedor (Gemini, Groq ou HuggingFace), não do Together AI.' };
+                if (keyOriginal.startsWith('AIza') || keyLower.startsWith('gsk_') || keyLower.startsWith('hf_') || keyLower.startsWith('csk-')) {
+                    return { valid: false, message: 'A chave parece ser de outro provedor' };
+                }
+                break;
+            case 'cerebras':
+                if (!keyLower.startsWith('csk-')) {
+                    return { valid: false, message: 'Chave Cerebras deve começar com "csk-"' };
                 }
                 break;
         }
@@ -146,35 +181,76 @@ const Configuracoes = () => {
         return { valid: true, message: '' };
     };
 
-    // Obtém a chave atual baseado no provedor
-    const getCurrentApiKey = (): string => {
-        switch (settings.aiProvider) {
-            case 'groq': return settings.groqApiKey || '';
-            case 'huggingface': return settings.hfToken || '';
-            case 'together': return settings.togetherApiKey || '';
-            default: return settings.geminiApiKey || '';
+    // Validação em tempo real para uma função específica
+    const handleApiKeyChange = (functionName: 'correction' | 'image' | 'tutor' | 'theme' | 'premium' | 'fallback', value: string) => {
+        const providerMap = {
+            correction: settings.correctionProvider,
+            image: settings.imageProvider,
+            tutor: settings.tutorProvider,
+            theme: settings.themeProvider,
+            premium: settings.premiumProvider,
+            fallback: settings.fallbackProvider
+        };
+
+        const keyMap = {
+            correction: 'correctionApiKey' as const,
+            image: 'imageApiKey' as const,
+            tutor: 'tutorApiKey' as const,
+            theme: 'themeApiKey' as const,
+            premium: 'premiumGeminiApiKey' as const,
+            fallback: 'fallbackApiKey' as const
+        };
+
+        setSettings(prev => ({ ...prev, [keyMap[functionName]]: value }));
+
+        if (value && value.trim() !== '') {
+            const validation = validateApiKey(providerMap[functionName], value);
+            setApiKeyErrors(prev => ({ ...prev, [functionName]: validation.valid ? undefined : validation.message }));
+        } else {
+            setApiKeyErrors(prev => ({ ...prev, [functionName]: undefined }));
         }
     };
 
     const handleSaveSettings = async () => {
         try {
-            // Validar chave API antes de salvar
-            const currentKey = getCurrentApiKey();
-            const validation = validateApiKey(settings.aiProvider || 'gemini', currentKey);
+            // Validar chaves para cada função
+            const validations = [
+                { name: 'Correção', provider: settings.correctionProvider, key: settings.correctionApiKey, field: 'correction' },
+                { name: 'Imagens', provider: settings.imageProvider, key: settings.imageApiKey, field: 'image' },
+                { name: 'Tutor', provider: settings.tutorProvider, key: settings.tutorApiKey, field: 'tutor' },
+                { name: 'Tema', provider: settings.themeProvider, key: settings.themeApiKey, field: 'theme' },
+                { name: 'Premium', provider: settings.premiumProvider, key: settings.premiumGeminiApiKey, field: 'premium' },
+                { name: 'Fallback', provider: settings.fallbackProvider, key: settings.fallbackApiKey, field: 'fallback' },
+            ];
 
-            if (!validation.valid) {
-                alert(`⚠️ Erro de validação:\n\n${validation.message}`);
+            const newErrors: ApiKeyErrors = {};
+            for (const { name, provider, key, field } of validations) {
+                const validation = validateApiKey(provider, key);
+                if (!validation.valid) {
+                    newErrors[field as keyof ApiKeyErrors] = validation.message;
+                }
+            }
+
+            if (Object.keys(newErrors).length > 0) {
+                setApiKeyErrors(newErrors);
+                alert('⚠️ Corrija os erros de validação antes de salvar');
                 return;
             }
 
-            // Save AI provider and keys to API
+            // Save AI providers and keys to API
             await api.post('/api/settings', {
-                active_ai_provider: settings.aiProvider,
-                gemini_api_key: settings.geminiApiKey,
-                groq_api_key: settings.groqApiKey,
-                hf_token: settings.hfToken,
-                together_api_key: settings.togetherApiKey,
-                // Gamification settings
+                correction_provider: settings.correctionProvider,
+                image_provider: settings.imageProvider,
+                tutor_provider: settings.tutorProvider,
+                theme_provider: settings.themeProvider,
+                correction_api_key: settings.correctionApiKey,
+                image_api_key: settings.imageApiKey,
+                tutor_api_key: settings.tutorApiKey,
+                theme_api_key: settings.themeApiKey,
+                premium_gemini_api_key: settings.premiumGeminiApiKey,
+                premium_provider: settings.premiumProvider,
+                fallback_provider: settings.fallbackProvider,
+                fallback_api_key: settings.fallbackApiKey,
                 lesson_cooldown_hours: settings.lessonCooldownHours,
                 lesson_repeat_xp_percent: settings.lessonRepeatXpPercent
             });
@@ -184,7 +260,7 @@ const Configuracoes = () => {
                 api.put(`/api/packages/${pkg.id}`, {
                     name: pkg.name,
                     credits: pkg.credits,
-                    price: Math.round(pkg.price * 100), // Convert to cents
+                    price: Math.round(pkg.price * 100),
                     discount_percentage: pkg.discount_percentage,
                     discount_text: pkg.discount_text,
                     bonus: pkg.bonus,
@@ -383,7 +459,7 @@ const Configuracoes = () => {
                 </div>
             </div>
 
-            {/* AI Settings */}
+            {/* AI Settings - Provedores por Função */}
             <div style={{
                 background: '#1a1f2e',
                 border: '1px solid #334155',
@@ -397,134 +473,252 @@ const Configuracoes = () => {
                     color: '#fff',
                     marginBottom: '20px'
                 }}>
-                    Configurações de IA
+                    🤖 Configurações de IA
                 </h2>
 
-                {/* Provider Selection */}
-                <div style={{ marginBottom: '16px' }}>
-                    <label style={{
-                        display: 'block',
-                        fontSize: '14px',
-                        color: '#94a3b8',
-                        marginBottom: '8px',
-                        fontWeight: '500'
-                    }}>
-                        Provedor de IA
-                    </label>
-                    <select
-                        value={settings.aiProvider || 'gemini'}
-                        onChange={(e) => setSettings({ ...settings, aiProvider: e.target.value })}
-                        style={{
-                            width: '100%',
-                            padding: '12px 16px',
-                            background: '#0f1419',
-                            border: '1px solid #334155',
-                            borderRadius: '8px',
-                            color: '#fff',
-                            fontSize: '14px',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <option value="gemini">🟢 Google Gemini (Atual)</option>
-                        <option value="groq">⚡ Groq (Llama 3.1 - Recomendado)</option>
-                        <option value="huggingface">🤗 HuggingFace (Mistral/Llama)</option>
-                        <option value="together">🔷 Together AI (Llama 3.1/Mixtral)</option>
-                    </select>
-                    <p style={{
-                        fontSize: '12px',
-                        color: '#64748b',
-                        marginTop: '8px'
-                    }}>
-                        {settings.aiProvider === 'groq' && '⚡ Groq: Muito rápido, sem bloqueios de segurança (Recomendado)'}
-                        {(!settings.aiProvider || settings.aiProvider === 'gemini') && '🟢 Gemini: Pode bloquear avaliações de texto'}
-                        {settings.aiProvider === 'huggingface' && '🤗 HuggingFace: Modelos open-source, bom custo-benefício'}
-                        {settings.aiProvider === 'together' && '🔷 Together AI: Alta qualidade, $25 créditos iniciais grátis'}
-                    </p>
-                </div>
-
-                {/* API Key Input */}
-                <div>
-                    <label style={{
-                        display: 'block',
-                        fontSize: '14px',
-                        color: '#94a3b8',
-                        marginBottom: '8px',
-                        fontWeight: '500'
-                    }}>
-                        Chave API
-                    </label>
-
-                    {/* Input with Eye Toggle */}
-                    <div style={{ position: 'relative' }}>
-                        <input
-                            type={showApiKey ? "text" : "password"}
-                            value={
-                                settings.aiProvider === 'groq' ? (settings.groqApiKey || '') :
-                                    settings.aiProvider === 'huggingface' ? (settings.hfToken || '') :
-                                        settings.aiProvider === 'together' ? (settings.togetherApiKey || '') :
-                                            settings.geminiApiKey
-                            }
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                    {/* Correção de Redações */}
+                    <div style={{ background: '#0f1419', borderRadius: '10px', padding: '16px', border: `1px solid ${apiKeyErrors.correction ? '#ef4444' : '#334155'}` }}>
+                        <label style={{ display: 'block', fontSize: '14px', color: '#fff', marginBottom: '10px', fontWeight: '600' }}>
+                            📝 Correção de Redações
+                        </label>
+                        <select
+                            value={settings.correctionProvider}
                             onChange={(e) => {
-                                if (settings.aiProvider === 'groq') {
-                                    setSettings({ ...settings, groqApiKey: e.target.value });
-                                } else if (settings.aiProvider === 'huggingface') {
-                                    setSettings({ ...settings, hfToken: e.target.value });
-                                } else if (settings.aiProvider === 'together') {
-                                    setSettings({ ...settings, togetherApiKey: e.target.value });
-                                } else {
-                                    setSettings({ ...settings, geminiApiKey: e.target.value });
+                                setSettings({ ...settings, correctionProvider: e.target.value });
+                                // Revalidar quando trocar provedor
+                                if (settings.correctionApiKey) {
+                                    const validation = validateApiKey(e.target.value, settings.correctionApiKey);
+                                    setApiKeyErrors(prev => ({ ...prev, correction: validation.valid ? undefined : validation.message }));
                                 }
                             }}
-                            placeholder={
-                                settings.aiProvider === 'groq' ? 'gsk_...' :
-                                    settings.aiProvider === 'huggingface' ? 'hf_...' :
-                                        settings.aiProvider === 'together' ? 'together_...' :
-                                            'AIza...'
-                            }
-                            style={{
-                                width: '100%',
-                                padding: '12px 48px 12px 16px',
-                                background: '#0f1419',
-                                border: '1px solid #334155',
-                                borderRadius: '8px',
-                                color: '#fff',
-                                fontSize: '14px',
-                                fontFamily: 'monospace'
-                            }}
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowApiKey(!showApiKey)}
-                            style={{
-                                position: 'absolute',
-                                right: '12px',
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                background: 'transparent',
-                                border: 'none',
-                                cursor: 'pointer',
-                                fontSize: '18px',
-                                color: '#64748b',
-                                padding: '4px 8px',
-                                transition: 'color 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.color = '#94a3b8'}
-                            onMouseLeave={(e) => e.currentTarget.style.color = '#64748b'}
+                            style={{ width: '100%', padding: '10px 14px', background: '#1a1f2e', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', cursor: 'pointer', marginBottom: '10px' }}
                         >
-                            {showApiKey ? '🙈' : '👁️'}
-                        </button>
+                            <option value="gemini">🟢 Google Gemini</option>
+                            <option value="groq">⚡ Groq (Recomendado)</option>
+                            <option value="cerebras">🧠 Cerebras</option>
+                            <option value="huggingface">🤗 HuggingFace</option>
+                            <option value="together">🔷 Together AI</option>
+                        </select>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type={showApiKeys['correction'] ? 'text' : 'password'}
+                                value={settings.correctionApiKey}
+                                onChange={(e) => handleApiKeyChange('correction', e.target.value)}
+                                placeholder="Chave API..."
+                                style={{ width: '100%', padding: '10px 36px 10px 10px', background: apiKeyErrors.correction ? '#1a0f0f' : '#1a1f2e', border: `1px solid ${apiKeyErrors.correction ? '#ef4444' : '#334155'}`, borderRadius: '6px', color: apiKeyErrors.correction ? '#ef4444' : '#94a3b8', fontSize: '12px', fontFamily: 'monospace' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowApiKeys(prev => ({ ...prev, correction: !prev.correction }))}
+                                style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#64748b' }}
+                            >
+                                {showApiKeys['correction'] ? '🙈' : '👁️'}
+                            </button>
+                        </div>
+                        {apiKeyErrors.correction && <p style={{ fontSize: '11px', color: '#ef4444', marginTop: '6px' }}>⚠️ {apiKeyErrors.correction}</p>}
                     </div>
 
-                    <p style={{
-                        fontSize: '12px',
-                        color: '#64748b',
-                        marginTop: '8px'
-                    }}>
-                        {settings.aiProvider === 'groq' && 'Obtenha em: https://console.groq.com'}
-                        {(!settings.aiProvider || settings.aiProvider === 'gemini') && 'Obtenha em: https://aistudio.google.com/app/apikey'}
-                        {settings.aiProvider === 'huggingface' && 'Obtenha em: https://huggingface.co/settings/tokens'}
-                        {settings.aiProvider === 'together' && 'Obtenha em: https://api.together.xyz/settings/api-keys'}
-                    </p>
+                    {/* Segunda Correção Premium */}
+                    <div style={{ background: '#0f1419', borderRadius: '10px', padding: '16px', border: '1px solid #a855f7' }}>
+                        <label style={{ display: 'block', fontSize: '14px', color: '#fff', marginBottom: '10px', fontWeight: '600' }}>
+                            💎 Segunda Correção (Premium)
+                        </label>
+                        <p style={{ fontSize: '11px', color: '#64748b', marginBottom: '10px' }}>
+                            Configure o segundo corretor para o modo Premium (dupla correção).
+                        </p>
+                        <select
+                            value={settings.premiumProvider || 'gemini'}
+                            onChange={(e) => {
+                                setSettings({ ...settings, premiumProvider: e.target.value });
+                                // Revalidar quando trocar provedor
+                                if (settings.premiumGeminiApiKey) {
+                                    const validation = validateApiKey(e.target.value, settings.premiumGeminiApiKey);
+                                    setApiKeyErrors(prev => ({ ...prev, premium: validation.valid ? undefined : validation.message }));
+                                }
+                            }}
+                            style={{ width: '100%', padding: '10px 14px', background: '#1a1f2e', border: '1px solid #a855f7', borderRadius: '6px', color: '#fff', fontSize: '13px', cursor: 'pointer', marginBottom: '10px' }}
+                        >
+                            <option value="gemini">🟢 Google Gemini</option>
+                            <option value="groq">⚡ Groq</option>
+                            <option value="cerebras">🧠 Cerebras</option>
+                            <option value="huggingface">🤗 HuggingFace</option>
+                            <option value="together">🔷 Together AI</option>
+                        </select>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type={showApiKeys['premiumGemini'] ? 'text' : 'password'}
+                                value={settings.premiumGeminiApiKey}
+                                onChange={(e) => handleApiKeyChange('premium', e.target.value)}
+                                placeholder="Chave API..."
+                                style={{ width: '100%', padding: '10px 36px 10px 10px', background: apiKeyErrors.premium ? '#1a0f0f' : '#1a1f2e', border: `1px solid ${apiKeyErrors.premium ? '#ef4444' : '#a855f7'}`, borderRadius: '6px', color: apiKeyErrors.premium ? '#ef4444' : '#94a3b8', fontSize: '12px', fontFamily: 'monospace' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowApiKeys(prev => ({ ...prev, premiumGemini: !prev.premiumGemini }))}
+                                style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#64748b' }}
+                            >
+                                {showApiKeys['premiumGemini'] ? '🙈' : '👁️'}
+                            </button>
+                        </div>
+                        {apiKeyErrors.premium && <p style={{ fontSize: '11px', color: '#ef4444', marginTop: '6px' }}>⚠️ {apiKeyErrors.premium}</p>}
+                    </div>
+
+                    {/* Fallback Provider */}
+                    <div style={{ background: '#0f1419', borderRadius: '10px', padding: '16px', border: '1px solid #f59e0b' }}>
+                        <label style={{ display: 'block', fontSize: '14px', color: '#fff', marginBottom: '10px', fontWeight: '600' }}>
+                            🔄 Fallback (Quando o provedor falhar)
+                        </label>
+                        <p style={{ fontSize: '11px', color: '#64748b', marginBottom: '10px' }}>
+                            Provedor usado quando o principal ou Premium falhar.
+                        </p>
+                        <select
+                            value={settings.fallbackProvider || 'groq'}
+                            onChange={(e) => {
+                                setSettings({ ...settings, fallbackProvider: e.target.value });
+                                // Revalidar quando trocar provedor
+                                if (settings.fallbackApiKey) {
+                                    const validation = validateApiKey(e.target.value, settings.fallbackApiKey);
+                                    setApiKeyErrors(prev => ({ ...prev, fallback: validation.valid ? undefined : validation.message }));
+                                }
+                            }}
+                            style={{ width: '100%', padding: '10px 14px', background: '#1a1f2e', border: '1px solid #f59e0b', borderRadius: '6px', color: '#fff', fontSize: '13px', cursor: 'pointer', marginBottom: '10px' }}
+                        >
+                            <option value="gemini">🟢 Google Gemini</option>
+                            <option value="groq">⚡ Groq (Recomendado)</option>
+                            <option value="cerebras">🧠 Cerebras</option>
+                            <option value="huggingface">🤗 HuggingFace</option>
+                            <option value="together">🔷 Together AI</option>
+                        </select>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type={showApiKeys['fallback'] ? 'text' : 'password'}
+                                value={settings.fallbackApiKey}
+                                onChange={(e) => handleApiKeyChange('fallback', e.target.value)}
+                                placeholder="Chave API de fallback..."
+                                style={{ width: '100%', padding: '10px 36px 10px 10px', background: apiKeyErrors.fallback ? '#1a0f0f' : '#1a1f2e', border: `1px solid ${apiKeyErrors.fallback ? '#ef4444' : '#f59e0b'}`, borderRadius: '6px', color: apiKeyErrors.fallback ? '#ef4444' : '#94a3b8', fontSize: '12px', fontFamily: 'monospace' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowApiKeys(prev => ({ ...prev, fallback: !prev.fallback }))}
+                                style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#64748b' }}
+                            >
+                                {showApiKeys['fallback'] ? '🙈' : '👁️'}
+                            </button>
+                        </div>
+                        {apiKeyErrors.fallback && <p style={{ fontSize: '11px', color: '#ef4444', marginTop: '6px' }}>⚠️ {apiKeyErrors.fallback}</p>}
+                    </div>
+
+                    {/* Geração de Imagens */}
+                    <div style={{ background: '#0f1419', borderRadius: '10px', padding: '16px', border: `1px solid ${apiKeyErrors.image ? '#ef4444' : '#334155'}` }}>
+                        <label style={{ display: 'block', fontSize: '14px', color: '#fff', marginBottom: '10px', fontWeight: '600' }}>
+                            🖼️ Geração de Imagens (Blog)
+                        </label>
+                        <select
+                            value={settings.imageProvider}
+                            onChange={(e) => setSettings({ ...settings, imageProvider: e.target.value })}
+                            style={{ width: '100%', padding: '10px 14px', background: '#1a1f2e', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', cursor: 'pointer', marginBottom: '10px' }}
+                        >
+                            <option value="huggingface">🤗 HuggingFace (Stable Diffusion)</option>
+                        </select>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type={showApiKeys['image'] ? 'text' : 'password'}
+                                value={settings.imageApiKey}
+                                onChange={(e) => handleApiKeyChange('image', e.target.value)}
+                                placeholder="Chave API..."
+                                style={{ width: '100%', padding: '10px 36px 10px 10px', background: apiKeyErrors.image ? '#1a0f0f' : '#1a1f2e', border: `1px solid ${apiKeyErrors.image ? '#ef4444' : '#334155'}`, borderRadius: '6px', color: apiKeyErrors.image ? '#ef4444' : '#94a3b8', fontSize: '12px', fontFamily: 'monospace' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowApiKeys(prev => ({ ...prev, image: !prev.image }))}
+                                style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#64748b' }}
+                            >
+                                {showApiKeys['image'] ? '🙈' : '👁️'}
+                            </button>
+                        </div>
+                        {apiKeyErrors.image && <p style={{ fontSize: '11px', color: '#ef4444', marginTop: '6px' }}>⚠️ {apiKeyErrors.image}</p>}
+                    </div>
+
+                    {/* Tutor IA */}
+                    <div style={{ background: '#0f1419', borderRadius: '10px', padding: '16px', border: `1px solid ${apiKeyErrors.tutor ? '#ef4444' : '#334155'}` }}>
+                        <label style={{ display: 'block', fontSize: '14px', color: '#fff', marginBottom: '10px', fontWeight: '600' }}>
+                            👨‍🏫 Tutor IA (Chat)
+                        </label>
+                        <select
+                            value={settings.tutorProvider}
+                            onChange={(e) => {
+                                setSettings({ ...settings, tutorProvider: e.target.value });
+                                if (settings.tutorApiKey) {
+                                    const validation = validateApiKey(e.target.value, settings.tutorApiKey);
+                                    setApiKeyErrors(prev => ({ ...prev, tutor: validation.valid ? undefined : validation.message }));
+                                }
+                            }}
+                            style={{ width: '100%', padding: '10px 14px', background: '#1a1f2e', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', cursor: 'pointer', marginBottom: '10px' }}
+                        >
+                            <option value="gemini">🟢 Google Gemini</option>
+                            <option value="groq">⚡ Groq (Recomendado)</option>
+                            <option value="huggingface">🤗 HuggingFace</option>
+                            <option value="together">🔷 Together AI</option>
+                        </select>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type={showApiKeys['tutor'] ? 'text' : 'password'}
+                                value={settings.tutorApiKey}
+                                onChange={(e) => handleApiKeyChange('tutor', e.target.value)}
+                                placeholder="Chave API..."
+                                style={{ width: '100%', padding: '10px 36px 10px 10px', background: apiKeyErrors.tutor ? '#1a0f0f' : '#1a1f2e', border: `1px solid ${apiKeyErrors.tutor ? '#ef4444' : '#334155'}`, borderRadius: '6px', color: apiKeyErrors.tutor ? '#ef4444' : '#94a3b8', fontSize: '12px', fontFamily: 'monospace' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowApiKeys(prev => ({ ...prev, tutor: !prev.tutor }))}
+                                style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#64748b' }}
+                            >
+                                {showApiKeys['tutor'] ? '🙈' : '👁️'}
+                            </button>
+                        </div>
+                        {apiKeyErrors.tutor && <p style={{ fontSize: '11px', color: '#ef4444', marginTop: '6px' }}>⚠️ {apiKeyErrors.tutor}</p>}
+                    </div>
+
+                    {/* Geração de Tema */}
+                    <div style={{ background: '#0f1419', borderRadius: '10px', padding: '16px', border: `1px solid ${apiKeyErrors.theme ? '#ef4444' : '#334155'}` }}>
+                        <label style={{ display: 'block', fontSize: '14px', color: '#fff', marginBottom: '10px', fontWeight: '600' }}>
+                            💡 Geração de Tema
+                        </label>
+                        <select
+                            value={settings.themeProvider}
+                            onChange={(e) => {
+                                setSettings({ ...settings, themeProvider: e.target.value });
+                                if (settings.themeApiKey) {
+                                    const validation = validateApiKey(e.target.value, settings.themeApiKey);
+                                    setApiKeyErrors(prev => ({ ...prev, theme: validation.valid ? undefined : validation.message }));
+                                }
+                            }}
+                            style={{ width: '100%', padding: '10px 14px', background: '#1a1f2e', border: '1px solid #334155', borderRadius: '6px', color: '#fff', fontSize: '13px', cursor: 'pointer', marginBottom: '10px' }}
+                        >
+                            <option value="gemini">🟢 Google Gemini</option>
+                            <option value="groq">⚡ Groq (Recomendado)</option>
+                            <option value="huggingface">🤗 HuggingFace</option>
+                            <option value="together">🔷 Together AI</option>
+                        </select>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type={showApiKeys['theme'] ? 'text' : 'password'}
+                                value={settings.themeApiKey}
+                                onChange={(e) => handleApiKeyChange('theme', e.target.value)}
+                                placeholder="Chave API..."
+                                style={{ width: '100%', padding: '10px 36px 10px 10px', background: apiKeyErrors.theme ? '#1a0f0f' : '#1a1f2e', border: `1px solid ${apiKeyErrors.theme ? '#ef4444' : '#334155'}`, borderRadius: '6px', color: apiKeyErrors.theme ? '#ef4444' : '#94a3b8', fontSize: '12px', fontFamily: 'monospace' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowApiKeys(prev => ({ ...prev, theme: !prev.theme }))}
+                                style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#64748b' }}
+                            >
+                                {showApiKeys['theme'] ? '🙈' : '👁️'}
+                            </button>
+                        </div>
+                        {apiKeyErrors.theme && <p style={{ fontSize: '11px', color: '#ef4444', marginTop: '6px' }}>⚠️ {apiKeyErrors.theme}</p>}
+                    </div>
                 </div>
             </div>
 

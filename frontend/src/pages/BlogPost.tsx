@@ -145,17 +145,22 @@ const BlogPost = () => {
             <Header />
 
             <main style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
-                {/* Breadcrumb */}
+                {/* Breadcrumb - Botão voltar */}
                 <nav style={{ marginBottom: '32px' }}>
                     <Link
                         to="/blog"
                         style={{
-                            color: '#4F46E5',
-                            textDecoration: 'none',
-                            fontSize: '14px',
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '8px'
+                            gap: '8px',
+                            padding: '10px 20px',
+                            background: '#1a1f2e',
+                            border: '1px solid #334155',
+                            borderRadius: '8px',
+                            color: '#94a3b8',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            textDecoration: 'none'
                         }}
                     >
                         ← Voltar ao Blog
@@ -332,6 +337,29 @@ const BlogPost = () => {
                         }}
                     >
                         Começar Grátis
+                    </Link>
+                </div>
+
+                {/* Voltar ao Blog */}
+                <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                    <Link
+                        to="/blog"
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '12px 28px',
+                            background: '#1a1f2e',
+                            border: '1px solid #334155',
+                            borderRadius: '10px',
+                            color: '#94a3b8',
+                            fontSize: '15px',
+                            fontWeight: '500',
+                            textDecoration: 'none',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        ← Ver todos os posts
                     </Link>
                 </div>
             </main>

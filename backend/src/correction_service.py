@@ -39,29 +39,50 @@ async def process_correction(submission_id: int, db: Session):
         exam_type = getattr(submission, 'exam_type', None) or 'enem'  # Pega exam_type da submission
         print(f"📚 Tipo de vestibular: {exam_type.upper()}")
         
+        # Buscar chaves do banco de dados
+        settings = db.query(models.Settings).first()
+        correction_api_key = getattr(settings, 'correction_api_key', '') or ''
+        premium_api_key = getattr(settings, 'premium_gemini_api_key', '') or ''
+        premium_provider = getattr(settings, 'premium_provider', 'gemini') or 'gemini'
+        fallback_provider = getattr(settings, 'fallback_provider', 'groq') or 'groq'
+        fallback_api_key = getattr(settings, 'fallback_api_key', '') or ''
+        
         if correction_type == "premium":
-            print("💎 Usando correção PREMIUM (Groq + Gemini)")
-            groq_key = os.getenv('GROQ_API_KEY')
-            gemini_key = os.getenv('GEMINI_API_KEY')
+            print(f"💎 Usando correção PREMIUM (Corretor 1 + {premium_provider.upper()})")
+            print(f"🔄 Fallback configurado: {fallback_provider.upper()}")
             
-            if not groq_key or not gemini_key:
-                raise Exception("Premium requires both GROQ and GEMINI API keys")
+            # Primeira correção: usa correction_api_key (geralmente Groq)
+            groq_key = correction_api_key if correction_api_key.lower().startswith('gsk_') else os.getenv('GROQ_API_KEY')
+            
+            # Segunda correção: usa premium_api_key
+            second_key = premium_api_key
+            
+            # Se não tem chave premium, tenta fallback
+            if not second_key:
+                print(f"⚠️ Chave premium não configurada, usando fallback ({fallback_provider})")
+                second_key = fallback_api_key or os.getenv(f'{fallback_provider.upper()}_API_KEY')
+            
+            print(f"🔑 Corretor 1 (Groq) configured: {bool(groq_key)}")
+            print(f"🔑 Corretor 2 ({premium_provider}) configured: {bool(second_key)}")
+            
+            if not groq_key or not second_key:
+                raise Exception(f"Premium requires both API keys. Configure 'Correção de Redação' and 'Segunda Correção (Premium)' nas configurações.")
             
             correction_data = await ai_service.correct_essay_premium(
                 title=submission.title,
                 theme=submission.theme or "Tema livre",
                 content=submission.content,
-                exam_type=exam_type,  # NOVO - passa exam_type
+                exam_type=exam_type,
                 api_key_groq=groq_key,
-                api_key_gemini=gemini_key
+                api_key_gemini=second_key  # Passa a segunda chave (pode ser Gemini ou outro)
             )
         else:
-            print("⚡ Usando correção AVANÇADA (Groq)")
+            print("⚡ Usando correção AVANÇADA")
             correction_data = await ai_service.correct_essay_with_gemini(
                 title=submission.title,
                 theme=submission.theme or "Tema livre",
                 content=submission.content,
-                exam_type=exam_type  # NOVO - passa exam_type
+                exam_type=exam_type
             )
         
         logger.info(f"AI retornou dados. Salvando no banco...")

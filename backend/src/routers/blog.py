@@ -314,19 +314,22 @@ async def generate_cover_image(
     try:
         import os
         
-        # Get HF_TOKEN from environment or database settings
-        hf_token = os.getenv('HF_TOKEN')
+        # Get HF_TOKEN from database settings (novo campo image_api_key) or environment
+        from ..models import Settings as SettingsModel
+        db_settings = db.query(SettingsModel).first()
+        
+        hf_token = None
+        if db_settings:
+            # Primeiro tenta image_api_key (novo), depois hf_token (legado)
+            hf_token = getattr(db_settings, 'image_api_key', None) or getattr(db_settings, 'hf_token', None)
+        
         if not hf_token:
-            # Try to get from database settings
-            from ..models import Settings as SettingsModel
-            db_settings = db.query(SettingsModel).first()
-            if db_settings and db_settings.hf_token:
-                hf_token = db_settings.hf_token
+            hf_token = os.getenv('HF_TOKEN')
         
         if not hf_token:
             raise HTTPException(
                 status_code=500, 
-                detail="HF_TOKEN não configurado. Configure em Configurações > Chaves de API."
+                detail="Chave HuggingFace não configurada. Configure em Configurações > Geração de Imagens."
             )
         
         # Create prompt for image generation (writing/education theme)

@@ -54,15 +54,46 @@ Exemplos de bons temas:
         
         logger.info(f"🤖 Gerando tema com IA para usuário {current_user.email}")
         
-        # Tentar Groq primeiro (mais rápido)
-        # Usa GROQ_THEME_API_KEY se disponível, caso contrário usa GROQ_API_KEY
-        groq_key = os.getenv("GROQ_THEME_API_KEY") or os.getenv("GROQ_API_KEY")
-        if groq_key:
+        # Buscar theme_provider e theme_api_key do banco de dados
+        from ..database import SessionLocal, init_db_engine
+        from ..models import Settings
+        
+        SL = SessionLocal
+        if SL is None:
+            init_db_engine()
+            from ..database import SessionLocal as SL_new
+            SL = SL_new
+        
+        db = SL()
+        try:
+            db_settings = db.query(Settings).first()
+            if db_settings:
+                theme_provider = getattr(db_settings, 'theme_provider', 'groq') or 'groq'
+                theme_api_key = getattr(db_settings, 'theme_api_key', None) or ''
+            else:
+                theme_provider = 'groq'
+                theme_api_key = ''
+        finally:
+            db.close()
+        
+        logger.info(f"📊 Theme provider from database: {theme_provider}")
+        logger.info(f"🔑 Theme API key configured: {bool(theme_api_key)}")
+        
+        # Fallback para variáveis de ambiente se não tiver chave no banco
+        if not theme_api_key:
+            if theme_provider == 'groq':
+                theme_api_key = os.getenv("GROQ_API_KEY", "")
+            elif theme_provider == 'gemini':
+                theme_api_key = os.getenv("GEMINI_API_KEY", "")
+            logger.warning("⚠️ Usando chave API de variável de ambiente como fallback")
+        
+        # Selecionar API baseado no provider
+        if theme_provider == 'groq' and theme_api_key:
             try:
                 from groq import Groq
                 
                 logger.info("🚀 Usando Groq para gerar tema")
-                client = Groq(api_key=groq_key)
+                client = Groq(api_key=theme_api_key)
                 
                 response = client.chat.completions.create(
                     model="llama-3.1-8b-instant",
@@ -94,7 +125,7 @@ Exemplos de bons temas:
                 logger.warning(f"⚠️ Groq falhou: {str(e)}, tentando Gemini...")
         
         # Fallback para Gemini
-        gemini_key = os.getenv("GEMINI_THEME_API_KEY") or os.getenv("GEMINI_API_KEY")
+        gemini_key = theme_api_key if theme_provider == 'gemini' else os.getenv("GEMINI_API_KEY")
         
         if not gemini_key:
             logger.error("❌ Nenhuma API key configurada (Groq ou Gemini)")
