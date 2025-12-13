@@ -92,7 +92,9 @@ AI_PROVIDERS = {
 }
 
 # Prompt aprimorado com calibração e critérios objetivos
-CORRECTION_PROMPT = """Você é um corretor OFICIAL do ENEM. Analise esta redação seguindo RIGOROSAMENTE os critérios oficiais.
+CORRECTION_PROMPT = """IMPORTANTE: RESPONDA APENAS COM JSON VÁLIDO. NÃO escreva texto explicativo, análises ou comentários fora do JSON. Comece sua resposta DIRETAMENTE com o caractere {{ e termine com }}.
+
+Você é um corretor do ENEM. Avalie esta redação seguindo os critérios oficiais.
 
 **📊 ESCALA DE CALIBRAÇÃO (distribuição estatística típica):**
 - 200 pontos: <5% das redações (texto excepcional, referência nacional)
@@ -227,6 +229,8 @@ Título: {title}
 Tema: {theme}
 
 {content}
+
+LEMBRE-SE: Sua resposta deve ser APENAS o JSON acima preenchido. NÃO escreva nada antes de {{ ou depois de }}. Comece DIRETAMENTE com {{"competence_1_score":
 """
 
 
