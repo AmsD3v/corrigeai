@@ -175,6 +175,13 @@ Características: erros frequentes, pouco desenvolvimento, estrutura frágil, pr
 4. Seja CRITERIOSO: nota 200 exige perfeição quase absoluta
 5. EVITE: dar sempre a mesma nota ou notas muito extremas
 
+**📝 OBRIGATÓRIO - FEEDBACKS DETALHADOS:**
+- **strengths**: EXATAMENTE 5 pontos fortes (um para cada competência), com frases completas e específicas baseadas no texto
+- **improvements**: EXATAMENTE 5 pontos a melhorar (um para cada competência), citando trechos específicos do texto que precisam de correção
+- **general_comments**: MÍNIMO 3 parágrafos com: (1) análise geral da redação, (2) principais qualidades, (3) sugestões de melhoria com exemplos práticos
+
+NÃO use frases genéricas como "Nenhum ponto forte identificado". Analise o texto e encontre pontos específicos.
+
 Retorne APENAS JSON válido:
 
 ```json
