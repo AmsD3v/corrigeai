@@ -24,7 +24,7 @@ def generate_competence_json_structure(criteria: ExamCriteria) -> str:
     for i, weight in enumerate(criteria.weights, 1):
         lines.append(f'    "competence_{i}_score": <nota de 0 a {int(weight)}>,')
     for i in range(1, len(criteria.weights) + 1):
-        lines.append(f'    "competence_{i}_feedback": "Análise: <análise>\\n\\n✅ Pontos Fortes: <pontos fortes>\\n\\n⚠️ O que melhorar: <melhorias ou N/A se nota máxima>",')
+        lines.append(f'    "competence_{i}_feedback": "📊 Análise Detalhada: <análise completa de 3-4 frases explicando a avaliação>\\\\n\\\\n✅ Pontos Fortes: <2-3 aspectos positivos específicos com citações do texto>\\\\n\\\\n⚠️ O que Melhorar: <2-3 sugestões concretas citando trechos específicos do texto que precisam de correção>\\\\n\\\\n💡 Dica Premium: <sugestão avançada para próximo nível>",')
     return "\n".join(lines)
 
 
@@ -160,14 +160,45 @@ Tema: {theme or '(Tema livre)'}
 {content}
 ====================
 
+**📝 REGRAS OBRIGATÓRIAS PARA CORREÇÃO PREMIUM:**
+
+1. **Cada competence_X_feedback DEVE conter:**
+   - 📊 Análise Detalhada: 3-4 frases explicando a avaliação
+   - ✅ Pontos Fortes: 2-3 aspectos positivos específicos COM citações do texto
+   - ⚠️ O que Melhorar: 2-3 sugestões concretas COM trechos específicos que precisam de correção
+   - 💡 Dica Premium: 1 sugestão avançada para alcançar o próximo nível
+
+2. **strengths DEVE ter EXATAMENTE {len(criteria.competencies)} itens** (um por competência), com frases detalhadas de 20+ palavras cada. MESMO que a redação seja fraca, encontre aspectos relativamente positivos.
+
+3. **improvements DEVE ter EXATAMENTE {len(criteria.competencies)} itens** (um por competência), citando trechos específicos do texto entre aspas simples.
+
+4. **general_comments DEVE ter 200+ palavras em 3 parágrafos:**
+   - Parágrafo 1: Análise geral da estrutura e qualidade do texto
+   - Parágrafo 2: Principais qualidades e pontos de destaque
+   - Parágrafo 3: Sugestões práticas de melhoria com exemplos
+
+5. **PROIBIDO usar:**
+   - "Nenhum ponto forte identificado"
+   - "N/A" ou "N/F"
+   - Arrays vazios []
+   - Frases genéricas sem especificidade
+
 **RETORNE EM JSON com a seguinte estrutura EXATA:**
 
 {{
 {generate_competence_json_structure(criteria)}
     "total_score": <soma de todas as competências>,
-    "strengths": "<lista de pontos fortes em JSON array>",
-    "improvements": "<lista de pontos a melhorar em JSON array>",
-    "general_comments": "<comentário geral sobre a redação>"
+    "strengths": [
+        "C1: <ponto forte detalhado com 20+ palavras citando aspectos específicos do texto>",
+        "C2: <ponto forte detalhado...>",
+        ...
+    ],
+    "improvements": [
+        "C1: <melhoria específica citando trecho do texto entre aspas>",
+        "C2: <melhoria específica...>",
+        ...
+    ],
+    "general_comments": "<3 parágrafos com 200+ palavras total: (1) análise geral, (2) qualidades, (3) sugestões práticas>"
 }}
 
 IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.
