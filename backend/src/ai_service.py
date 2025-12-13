@@ -190,9 +190,21 @@ Retorne APENAS JSON válido:
   "competence_5_score": 120,
   "competence_5_feedback": "📊 Elementos presentes: X de 5 (ação, agente, modo, efeito, detalhamento).\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
   "total_score": 600,
-  "strengths": ["Força específica 1", "Força específica 2"],
-  "improvements": ["Melhoria específica 1", "Melhoria específica 2"],
-  "general_comments": "Comentário geral construtivo baseado na análise objetiva."
+  "strengths": [
+    "Competência 1: Excelente domínio da norma culta com vocabulário rico e variado",
+    "Competência 2: Compreensão profunda do tema com perspectiva crítica original",
+    "Competência 3: Argumentação sólida com repertório sociocultural legitimado",
+    "Competência 4: Progressão textual fluida com conectivos diversificados",
+    "Competência 5: Proposta de intervenção detalhada com todos os elementos"
+  ],
+  "improvements": [
+    "Competência 1: Revisar concordância nominal em 'os problema' (linha 3)",
+    "Competência 2: Aprofundar a relação entre tecnologia e desigualdade social",
+    "Competência 3: Adicionar mais um argumento para fortalecer a tese",
+    "Competência 4: Variar os conectivos, evitando repetição de 'além disso'",
+    "Competência 5: Especificar COMO a ação proposta seria implementada"
+  ],
+  "general_comments": "Sua redação demonstra bom domínio da estrutura dissertativo-argumentativa. O texto apresenta introdução com contextualização histórica pertinente, desenvolvimento com dois argumentos bem articulados, e conclusão com proposta de intervenção completa. Para alcançar notas mais altas, sugiro: (1) revisar erros pontuais de concordância, (2) aprofundar a análise crítica do tema conectando com dados estatísticos, e (3) diversificar o repertório sociocultural citando pensadores ou obras literárias. Continue praticando que você está no caminho certo!"
 }}
 ```
 
