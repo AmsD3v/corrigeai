@@ -190,13 +190,17 @@ Tema: {theme or '(Tema livre)'}
     "total_score": <soma de todas as competências>,
     "strengths": [
         "C1: <ponto forte detalhado com 20+ palavras citando aspectos específicos do texto>",
-        "C2: <ponto forte detalhado...>",
-        ...
+        "C2: <ponto forte detalhado com 20+ palavras citando aspectos específicos do texto>",
+        "C3: <ponto forte detalhado com 20+ palavras citando aspectos específicos do texto>",
+        "C4: <ponto forte detalhado com 20+ palavras citando aspectos específicos do texto>",
+        "C5: <ponto forte detalhado com 20+ palavras citando aspectos específicos do texto>"
     ],
     "improvements": [
         "C1: <melhoria específica citando trecho do texto entre aspas>",
-        "C2: <melhoria específica...>",
-        ...
+        "C2: <melhoria específica citando trecho do texto entre aspas>",
+        "C3: <melhoria específica citando trecho do texto entre aspas>",
+        "C4: <melhoria específica citando trecho do texto entre aspas>",
+        "C5: <melhoria específica citando trecho do texto entre aspas>"
     ],
     "general_comments": "<3 parágrafos com 200+ palavras total: (1) análise geral, (2) qualidades, (3) sugestões práticas>"
 }}
