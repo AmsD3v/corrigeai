@@ -24,7 +24,7 @@ def generate_competence_json_structure(criteria: ExamCriteria) -> str:
     for i, weight in enumerate(criteria.weights, 1):
         lines.append(f'    "competence_{i}_score": <nota de 0 a {int(weight)}>,')
     for i in range(1, len(criteria.weights) + 1):
-        lines.append(f'    "competence_{i}_feedback": "📊 Análise Detalhada: <análise completa de 3-4 frases explicando a avaliação>\\\\n\\\\n✅ Pontos Fortes: <2-3 aspectos positivos específicos com citações do texto>\\\\n\\\\n⚠️ O que Melhorar: <2-3 sugestões concretas citando trechos específicos do texto que precisam de correção>\\\\n\\\\n💡 Dica Premium: <sugestão avançada para próximo nível>",')
+        lines.append(f'    "competence_{i}_feedback": "📊 Análise Detalhada: <análise completa de 3-4 frases explicando a avaliação>\\n\\n✅ Pontos Fortes: <2-3 aspectos positivos específicos com citações do texto>\\n\\n⚠️ O que Melhorar: <2-3 sugestões concretas citando trechos específicos do texto que precisam de correção>\\n\\n💡 Dica Premium: <sugestão avançada para próximo nível>",')
     return "\n".join(lines)
 
 

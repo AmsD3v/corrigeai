@@ -726,7 +726,7 @@ async def correct_with_groq_custom_prompt(title: str, theme: str, content: str, 
             model=model,
             messages=[{"role": "user", "content": custom_prompt}],
             temperature=0.2,
-            max_tokens=2048
+            max_tokens=4096
         )
         
         text = response.choices[0].message.content.strip()
@@ -758,7 +758,7 @@ async def correct_with_gemini_custom_prompt(title: str, theme: str, content: str
         
         response = model.generate_content(
             custom_prompt,
-            generation_config=genai.GenerationConfig(temperature=0.1, max_output_tokens=2048),
+            generation_config=genai.GenerationConfig(temperature=0.1, max_output_tokens=4096),
             safety_settings=[
                 {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
                 {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -798,7 +798,7 @@ async def correct_with_cerebras_custom_prompt(title: str, theme: str, content: s
             model="llama-3.3-70b",
             messages=[{"role": "user", "content": custom_prompt}],
             temperature=0.2,
-            max_tokens=2048
+            max_tokens=4096
         )
         
         text = response.choices[0].message.content.strip()
