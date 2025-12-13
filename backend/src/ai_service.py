@@ -461,7 +461,7 @@ async def correct_essay_with_gemini(title: str, theme: str, content: str, exam_t
     # Define wrapper functions for retry
     async def run_groq():
         return await correct_with_groq_custom_prompt(
-            title, theme, content, api_key, prompt, model="llama-3.1-8b-instant"
+            title, theme, content, api_key, prompt, model="llama-3.3-70b-versatile"
         )
         
     async def run_gemini():
