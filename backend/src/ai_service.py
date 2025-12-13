@@ -175,43 +175,52 @@ Características: erros frequentes, pouco desenvolvimento, estrutura frágil, pr
 4. Seja CRITERIOSO: nota 200 exige perfeição quase absoluta
 5. EVITE: dar sempre a mesma nota ou notas muito extremas
 
-**📝 OBRIGATÓRIO - FEEDBACKS DETALHADOS:**
-- **strengths**: EXATAMENTE 5 pontos fortes (um para cada competência), com frases completas e específicas baseadas no texto
-- **improvements**: EXATAMENTE 5 pontos a melhorar (um para cada competência), citando trechos específicos do texto que precisam de correção
-- **general_comments**: MÍNIMO 3 parágrafos com: (1) análise geral da redação, (2) principais qualidades, (3) sugestões de melhoria com exemplos práticos
+**📝 REGRAS OBRIGATÓRIAS PARA FEEDBACKS:**
 
-NÃO use frases genéricas como "Nenhum ponto forte identificado". Analise o texto e encontre pontos específicos.
+1. **strengths** DEVE conter EXATAMENTE 5 itens (um por competência). MESMO que a redação seja fraca, encontre aspectos positivos relativos. NUNCA deixe vazio ou com menos de 5 itens.
+   - Exemplo fraco: "C1: Apesar dos erros, o vocabulário básico é adequado para a comunicação"
+   
+2. **improvements** DEVE conter EXATAMENTE 5 itens (um por competência), citando trechos específicos do texto.
+   - Exemplo: "C1: No trecho 'a desinformação é um problema muito ruim', substituir por vocabulário mais preciso"
+
+3. **general_comments** DEVE ter no MÍNIMO 150 palavras em 3 parágrafos: (1) análise geral, (2) qualidades, (3) sugestões práticas.
+
+4. PROIBIDO usar:
+   - "Nenhum ponto forte identificado"
+   - "N/A" ou "N/F"
+   - Arrays vazios []
+   - Frases genéricas sem especificidade
 
 Retorne APENAS JSON válido:
 
 ```json
 {{
   "competence_1_score": 120,
-  "competence_1_feedback": "📊 Erros contados: X ortografia, Y pontuação, Z concordância.\\n\\n✅ Pontos Fortes: [listar específicos]\\n\\n⚠️ O que melhorar: [listar específicos]",
-  "competence_2_score": 160,
-  "competence_2_feedback": "📊 Avaliação: [tangenciamento/desenvolvimento].\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
-  "competence_3_score": 120,
-  "competence_3_feedback": "📊 Argumentos: X desenvolvidos, repertório [tipo].\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
+  "competence_1_feedback": "📊 Análise: Foram identificados X erros de ortografia e Y erros de pontuação.\\n\\n✅ Pontos Fortes: O vocabulário básico está adequado e há poucas repetições.\\n\\n⚠️ O que melhorar: Revisar a concordância em 'os problema' e a pontuação após conectivos.",
+  "competence_2_score": 120,
+  "competence_2_feedback": "📊 Análise: O tema foi abordado de forma superficial.\\n\\n✅ Pontos Fortes: Há uma tentativa de contextualização inicial.\\n\\n⚠️ O que melhorar: Desenvolver mais a relação causa-efeito do problema apresentado.",
+  "competence_3_score": 80,
+  "competence_3_feedback": "📊 Análise: Apresenta 1 argumento pouco desenvolvido.\\n\\n✅ Pontos Fortes: Há menção a uma causa do problema.\\n\\n⚠️ O que melhorar: Adicionar dados estatísticos ou citações de especialistas.",
   "competence_4_score": 80,
-  "competence_4_feedback": "📊 Conectivos: X adequados identificados.\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
+  "competence_4_feedback": "📊 Análise: Poucos conectivos identificados (3).\\n\\n✅ Pontos Fortes: Uso correto de 'além disso' para progressão.\\n\\n⚠️ O que melhorar: Diversificar conectivos, evitando repetição de 'portanto'.",
   "competence_5_score": 120,
-  "competence_5_feedback": "📊 Elementos presentes: X de 5 (ação, agente, modo, efeito, detalhamento).\\n\\n✅ Pontos Fortes: [específicos]\\n\\n⚠️ O que melhorar: [específicos]",
-  "total_score": 600,
+  "competence_5_feedback": "📊 Análise: Proposta incompleta (2 de 5 elementos).\\n\\n✅ Pontos Fortes: Menciona uma ação governamental.\\n\\n⚠️ O que melhorar: Especificar o agente (quem fará), o modo (como fará) e o efeito esperado.",
+  "total_score": 520,
   "strengths": [
-    "Competência 1: Excelente domínio da norma culta com vocabulário rico e variado",
-    "Competência 2: Compreensão profunda do tema com perspectiva crítica original",
-    "Competência 3: Argumentação sólida com repertório sociocultural legitimado",
-    "Competência 4: Progressão textual fluida com conectivos diversificados",
-    "Competência 5: Proposta de intervenção detalhada com todos os elementos"
+    "C1: Apesar de alguns erros gramaticais, demonstra capacidade de escrita formal com vocabulário adequado ao gênero dissertativo",
+    "C2: Demonstra compreensão do tema central, mesmo que superficial, identificando corretamente a problemática apresentada",
+    "C3: Apresenta tentativa de argumentação com menção a causas do problema, indicando potencial para desenvolvimento",
+    "C4: Utiliza alguns conectivos adequadamente, mostrando noção de progressão textual entre parágrafos",
+    "C5: Propõe uma solução, ainda que incompleta, demonstrando entendimento da necessidade de intervenção social"
   ],
   "improvements": [
-    "Competência 1: Revisar concordância nominal em 'os problema' (linha 3)",
-    "Competência 2: Aprofundar a relação entre tecnologia e desigualdade social",
-    "Competência 3: Adicionar mais um argumento para fortalecer a tese",
-    "Competência 4: Variar os conectivos, evitando repetição de 'além disso'",
-    "Competência 5: Especificar COMO a ação proposta seria implementada"
+    "C1: No trecho 'os problema da sociedade atual', corrigir para 'os problemas'. Revisar também a pontuação após 'Portanto'",
+    "C2: Aprofundar a discussão sobre o tema, explicando COMO e POR QUE o problema afeta a sociedade brasileira",
+    "C3: Adicionar pelo menos mais um argumento com repertório sociocultural (dados do IBGE, citação de filósofos, exemplos históricos)",
+    "C4: Substituir a terceira ocorrência de 'além disso' por conectivos variados como 'outrossim', 'ademais' ou 'sob essa ótica'",
+    "C5: Completar a proposta de intervenção especificando: QUEM executará (agente), COMO será feito (modo), e QUAL o resultado esperado (efeito)"
   ],
-  "general_comments": "Sua redação demonstra bom domínio da estrutura dissertativo-argumentativa. O texto apresenta introdução com contextualização histórica pertinente, desenvolvimento com dois argumentos bem articulados, e conclusão com proposta de intervenção completa. Para alcançar notas mais altas, sugiro: (1) revisar erros pontuais de concordância, (2) aprofundar a análise crítica do tema conectando com dados estatísticos, e (3) diversificar o repertório sociocultural citando pensadores ou obras literárias. Continue praticando que você está no caminho certo!"
+  "general_comments": "Sua redação apresenta uma estrutura básica de texto dissertativo-argumentativo, com introdução, desenvolvimento e conclusão. Você demonstra compreensão do tema proposto e consegue articular ideias de forma coerente, o que é um bom ponto de partida.\\n\\nEntre os pontos positivos, destaca-se sua capacidade de manter o foco no tema e de propor uma solução para o problema. A escrita é clara e você utiliza vocabulário adequado ao gênero, ainda que com alguns deslizes gramaticais que podem ser facilmente corrigidos com revisão.\\n\\nPara melhorar sua nota, sugiro: (1) revisar o texto em voz alta para identificar erros de concordância e pontuação; (2) adicionar dados estatísticos ou citações de pensadores para enriquecer a argumentação; e (3) detalhar sua proposta de intervenção com os 5 elementos exigidos - ação, agente, modo, efeito e detalhamento. Continue praticando que você está no caminho certo para alcançar notas mais altas!"
 }}
 ```
 
