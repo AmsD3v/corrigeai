@@ -144,9 +144,9 @@ const BlogPost = () => {
         <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%)' }}>
             <Header />
 
-            <main style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
+            <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
                 {/* Breadcrumb - Botão voltar */}
-                <nav style={{ marginBottom: '32px' }}>
+                <nav style={{ marginBottom: '32px', marginTop: '80px' }}>
                     <Link
                         to="/blog"
                         style={{
