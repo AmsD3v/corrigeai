@@ -774,10 +774,15 @@ const RedacaoDetalhes = () => {
                                         margin: 0
                                     }}>
                                         {strengths.map((strength: any, idx) => {
-                                            // Handle case where strength is an object (e.g. {descricao: "..."})
-                                            const text = typeof strength === 'object' && strength !== null
-                                                ? (strength.descricao || JSON.stringify(strength))
-                                                : String(strength);
+                                            // Handle case where strength is an object (e.g. {description: "..."} or {competency: "...", description: "..."})
+                                            let text = '';
+                                            if (typeof strength === 'object' && strength !== null) {
+                                                // Try different field names
+                                                text = strength.description || strength.descricao || strength.text ||
+                                                    (strength.competency ? `${strength.competency}: ${strength.description || 'N/F'}` : JSON.stringify(strength));
+                                            } else {
+                                                text = String(strength);
+                                            }
 
                                             return (
                                                 <li key={idx} style={{
@@ -827,10 +832,15 @@ const RedacaoDetalhes = () => {
                                         margin: 0
                                     }}>
                                         {improvements.map((improvement: any, idx) => {
-                                            // Handle case where improvement is an object (e.g. {descricao: "..."})
-                                            const text = typeof improvement === 'object' && improvement !== null
-                                                ? (improvement.descricao || JSON.stringify(improvement))
-                                                : String(improvement);
+                                            // Handle case where improvement is an object (e.g. {description: "..."} or {competency: "...", description: "..."})
+                                            let text = '';
+                                            if (typeof improvement === 'object' && improvement !== null) {
+                                                // Try different field names
+                                                text = improvement.description || improvement.descricao || improvement.text ||
+                                                    (improvement.competency ? `${improvement.competency}: ${improvement.description || 'N/F'}` : JSON.stringify(improvement));
+                                            } else {
+                                                text = String(improvement);
+                                            }
 
                                             return (
                                                 <li key={idx} style={{
