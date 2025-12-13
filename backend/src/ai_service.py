@@ -331,7 +331,7 @@ async def correct_with_groq(title: str, theme: str, content: str, api_key: str) 
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,  # Low temperature for consistent scoring
-            max_tokens=2048
+            max_tokens=4096
         )
         
         text = response.choices[0].message.content.strip()
@@ -403,7 +403,7 @@ async def correct_with_gemini(title: str, theme: str, content: str, api_key: str
         
         response = model.generate_content(
             prompt,
-            generation_config=genai.GenerationConfig(temperature=0.1, max_output_tokens=2048),
+            generation_config=genai.GenerationConfig(temperature=0.1, max_output_tokens=4096),
             safety_settings=[
                 {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
                 {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
