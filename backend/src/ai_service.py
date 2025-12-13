@@ -175,52 +175,49 @@ Características: erros frequentes, pouco desenvolvimento, estrutura frágil, pr
 4. Seja CRITERIOSO: nota 200 exige perfeição quase absoluta
 5. EVITE: dar sempre a mesma nota ou notas muito extremas
 
-**📝 REGRAS OBRIGATÓRIAS PARA FEEDBACKS:**
+**📝 REGRAS PARA FEEDBACKS (CORREÇÃO AVANÇADA):**
 
-1. **strengths** DEVE conter EXATAMENTE 5 itens (um por competência). MESMO que a redação seja fraca, encontre aspectos positivos relativos. NUNCA deixe vazio ou com menos de 5 itens.
-   - Exemplo fraco: "C1: Apesar dos erros, o vocabulário básico é adequado para a comunicação"
-   
-2. **improvements** DEVE conter EXATAMENTE 5 itens (um por competência), citando trechos específicos do texto.
-   - Exemplo: "C1: No trecho 'a desinformação é um problema muito ruim', substituir por vocabulário mais preciso"
+1. **Cada competence_X_feedback** deve conter:
+   - 📊 Análise breve (1-2 frases)
+   - ✅ Pontos Fortes (1 aspecto positivo)
+   - ⚠️ O que melhorar (1-2 sugestões)
 
-3. **general_comments** DEVE ter no MÍNIMO 150 palavras em 3 parágrafos: (1) análise geral, (2) qualidades, (3) sugestões práticas.
+2. **strengths**: 5 itens curtos (um por competência, máximo 15 palavras cada)
 
-4. PROIBIDO usar:
-   - "Nenhum ponto forte identificado"
-   - "N/A" ou "N/F"
-   - Arrays vazios []
-   - Frases genéricas sem especificidade
+3. **improvements**: 5 itens curtos (um por competência, máximo 15 palavras cada)
+
+4. **general_comments**: 2-3 frases resumindo a análise geral.
 
 Retorne APENAS JSON válido:
 
 ```json
 {{
   "competence_1_score": 120,
-  "competence_1_feedback": "📊 Análise: Foram identificados X erros de ortografia e Y erros de pontuação.\\n\\n✅ Pontos Fortes: O vocabulário básico está adequado e há poucas repetições.\\n\\n⚠️ O que melhorar: Revisar a concordância em 'os problema' e a pontuação após conectivos.",
+  "competence_1_feedback": "📊 Análise: Poucos erros gramaticais identificados.\\n\\n✅ Pontos Fortes: Vocabulário adequado.\\n\\n⚠️ O que melhorar: Revisar pontuação.",
   "competence_2_score": 120,
-  "competence_2_feedback": "📊 Análise: O tema foi abordado de forma superficial.\\n\\n✅ Pontos Fortes: Há uma tentativa de contextualização inicial.\\n\\n⚠️ O que melhorar: Desenvolver mais a relação causa-efeito do problema apresentado.",
+  "competence_2_feedback": "📊 Análise: Tema abordado adequadamente.\\n\\n✅ Pontos Fortes: Boa contextualização.\\n\\n⚠️ O que melhorar: Aprofundar análise.",
   "competence_3_score": 80,
-  "competence_3_feedback": "📊 Análise: Apresenta 1 argumento pouco desenvolvido.\\n\\n✅ Pontos Fortes: Há menção a uma causa do problema.\\n\\n⚠️ O que melhorar: Adicionar dados estatísticos ou citações de especialistas.",
+  "competence_3_feedback": "📊 Análise: Argumentação básica.\\n\\n✅ Pontos Fortes: Apresenta causas do problema.\\n\\n⚠️ O que melhorar: Adicionar repertório.",
   "competence_4_score": 80,
-  "competence_4_feedback": "📊 Análise: Poucos conectivos identificados (3).\\n\\n✅ Pontos Fortes: Uso correto de 'além disso' para progressão.\\n\\n⚠️ O que melhorar: Diversificar conectivos, evitando repetição de 'portanto'.",
+  "competence_4_feedback": "📊 Análise: Coesão razoável.\\n\\n✅ Pontos Fortes: Usa conectivos básicos.\\n\\n⚠️ O que melhorar: Diversificar conectivos.",
   "competence_5_score": 120,
-  "competence_5_feedback": "📊 Análise: Proposta incompleta (2 de 5 elementos).\\n\\n✅ Pontos Fortes: Menciona uma ação governamental.\\n\\n⚠️ O que melhorar: Especificar o agente (quem fará), o modo (como fará) e o efeito esperado.",
+  "competence_5_feedback": "📊 Análise: Proposta parcialmente completa.\\n\\n✅ Pontos Fortes: Propõe ação governamental.\\n\\n⚠️ O que melhorar: Detalhar agente e modo.",
   "total_score": 520,
   "strengths": [
-    "C1: Apesar de alguns erros gramaticais, demonstra capacidade de escrita formal com vocabulário adequado ao gênero dissertativo",
-    "C2: Demonstra compreensão do tema central, mesmo que superficial, identificando corretamente a problemática apresentada",
-    "C3: Apresenta tentativa de argumentação com menção a causas do problema, indicando potencial para desenvolvimento",
-    "C4: Utiliza alguns conectivos adequadamente, mostrando noção de progressão textual entre parágrafos",
-    "C5: Propõe uma solução, ainda que incompleta, demonstrando entendimento da necessidade de intervenção social"
+    "C1: Vocabulário adequado ao gênero",
+    "C2: Compreensão do tema central",
+    "C3: Menciona causas do problema",
+    "C4: Usa conectivos básicos",
+    "C5: Propõe solução governamental"
   ],
   "improvements": [
-    "C1: No trecho 'os problema da sociedade atual', corrigir para 'os problemas'. Revisar também a pontuação após 'Portanto'",
-    "C2: Aprofundar a discussão sobre o tema, explicando COMO e POR QUE o problema afeta a sociedade brasileira",
-    "C3: Adicionar pelo menos mais um argumento com repertório sociocultural (dados do IBGE, citação de filósofos, exemplos históricos)",
-    "C4: Substituir a terceira ocorrência de 'além disso' por conectivos variados como 'outrossim', 'ademais' ou 'sob essa ótica'",
-    "C5: Completar a proposta de intervenção especificando: QUEM executará (agente), COMO será feito (modo), e QUAL o resultado esperado (efeito)"
+    "C1: Revisar concordância verbal",
+    "C2: Aprofundar análise do tema",
+    "C3: Adicionar dados estatísticos",
+    "C4: Variar os conectivos",
+    "C5: Detalhar agente e modo"
   ],
-  "general_comments": "Sua redação apresenta uma estrutura básica de texto dissertativo-argumentativo, com introdução, desenvolvimento e conclusão. Você demonstra compreensão do tema proposto e consegue articular ideias de forma coerente, o que é um bom ponto de partida.\\n\\nEntre os pontos positivos, destaca-se sua capacidade de manter o foco no tema e de propor uma solução para o problema. A escrita é clara e você utiliza vocabulário adequado ao gênero, ainda que com alguns deslizes gramaticais que podem ser facilmente corrigidos com revisão.\\n\\nPara melhorar sua nota, sugiro: (1) revisar o texto em voz alta para identificar erros de concordância e pontuação; (2) adicionar dados estatísticos ou citações de pensadores para enriquecer a argumentação; e (3) detalhar sua proposta de intervenção com os 5 elementos exigidos - ação, agente, modo, efeito e detalhamento. Continue praticando que você está no caminho certo para alcançar notas mais altas!"
+  "general_comments": "Sua redação apresenta estrutura básica adequada. Demonstra compreensão do tema, mas precisa aprofundar a argumentação e detalhar a proposta de intervenção."
 }}
 ```
 

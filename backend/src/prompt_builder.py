@@ -183,26 +183,26 @@ Tema: {theme or '(Tema livre)'}
    - Arrays vazios []
    - Frases genéricas sem especificidade
 
-**RETORNE EM JSON com a seguinte estrutura EXATA:**
+**RETORNE EM JSON com a seguinte estrutura EXATA (exemplo de feedback PREMIUM detalhado):**
 
 {{
 {generate_competence_json_structure(criteria)}
     "total_score": <soma de todas as competências>,
     "strengths": [
-        "C1: <ponto forte detalhado com 20+ palavras citando aspectos específicos do texto>",
-        "C2: <ponto forte detalhado com 20+ palavras citando aspectos específicos do texto>",
-        "C3: <ponto forte detalhado com 20+ palavras citando aspectos específicos do texto>",
-        "C4: <ponto forte detalhado com 20+ palavras citando aspectos específicos do texto>",
-        "C5: <ponto forte detalhado com 20+ palavras citando aspectos específicos do texto>"
+        "C1: Demonstra domínio da norma culta com vocabulário diversificado, utilizando termos como 'sustentabilidade', 'matriz energética' e 'fontes renováveis' de forma adequada ao contexto dissertativo, com poucos desvios gramaticais",
+        "C2: Apresenta compreensão sólida do tema proposto, contextualizando historicamente o problema ao mencionar a dependência de combustíveis fósseis e conectando com a realidade brasileira atual de forma pertinente",
+        "C3: Desenvolve argumentação consistente ao citar dados sobre energia eólica e solar, demonstrando capacidade de usar repertório sociocultural para fundamentar sua tese sobre a transição energética",
+        "C4: Mantém boa progressão textual com uso variado de conectivos como 'além disso', 'contudo', 'portanto' e 'nesse contexto', garantindo fluidez entre os parágrafos e coerência argumentativa",
+        "C5: Elabora proposta de intervenção com ação clara (investimento em energia limpa), agente definido (governo federal) e modo especificado (parcerias público-privadas), demonstrando entendimento da estrutura exigida"
     ],
     "improvements": [
-        "C1: <melhoria específica citando trecho do texto entre aspas>",
-        "C2: <melhoria específica citando trecho do texto entre aspas>",
-        "C3: <melhoria específica citando trecho do texto entre aspas>",
-        "C4: <melhoria específica citando trecho do texto entre aspas>",
-        "C5: <melhoria específica citando trecho do texto entre aspas>"
+        "C1: No trecho 'a tranzisão energética é um problema', corrigir 'tranzisão' para 'transição'. Também revisar 'pra' (coloquial) substituindo por 'para' em todo o texto",
+        "C2: Aprofundar a análise do trecho 'é muito difícil' explicando POR QUE é difícil e QUAIS são os obstáculos específicos para a transição energética no Brasil",
+        "C3: No parágrafo de desenvolvimento, adicionar um dado estatístico concreto (ex: 'Segundo o IBGE...') ou citação de especialista para fortalecer o argumento sobre energias renováveis",
+        "C4: Substituir a repetição de 'além disso' no 3º parágrafo por conectivos variados como 'outrossim', 'ademais' ou 'sob essa perspectiva' para enriquecer a coesão",
+        "C5: Completar a proposta de intervenção detalhando o EFEITO esperado (ex: 'reduzindo em 30% as emissões de carbono') e o DETALHAMENTO específico da ação proposta"
     ],
-    "general_comments": "<3 parágrafos com 200+ palavras total: (1) análise geral, (2) qualidades, (3) sugestões práticas>"
+    "general_comments": "Sua redação apresenta uma estrutura dissertativo-argumentativa bem definida, com introdução que contextualiza o tema, dois parágrafos de desenvolvimento com argumentos relevantes, e conclusão que retoma a tese e apresenta proposta de intervenção. O texto demonstra maturidade intelectual e capacidade de articular ideias de forma coerente.\\n\\nEntre os pontos de destaque, sua habilidade em contextualizar historicamente o problema e conectar com a realidade atual brasileira mostra um repertório sociocultural consistente. O vocabulário utilizado é adequado ao gênero, com termos técnicos pertinentes ao tema. A progressão textual é fluida, com bom encadeamento entre os parágrafos.\\n\\nPara alcançar notas ainda mais altas, sugiro: (1) revisar erros ortográficos e de pontuação fazendo leitura em voz alta; (2) enriquecer a argumentação com dados estatísticos de fontes oficiais como IBGE ou estudos acadêmicos; (3) diversificar os conectivos evitando repetições; e (4) completar a proposta de intervenção com todos os 5 elementos exigidos - ação, agente, modo, efeito e detalhamento. Continue praticando que você está no caminho certo para alcançar excelência!"
 }}
 
 IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.
