@@ -102,7 +102,7 @@ def health_check():
     return {"status": "ok"}
 
 # Rota robots.txt para SEO (Google Search Console)
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, Response
 
 @app.get("/robots.txt", response_class=PlainTextResponse)
 def robots_txt():
@@ -113,6 +113,60 @@ Disallow: /
 # API endpoints should not be crawled
 # Frontend is at corrigeai.online
 """
+
+# Rota sitemap.xml dinâmico para SEO
+@app.get("/sitemap.xml", response_class=Response)
+def sitemap_xml():
+    """Gera sitemap.xml dinamicamente com todas as páginas públicas e posts do blog"""
+    from .database import SessionLocal
+    from .models import BlogPost
+    from datetime import datetime
+    
+    today = datetime.now().strftime("%Y-%m-%d")
+    
+    # Páginas estáticas
+    static_pages = [
+        {"loc": "https://corrigeai.online/", "priority": "1.0", "changefreq": "weekly"},
+        {"loc": "https://corrigeai.online/login", "priority": "0.8", "changefreq": "monthly"},
+        {"loc": "https://corrigeai.online/cadastro", "priority": "0.9", "changefreq": "monthly"},
+        {"loc": "https://corrigeai.online/recuperar-senha", "priority": "0.3", "changefreq": "yearly"},
+        {"loc": "https://corrigeai.online/blog", "priority": "0.9", "changefreq": "daily"},
+    ]
+    
+    # Inicia o XML
+    xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml_content += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    # Adiciona páginas estáticas
+    for page in static_pages:
+        xml_content += f'''  <url>
+    <loc>{page["loc"]}</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>{page["changefreq"]}</changefreq>
+    <priority>{page["priority"]}</priority>
+  </url>\n'''
+    
+    # Adiciona posts do blog dinamicamente
+    try:
+        db = SessionLocal()
+        posts = db.query(BlogPost).filter(BlogPost.is_published == True).all()
+        
+        for post in posts:
+            lastmod = post.updated_at.strftime("%Y-%m-%d") if post.updated_at else today
+            xml_content += f'''  <url>
+    <loc>https://corrigeai.online/blog/{post.slug}</loc>
+    <lastmod>{lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>\n'''
+        
+        db.close()
+    except Exception as e:
+        logging.error(f"Erro ao gerar sitemap de blog: {e}")
+    
+    xml_content += '</urlset>'
+    
+    return Response(content=xml_content, media_type="application/xml")
 
 # Endpoint de diagnóstico de CORS
 @app.get("/cors-test")
