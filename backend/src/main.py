@@ -115,7 +115,7 @@ Disallow: /
 """
 
 # Rota sitemap.xml dinâmico para SEO
-@app.get("/sitemap.xml", response_class=Response)
+@app.api_route("/sitemap.xml", methods=["GET", "HEAD"], response_class=Response)
 def sitemap_xml():
     """Gera sitemap.xml dinamicamente com todas as páginas públicas e posts do blog"""
     from .database import SessionLocal
