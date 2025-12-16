@@ -101,6 +101,19 @@ app.add_middleware(
 def health_check():
     return {"status": "ok"}
 
+# Rota robots.txt para SEO (Google Search Console)
+from fastapi.responses import PlainTextResponse
+
+@app.get("/robots.txt", response_class=PlainTextResponse)
+def robots_txt():
+    """Retorna robots.txt para crawlers - API não deve ser indexada"""
+    return """User-agent: *
+Disallow: /
+
+# API endpoints should not be crawled
+# Frontend is at corrigeai.online
+"""
+
 # Endpoint de diagnóstico de CORS
 @app.get("/cors-test")
 def cors_test(request: Request):
