@@ -77,24 +77,18 @@ const BlogAdmin = () => {
         try {
             setDeletingBulk(true);
 
-            // Deletar cada post selecionado
-            const deletePromises = Array.from(selectedPosts).map(id =>
-                api.delete(`/api/blog/admin/posts/${id}`).catch(err => {
-                    console.error(`Erro ao deletar post ${id}:`, err);
-                    return null;
-                })
-            );
-
-            await Promise.all(deletePromises);
+            // Usar endpoint de deleção em massa
+            const ids = Array.from(selectedPosts);
+            const response = await api.post('/api/blog/admin/posts/bulk-delete', { ids });
 
             // Atualizar lista
             setPosts(posts.filter(p => !selectedPosts.has(p.id)));
             setSelectedPosts(new Set());
 
-            alert(`${count} post(s) excluído(s) com sucesso!`);
-        } catch (error) {
+            alert(response.data.message || `${count} post(s) excluído(s) com sucesso!`);
+        } catch (error: any) {
             console.error('Erro ao deletar posts:', error);
-            alert('Erro ao deletar alguns posts');
+            alert(error.response?.data?.detail || 'Erro ao deletar posts');
         } finally {
             setDeletingBulk(false);
         }

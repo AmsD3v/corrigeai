@@ -205,6 +205,28 @@ async def delete_post(
     return {"message": "Post deletado com sucesso"}
 
 
+@router.post("/admin/posts/bulk-delete")
+async def bulk_delete_posts(
+    data: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Delete multiple blog posts at once (admin only)"""
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Acesso negado")
+    
+    post_ids = data.get("ids", [])
+    if not post_ids:
+        raise HTTPException(status_code=400, detail="Nenhum ID fornecido")
+    
+    # Deletar posts
+    deleted_count = db.query(BlogPost).filter(BlogPost.id.in_(post_ids)).delete(synchronize_session=False)
+    db.commit()
+    
+    return {"message": f"{deleted_count} post(s) deletado(s) com sucesso", "deleted": deleted_count}
+
+
+
 # ==================== TAG ADMIN ENDPOINTS ====================
 
 @router.post("/admin/tags", response_model=BlogTagResponse)
