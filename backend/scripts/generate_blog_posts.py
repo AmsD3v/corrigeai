@@ -47,6 +47,21 @@ if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
 
+def diagnose_existing_posts():
+    """Mostra os slugs existentes no banco para diagnóstico."""
+    db = database.SessionLocal()
+    try:
+        from src.models import BlogPost
+        posts = db.query(BlogPost).all()
+        logger.info(f"\n📊 DIAGNÓSTICO: {len(posts)} posts no banco")
+        logger.info("Primeiros 10 slugs:")
+        for p in posts[:10]:
+            logger.info(f"   - {p.slug}")
+        return len(posts)
+    finally:
+        db.close()
+
+
 def get_vestibulares_from_criteria():
     """
     Converte EXAM_TYPES do exam_criteria.py para o formato do gerador de posts.
@@ -340,11 +355,21 @@ async def generate_all_posts(max_posts: int = 100, publish: bool = False, dry_ru
                 comp_nome = competencia[0]
                 logger.info(f"\n  [{idx}/{len(vest_info['competencias'])}] {comp_nome}")
                 
-                # Verificar se já existe - usando novo formato de slug único
-                slug = slugify(f"{vest_key}-competencia-{idx}")
-                existing = db.query(BlogPost).filter(BlogPost.slug == slug).first()
+                # Verificar se já existe - NOVO formato de slug único
+                slug_novo = slugify(f"{vest_key}-competencia-{idx}")
+                
+                # Verificar também formatos antigos possíveis
+                slug_antigo1 = slugify(f"{comp_nome}-{vest_key}-guia")
+                slug_antigo2 = slugify(f"competencia-{idx}-{vest_key}-guia-completo")
+                
+                existing = db.query(BlogPost).filter(
+                    (BlogPost.slug == slug_novo) | 
+                    (BlogPost.slug == slug_antigo1) |
+                    (BlogPost.slug == slug_antigo2)
+                ).first()
+                
                 if existing:
-                    logger.info(f"      ⏭️  Já existe ({slug}), pulando...")
+                    logger.info(f"      ⏭️  Já existe ({existing.slug}), pulando...")
                     posts_skipped += 1
                     continue
                 
@@ -443,14 +468,15 @@ def main():
     parser.add_argument("--publish", action="store_true", help="Publicar posts imediatamente")
     parser.add_argument("--dry-run", action="store_true", help="Simula sem criar posts")
     parser.add_argument("--list", action="store_true", help="Lista vestibulares e competências")
+    parser.add_argument("--diagnose", action="store_true", help="Mostra slugs existentes no banco")
     
     args = parser.parse_args()
     
-    if args.list:
-        list_vestibulares()
+    if args.diagnose:
+        diagnose_existing_posts()
         return
     
-    if args.generate_all:
+    if args.list:
         asyncio.run(generate_all_posts(
             max_posts=args.max_posts,
             publish=args.publish,
