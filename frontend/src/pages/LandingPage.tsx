@@ -801,12 +801,14 @@ const LandingPage = () => {
             {/* Right side - Character (Desktop Only) */}
             <div className="slide-right desktop-only" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
               <img
-                src="/owl-thumbs-up-plate.png"
+                src="/owl-thumbs-up-plate.webp"
                 alt="Character"
                 className="hero-image"
                 fetchPriority="high"
                 loading="eager"
                 decoding="sync"
+                width={400}
+                height={400}
               />
             </div>
           </div>
@@ -1247,7 +1249,7 @@ const LandingPage = () => {
                 marginTop: '24px'
               }}>
                 <img
-                  src="/owl-desk.png"  // coloque aqui o path estático do mascote (por ex: /mascote-corrigeai.png)
+                  src="/owl-desk.webp"  // coloque aqui o path estático do mascote (por ex: /mascote-corrigeai.png)
                   alt="Mascote CorrigeAI"
                   style={{
                     width: '100%',
@@ -1321,7 +1323,7 @@ const LandingPage = () => {
                       )}
 
                       <img
-                        src="/corricoin.png"
+                        src="/corricoin.webp"
                         alt="Coin"
                         style={{
                           width: '48px',
@@ -1393,7 +1395,7 @@ const LandingPage = () => {
               <p style={{ fontSize: '13px', color: '#64748b', maxWidth: '600px', margin: 0 }}>
                 Valores e formas ilustrativas para didática. Você pode ajustar quantidades, formas e regras a qualquer momento.
               </p>
-              <img src="/corricoin.png" alt="Coin" style={{ width: '64px', height: '64px', opacity: 0.6 }} />
+              <img src="/corricoin.webp" alt="Coin" style={{ width: '64px', height: '64px', opacity: 0.6 }} />
             </div>
           </div>
         </section>
@@ -1444,7 +1446,7 @@ const LandingPage = () => {
                 justifyContent: 'center',
                 overflow: 'hidden'
               }}>
-                <img src="/owl_custom.png" alt="Logo" style={{ width: '85%', height: '85%', objectFit: 'contain' }} />
+                <img src="/owl_custom.webp" alt="Logo" style={{ width: '85%', height: '85%', objectFit: 'contain' }} />
               </div>
               <span style={{ fontSize: '18px', fontWeight: '700', color: '#fff' }}>CorrigeAI</span>
             </div>

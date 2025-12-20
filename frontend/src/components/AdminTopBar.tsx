@@ -34,7 +34,7 @@ const AdminTopBar = () => {
                     borderRadius: '8px',
                     overflow: 'hidden'
                 }}>
-                    <img src="/owl_custom.png" alt="Logo" style={{ width: '85%', height: '85%', objectFit: 'contain' }} />
+                    <img src="/owl_custom.webp" alt="Logo" style={{ width: '85%', height: '85%', objectFit: 'contain' }} />
                 </div>
                 <div>
                     <div style={{

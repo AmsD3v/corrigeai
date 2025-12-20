@@ -45,7 +45,7 @@ const TopBar = ({ userCredits = 0, userCoins = 0 }: TopBarProps) => {
                 onClick={() => navigate('/painel')}
             >
                 <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#4F46E5] to-[#818cf8] rounded-lg flex items-center justify-center overflow-hidden">
-                    <img src="/owl_custom.png" alt="Logo" className="w-[85%] h-[85%] object-contain" />
+                    <img src="/owl_custom.webp" alt="Logo" className="w-[85%] h-[85%] object-contain" />
                 </div>
                 <span className="hidden sm:inline text-lg md:text-xl font-bold text-white">
                     Corrige<span className="text-[#4F46E5]">AI</span>
