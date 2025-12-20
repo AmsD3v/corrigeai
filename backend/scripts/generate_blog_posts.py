@@ -143,7 +143,7 @@ REGRAS:
 Escreva o artigo completo:"""
 
 
-async def generate_post_content(vestibular: str, competencia: tuple, info: dict) -> dict:
+async def generate_post_content(vestibular: str, competencia: tuple, info: dict, comp_index: int) -> dict:
     """Gera o conteúdo do post usando Gemini."""
     
     model = genai.GenerativeModel('gemini-2.0-flash')
@@ -155,21 +155,27 @@ async def generate_post_content(vestibular: str, competencia: tuple, info: dict)
         content = response.text
         
         comp_nome = competencia[0]
-        title = f"Como dominar: {comp_nome} - {info['nome']} | Guia Completo"
-        slug = slugify(f"{comp_nome}-{vestibular}-guia")
+        vest_nome = info['nome']
+        
+        # Título único com vestibular e índice
+        title = f"{vest_nome}: {comp_nome} - Guia Completo de Redação"
+        
+        # Slug único: vestibular-competencia-numero
+        slug = slugify(f"{vestibular}-competencia-{comp_index}")
         
         # Gerar excerpt
-        excerpt = f"Aprenda tudo sobre {comp_nome} do {info['nome']}: o que os avaliadores buscam, dicas práticas e erros comuns a evitar."
+        excerpt = f"Aprenda tudo sobre {comp_nome} do {vest_nome}: o que os avaliadores buscam, dicas práticas e erros comuns a evitar."
         
         return {
-            "title": title,
+            "title": title[:200],
             "slug": slug,
             "content": content,
             "excerpt": excerpt[:300],
-            "meta_title": f"{comp_nome} {info['nome']} - Dicas e Guia | CorrigeAI"[:70],
+            "meta_title": f"{comp_nome} - {vest_nome} | CorrigeAI"[:70],
             "meta_description": excerpt[:160],
             "vestibular": vestibular,
-            "competencia": comp_nome
+            "competencia": comp_nome,
+            "comp_index": comp_index
         }
         
     except Exception as e:
@@ -276,11 +282,11 @@ async def generate_all_posts(max_posts: int = 100, publish: bool = False, dry_ru
                 comp_nome = competencia[0]
                 logger.info(f"\n  [{idx}/{len(vest_info['competencias'])}] {comp_nome}")
                 
-                # Verificar se já existe
-                slug = slugify(f"{comp_nome}-{vest_key}-guia")
+                # Verificar se já existe - usando novo formato de slug único
+                slug = slugify(f"{vest_key}-competencia-{idx}")
                 existing = db.query(BlogPost).filter(BlogPost.slug == slug).first()
                 if existing:
-                    logger.info(f"      ⏭️  Já existe, pulando...")
+                    logger.info(f"      ⏭️  Já existe ({slug}), pulando...")
                     posts_skipped += 1
                     continue
                 
@@ -289,8 +295,8 @@ async def generate_all_posts(max_posts: int = 100, publish: bool = False, dry_ru
                     posts_generated += 1
                     continue
                 
-                # Gerar conteúdo
-                post_data = await generate_post_content(vest_key, competencia, vest_info)
+                # Gerar conteúdo (passando o índice para slug único)
+                post_data = await generate_post_content(vest_key, competencia, vest_info, idx)
                 
                 if post_data:
                     save_post(db, post_data, publish=publish)
@@ -335,7 +341,8 @@ async def generate_single_post(exam: str, competence_index: int, publish: bool =
     try:
         logger.info(f"Gerando: {competencia[0]} ({vest_info['nome']})")
         
-        post_data = await generate_post_content(exam, competencia, vest_info)
+        # Passando o índice para slug único
+        post_data = await generate_post_content(exam, competencia, vest_info, competence_index)
         
         if post_data:
             save_post(db, post_data, publish=publish)
