@@ -1,11 +1,12 @@
 """
 Script para gerar posts de blog automaticamente usando IA.
-Cria posts sobre competências de cada vestibular principal.
+Cria posts sobre competências de TODOS os vestibulares cadastrados.
 
 Uso:
-    python generate_blog_posts.py --max-posts 10 --dry-run
-    python generate_blog_posts.py --exam enem --competence 1
-    python generate_blog_posts.py --generate-all
+    python scripts/generate_blog_posts.py --list
+    python scripts/generate_blog_posts.py --generate-all --dry-run
+    python scripts/generate_blog_posts.py --generate-all --max-posts 100 --publish
+    python scripts/generate_blog_posts.py --exam enem --competence 1 --publish
 """
 
 import os
@@ -31,6 +32,7 @@ from sqlalchemy.orm import Session
 from src import database
 from src.database import init_db_engine
 from src.models import BlogPost, BlogTag
+from src.exam_criteria import EXAM_TYPES
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -44,160 +46,35 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
-# Vestibulares com critérios próprios (não via SISU)
-VESTIBULARES_PRINCIPAIS = {
-    "enem": {
-        "nome": "ENEM",
-        "descricao": "Exame Nacional do Ensino Médio",
-        "competencias": [
-            ("Competência 1", "Domínio da modalidade escrita formal da língua portuguesa"),
-            ("Competência 2", "Compreensão da proposta e aplicação de conceitos"),
-            ("Competência 3", "Seleção, organização e interpretação de informações"),
-            ("Competência 4", "Mecanismos linguísticos para argumentação"),
-            ("Competência 5", "Proposta de intervenção")
-        ]
-    },
-    "fuvest": {
-        "nome": "FUVEST (USP)",
-        "descricao": "Vestibular da Universidade de São Paulo",
-        "competencias": [
-            ("Desenvolvimento do tema", "Abordagem dos elementos da proposta"),
-            ("Estrutura", "Organização do texto dissertativo-argumentativo"),
-            ("Expressão", "Uso adequado de gramática, vocabulário e estilo"),
-            ("Coesão e coerência", "Articulação dos argumentos")
-        ]
-    },
-    "unicamp": {
-        "nome": "UNICAMP",
-        "descricao": "Universidade Estadual de Campinas",
-        "competencias": [
-            ("Gênero textual", "Adequação ao gênero proposto (carta, artigo, etc.)"),
-            ("Desenvolvimento", "Compreensão e desenvolvimento da proposta"),
-            ("Propósito comunicativo", "Cumprimento do objetivo do gênero"),
-            ("Articulação", "Progressão das ideias no texto"),
-            ("Adequação linguística", "Domínio da norma culta")
-        ]
-    },
-    "ita": {
-        "nome": "ITA",
-        "descricao": "Instituto Tecnológico de Aeronáutica",
-        "competencias": [
-            ("Argumentação técnica", "Qualidade e pertinência da argumentação"),
-            ("Rigor lógico", "Exposição científica rigorosa"),
-            ("Conhecimento técnico", "Demonstração de conhecimento técnico-científico"),
-            ("Organização", "Estrutura e progressão textual"),
-            ("Clareza", "Domínio da norma culta e clareza")
-        ]
-    },
-    "unesp": {
-        "nome": "UNESP",
-        "descricao": "Universidade Estadual Paulista",
-        "competencias": [
-            ("Tema", "Compreensão e desenvolvimento do tema"),
-            ("Estrutura", "Organização textual e uso de conectivos"),
-            ("Expressão", "Gramática, vocabulário e adequação linguística"),
-            ("Autoria", "Posicionamento crítico e criatividade"),
-            ("Repertório", "Conhecimento de mundo e repertório cultural")
-        ]
-    },
-    "uerj": {
-        "nome": "UERJ",
-        "descricao": "Universidade do Estado do Rio de Janeiro",
-        "competencias": [
-            ("Adequação ao tema", "Desenvolvimento do tema proposto e gênero textual"),
-            ("Articulação textual", "Coesão, coerência e organização de ideias"),
-            ("Domínio da língua", "Gramática, ortografia e vocabulário")
-        ]
-    },
-    "ufmg": {
-        "nome": "UFMG",
-        "descricao": "Universidade Federal de Minas Gerais",
-        "competencias": [
-            ("Abordagem temática", "Compreensão e desenvolvimento do tema"),
-            ("Articulação argumentativa", "Qualidade e consistência dos argumentos"),
-            ("Fundamentação", "Uso adequado de informações e dados"),
-            ("Domínio linguístico", "Gramática, ortografia e expressão")
-        ]
-    },
-    "afa": {
-        "nome": "AFA",
-        "descricao": "Academia da Força Aérea",
-        "competencias": [
-            ("Adequação ao tema", "Desenvolvimento do tema proposto"),
-            ("Clareza e objetividade", "Exposição clara de ideias"),
-            ("Coerência e coesão", "Estruturação textual"),
-            ("Argumentação lógica", "Fundamentação dos argumentos"),
-            ("Domínio linguístico", "Norma culta da língua portuguesa")
-        ]
-    },
-    "cacd": {
-        "nome": "CACD",
-        "descricao": "Concurso de Admissão à Carreira de Diplomata",
-        "competencias": [
-            ("Aprofundamento temático", "Domínio do assunto"),
-            ("Argumentação sofisticada", "Fundamentação elaborada"),
-            ("Norma culta formal", "Domínio linguístico elevado"),
-            ("Articulação lógica", "Estruturação e progressão"),
-            ("Perspectiva geopolítica", "Relações internacionais")
-        ]
-    },
-    "unb": {
-        "nome": "UnB",
-        "descricao": "Universidade de Brasília",
-        "competencias": [
-            ("Macroestrutura", "Adequação ao tema, estrutura e coerência global"),
-            ("Microestrutura", "Ortografia, morfossintaxe, pontuação e vocabulário")
-        ]
-    },
-    "ufpr": {
-        "nome": "UFPR",
-        "descricao": "Universidade Federal do Paraná",
-        "competencias": [
-            ("Questão 1", "Produção textual conforme gênero solicitado"),
-            ("Questão 2", "Produção textual conforme gênero solicitado"),
-            ("Questão 3", "Produção textual conforme gênero solicitado")
-        ]
-    },
-    "ufrgs": {
-        "nome": "UFRGS",
-        "descricao": "Universidade Federal do Rio Grande do Sul",
-        "competencias": [
-            ("Aspecto Analítico", "Estrutura, conteúdo e organização"),
-            ("Aspecto Holístico", "Efeito geral, clareza e consistência"),
-            ("Expressão Linguística", "Ortografia, sintaxe e vocabulário")
-        ]
-    },
-    "ufsc": {
-        "nome": "UFSC",
-        "descricao": "Universidade Federal de Santa Catarina",
-        "competencias": [
-            ("Adequação à proposta", "Tema e gênero textual"),
-            ("Norma padrão", "Ortografia, gramática e pontuação"),
-            ("Coerência e coesão", "Articulação e progressão das ideias"),
-            ("Informatividade", "Argumentação conforme gênero")
-        ]
-    },
-    "pucsp": {
-        "nome": "PUC-SP",
-        "descricao": "Pontifícia Universidade Católica de São Paulo",
-        "competencias": [
-            ("Tipo de texto", "Adequação ao gênero dissertativo"),
-            ("Adequação ao tema", "Desenvolvimento do assunto proposto"),
-            ("Coerência", "Lógica e viabilidade das ideias"),
-            ("Coesão", "Articulação e elementos coesivos"),
-            ("Norma padrão", "Gramática, ortografia e pontuação")
-        ]
-    },
-    "pucrs": {
-        "nome": "PUCRS",
-        "descricao": "Pontifícia Universidade Católica do Rio Grande do Sul",
-        "competencias": [
-            ("Conteúdo", "Conhecimento, compreensão e análise do tema"),
-            ("Estrutura", "Organização, parágrafos e encadeamento lógico"),
-            ("Expressão Linguística", "Norma culta, vocabulário e legibilidade")
-        ]
-    }
-}
+
+def get_vestibulares_from_criteria():
+    """
+    Converte EXAM_TYPES do exam_criteria.py para o formato do gerador de posts.
+    Retorna todos os 40+ vestibulares cadastrados.
+    """
+    vestibulares = {}
+    
+    for key, criteria in EXAM_TYPES.items():
+        # Criar tuplas (nome, descrição) para cada competência
+        competencias = []
+        for i, comp in enumerate(criteria.competencies, 1):
+            # Se a competência for longa, simplificar o nome
+            comp_name = comp.split(':')[0].strip() if ':' in comp else comp
+            if len(comp_name) > 50:
+                comp_name = f"Competência {i}"
+            competencias.append((comp_name, comp))
+        
+        vestibulares[key] = {
+            "nome": criteria.short_name,
+            "descricao": criteria.name,
+            "competencias": competencias
+        }
+    
+    return vestibulares
+
+
+# Carrega todos os vestibulares dinamicamente
+VESTIBULARES = get_vestibulares_from_criteria()
 
 
 def slugify(text: str) -> str:
@@ -214,7 +91,7 @@ def slugify(text: str) -> str:
     text = re.sub(r'[^\w\s-]', '', text)
     text = re.sub(r'[-\s]+', '-', text)
     
-    return text
+    return text[:80]  # Limitar tamanho do slug
 
 
 def generate_post_prompt(vestibular: str, competencia: tuple, info: dict) -> str:
@@ -278,19 +155,19 @@ async def generate_post_content(vestibular: str, competencia: tuple, info: dict)
         content = response.text
         
         comp_nome = competencia[0]
-        title = f"Como dominar a {comp_nome} do {info['nome']} - Guia Completo"
-        slug = slugify(f"{comp_nome}-{vestibular}-guia-completo")
+        title = f"Como dominar: {comp_nome} - {info['nome']} | Guia Completo"
+        slug = slugify(f"{comp_nome}-{vestibular}-guia")
         
         # Gerar excerpt
-        excerpt = f"Aprenda tudo sobre a {comp_nome} do {info['nome']}: o que os avaliadores buscam, dicas práticas e erros comuns a evitar."
+        excerpt = f"Aprenda tudo sobre {comp_nome} do {info['nome']}: o que os avaliadores buscam, dicas práticas e erros comuns a evitar."
         
         return {
             "title": title,
             "slug": slug,
             "content": content,
-            "excerpt": excerpt,
-            "meta_title": f"{comp_nome} {info['nome']} - Dicas e Guia Completo | CorrigeAI",
-            "meta_description": excerpt,
+            "excerpt": excerpt[:300],
+            "meta_title": f"{comp_nome} {info['nome']} - Dicas e Guia | CorrigeAI"[:70],
+            "meta_description": excerpt[:160],
             "vestibular": vestibular,
             "competencia": comp_nome
         }
@@ -307,7 +184,7 @@ def get_or_create_tag(db: Session, name: str, color: str = "#4F46E5") -> BlogTag
     
     if not tag:
         tag = BlogTag(
-            name=name,
+            name=name[:50],
             slug=slug,
             color=color
         )
@@ -332,9 +209,10 @@ def save_post(db: Session, post_data: dict, publish: bool = False) -> BlogPost:
     tags = []
     
     # Tag do vestibular
+    vest_info = VESTIBULARES.get(post_data["vestibular"], {})
     vest_tag = get_or_create_tag(
         db, 
-        VESTIBULARES_PRINCIPAIS[post_data["vestibular"]]["nome"],
+        vest_info.get("nome", post_data["vestibular"].upper()),
         "#4F46E5"
     )
     tags.append(vest_tag)
@@ -349,7 +227,7 @@ def save_post(db: Session, post_data: dict, publish: bool = False) -> BlogPost:
     
     # Criar post
     post = BlogPost(
-        title=post_data["title"],
+        title=post_data["title"][:200],
         slug=post_data["slug"],
         content=post_data["content"],
         excerpt=post_data["excerpt"],
@@ -368,37 +246,46 @@ def save_post(db: Session, post_data: dict, publish: bool = False) -> BlogPost:
     return post
 
 
-async def generate_all_posts(max_posts: int = 50, publish: bool = False, dry_run: bool = False):
-    """Gera posts para todos os vestibulares e competências."""
+async def generate_all_posts(max_posts: int = 100, publish: bool = False, dry_run: bool = False):
+    """Gera posts para TODOS os vestibulares e competências."""
     
     db = database.SessionLocal()
     posts_generated = 0
+    posts_skipped = 0
+    
+    # Calcular total de posts possíveis
+    total_possible = sum(len(v["competencias"]) for v in VESTIBULARES.values())
+    logger.info(f"\n📚 Total de vestibulares: {len(VESTIBULARES)}")
+    logger.info(f"📝 Total de posts possíveis: {total_possible}")
+    logger.info(f"🎯 Limite definido: {max_posts}\n")
     
     try:
-        for vest_key, vest_info in VESTIBULARES_PRINCIPAIS.items():
+        for vest_key, vest_info in VESTIBULARES.items():
             if posts_generated >= max_posts:
                 break
                 
-            logger.info(f"\n{'='*50}")
-            logger.info(f"Vestibular: {vest_info['nome']}")
-            logger.info(f"{'='*50}")
+            logger.info(f"\n{'='*60}")
+            logger.info(f"📌 Vestibular: {vest_info['nome']} ({vest_info['descricao'][:50]}...)")
+            logger.info(f"   Competências: {len(vest_info['competencias'])}")
+            logger.info(f"{'='*60}")
             
-            for competencia in vest_info["competencias"]:
+            for idx, competencia in enumerate(vest_info["competencias"], 1):
                 if posts_generated >= max_posts:
                     break
                 
                 comp_nome = competencia[0]
-                logger.info(f"\nGerando post: {comp_nome} ({vest_info['nome']})")
+                logger.info(f"\n  [{idx}/{len(vest_info['competencias'])}] {comp_nome}")
                 
                 # Verificar se já existe
-                slug = slugify(f"{comp_nome}-{vest_key}-guia-completo")
+                slug = slugify(f"{comp_nome}-{vest_key}-guia")
                 existing = db.query(BlogPost).filter(BlogPost.slug == slug).first()
                 if existing:
-                    logger.info(f"  → Já existe, pulando...")
+                    logger.info(f"      ⏭️  Já existe, pulando...")
+                    posts_skipped += 1
                     continue
                 
                 if dry_run:
-                    logger.info(f"  → [DRY RUN] Seria criado: {slug}")
+                    logger.info(f"      🔍 [DRY RUN] Seria criado: {slug}")
                     posts_generated += 1
                     continue
                 
@@ -408,15 +295,20 @@ async def generate_all_posts(max_posts: int = 50, publish: bool = False, dry_run
                 if post_data:
                     save_post(db, post_data, publish=publish)
                     posts_generated += 1
+                    logger.info(f"      ✅ Post #{posts_generated} criado!")
                     
                     # Delay para não sobrecarregar a API
                     await asyncio.sleep(2)
                 else:
-                    logger.error(f"  → Falha ao gerar conteúdo")
+                    logger.error(f"      ❌ Falha ao gerar conteúdo")
         
-        logger.info(f"\n{'='*50}")
-        logger.info(f"Total de posts gerados: {posts_generated}")
-        logger.info(f"{'='*50}")
+        logger.info(f"\n{'='*60}")
+        logger.info(f"📊 RESUMO FINAL")
+        logger.info(f"{'='*60}")
+        logger.info(f"   ✅ Posts gerados: {posts_generated}")
+        logger.info(f"   ⏭️  Posts pulados (já existiam): {posts_skipped}")
+        logger.info(f"   📚 Total vestibulares processados: {len(VESTIBULARES)}")
+        logger.info(f"{'='*60}\n")
         
     finally:
         db.close()
@@ -425,12 +317,12 @@ async def generate_all_posts(max_posts: int = 50, publish: bool = False, dry_run
 async def generate_single_post(exam: str, competence_index: int, publish: bool = False):
     """Gera um único post para um vestibular e competência específicos."""
     
-    if exam not in VESTIBULARES_PRINCIPAIS:
+    if exam not in VESTIBULARES:
         logger.error(f"Vestibular não encontrado: {exam}")
-        logger.info(f"Disponíveis: {list(VESTIBULARES_PRINCIPAIS.keys())}")
+        logger.info(f"Disponíveis: {list(VESTIBULARES.keys())}")
         return
     
-    vest_info = VESTIBULARES_PRINCIPAIS[exam]
+    vest_info = VESTIBULARES[exam]
     
     if competence_index < 1 or competence_index > len(vest_info["competencias"]):
         logger.error(f"Competência inválida: {competence_index}")
@@ -457,22 +349,32 @@ async def generate_single_post(exam: str, competence_index: int, publish: bool =
 
 def list_vestibulares():
     """Lista todos os vestibulares e suas competências."""
-    print("\nVestibulares disponíveis:\n")
+    print(f"\n{'='*70}")
+    print(f"📚 VESTIBULARES DISPONÍVEIS ({len(VESTIBULARES)} total)")
+    print(f"{'='*70}\n")
     
-    for key, info in VESTIBULARES_PRINCIPAIS.items():
-        print(f"  {key}: {info['nome']}")
+    total_comps = 0
+    for key, info in VESTIBULARES.items():
+        num_comps = len(info['competencias'])
+        total_comps += num_comps
+        print(f"  {key:12} | {info['nome']:15} | {num_comps} competências")
         for i, comp in enumerate(info['competencias'], 1):
-            print(f"    {i}. {comp[0]}: {comp[1]}")
+            comp_name = comp[0][:45] + "..." if len(comp[0]) > 45 else comp[0]
+            print(f"               |    {i}. {comp_name}")
         print()
+    
+    print(f"{'='*70}")
+    print(f"📊 TOTAL: {len(VESTIBULARES)} vestibulares, {total_comps} posts possíveis")
+    print(f"{'='*70}\n")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Gerador automático de posts de blog sobre vestibulares")
+    parser = argparse.ArgumentParser(description="Gerador automático de posts de blog sobre TODOS os vestibulares")
     
     parser.add_argument("--generate-all", action="store_true", help="Gera posts para todos os vestibulares")
     parser.add_argument("--exam", type=str, help="Vestibular específico (enem, fuvest, unicamp, etc.)")
     parser.add_argument("--competence", type=int, help="Número da competência (1, 2, 3...)")
-    parser.add_argument("--max-posts", type=int, default=50, help="Máximo de posts a gerar")
+    parser.add_argument("--max-posts", type=int, default=200, help="Máximo de posts a gerar (padrão: 200)")
     parser.add_argument("--publish", action="store_true", help="Publicar posts imediatamente")
     parser.add_argument("--dry-run", action="store_true", help="Simula sem criar posts")
     parser.add_argument("--list", action="store_true", help="Lista vestibulares e competências")
@@ -497,12 +399,21 @@ def main():
         ))
     else:
         parser.print_help()
-        print("\nExemplos:")
-        print("  python generate_blog_posts.py --list")
-        print("  python generate_blog_posts.py --generate-all --dry-run")
-        print("  python generate_blog_posts.py --generate-all --max-posts 5")
-        print("  python generate_blog_posts.py --exam enem --competence 1")
-        print("  python generate_blog_posts.py --exam enem --competence 5 --publish")
+        print("\n" + "="*60)
+        print("EXEMPLOS:")
+        print("="*60)
+        print("  # Listar todos os vestibulares")
+        print("  python scripts/generate_blog_posts.py --list")
+        print()
+        print("  # Simular geração (dry-run)")
+        print("  python scripts/generate_blog_posts.py --generate-all --dry-run")
+        print()
+        print("  # Gerar 50 posts e publicar")
+        print("  python scripts/generate_blog_posts.py --generate-all --max-posts 50 --publish")
+        print()
+        print("  # Gerar post específico")
+        print("  python scripts/generate_blog_posts.py --exam enem --competence 1 --publish")
+        print("="*60)
 
 
 if __name__ == "__main__":
