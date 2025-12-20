@@ -1323,11 +1323,11 @@ const LandingPage = () => {
                       )}
 
                       <img
-                        src="/corricoin.webp"
+                        src="/corricoin-small.webp"
                         alt="Coin"
+                        width={48}
+                        height={48}
                         style={{
-                          width: '48px',
-                          height: '48px',
                           margin: '0 auto 16px',
                           animation: 'spin-slow 20s linear infinite'
                         }}
@@ -1395,7 +1395,7 @@ const LandingPage = () => {
               <p style={{ fontSize: '13px', color: '#9ca3af', maxWidth: '600px', margin: 0 }}>
                 Valores e formas ilustrativas para didática. Você pode ajustar quantidades, formas e regras a qualquer momento.
               </p>
-              <img src="/corricoin.webp" alt="Coin" style={{ width: '64px', height: '64px', opacity: 0.6 }} />
+              <img src="/corricoin-small.webp" alt="Coin" width={64} height={64} style={{ opacity: 0.6 }} />
             </div>
           </div>
         </section>
