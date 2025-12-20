@@ -28,7 +28,8 @@ load_dotenv()
 import google.generativeai as genai
 from sqlalchemy.orm import Session
 
-from src.database import SessionLocal, init_db_engine
+from src import database
+from src.database import init_db_engine
 from src.models import BlogPost, BlogTag
 
 # Configure logging
@@ -273,7 +274,7 @@ def save_post(db: Session, post_data: dict, publish: bool = False) -> BlogPost:
 async def generate_all_posts(max_posts: int = 50, publish: bool = False, dry_run: bool = False):
     """Gera posts para todos os vestibulares e competências."""
     
-    db = SessionLocal()
+    db = database.SessionLocal()
     posts_generated = 0
     
     try:
@@ -341,7 +342,7 @@ async def generate_single_post(exam: str, competence_index: int, publish: bool =
     
     competencia = vest_info["competencias"][competence_index - 1]
     
-    db = SessionLocal()
+    db = database.SessionLocal()
     try:
         logger.info(f"Gerando: {competencia[0]} ({vest_info['nome']})")
         
