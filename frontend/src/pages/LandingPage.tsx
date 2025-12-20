@@ -1230,9 +1230,9 @@ const LandingPage = () => {
                     </div>
                     {/* Título + texto à direita */}
                     <div style={{ flex: 1 }}>
-                      <h4 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', margin: 0, marginBottom: '6px' }}>
+                      <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', margin: 0, marginBottom: '6px' }}>
                         {obj.title}
-                      </h4>
+                      </h3>
                       <p style={{ fontSize: '15px', color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>
                         {obj.desc}
                       </p>
@@ -1349,7 +1349,7 @@ const LandingPage = () => {
                         </div>
                       )}
 
-                      <div style={{ fontSize: '32px', fontWeight: '800', color: '#4F46E5', marginBottom: '2px' }}>
+                      <div style={{ fontSize: '32px', fontWeight: '800', color: '#a5b4fc', marginBottom: '2px' }}>
                         R$ {priceInReais}
                       </div>
 
