@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
+import SEOHead from '../components/SEOHead';
 import api from '../services/api';
 
 interface BlogTag {
@@ -65,6 +66,12 @@ const Blog = () => {
 
     return (
         <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%)' }}>
+            <SEOHead
+                title="Blog CorrigeAI - Dicas de Redação ENEM e Vestibulares"
+                description="Dicas, estratégias e conteúdos para você dominar a redação do ENEM e vestibulares. Aprenda técnicas de argumentação, estrutura textual e muito mais."
+                canonical="https://corrigeai.online/blog"
+                keywords="blog redação enem, dicas redação vestibular, como escrever redação, competências enem, proposta de intervenção, estrutura redação"
+            />
             <Header />
 
             <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '100px 20px 40px' }}>

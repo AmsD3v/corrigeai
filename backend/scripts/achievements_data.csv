@@ -1,0 +1,393 @@
+id,code,name,description,icon,xp_reward,coin_reward,lessons_reward,condition_type,condition_value,is_active,created_at,exam_type
+154,uerj_bronze,Nota Bronze UERJ,Atingiu 60+ na UERJ,🥉,10,2,0,score,60,t,2025-12-05 10:31:16.575376,uerj
+212,ufal_lessons_5,Iniciante UFAL,Completou 5 lições da UFAL,📖,5,1,0,lessons,5,t,2025-12-05 18:34:59.025287,ufal
+256,unb_ouro,Nota Ouro UnB,Atingiu 9+ na UnB,🥇,30,10,0,score,9,t,2025-12-05 19:28:09.713022,unb
+266,udf_lessons_5,Iniciante UDF,Completou 5 lições da UDF,📖,5,1,0,lessons,5,t,2025-12-05 19:35:06.422977,udf
+267,udf_lessons_15,Estudante UDF,Completou 15 lições da UDF,📚,10,3,0,lessons,15,t,2025-12-05 19:35:06.422977,udf
+268,udf_lessons_20,Mestre UDF,Completou todas as 20 lições UDF,🎓,30,5,0,lessons,20,t,2025-12-05 19:35:06.422977,udf
+269,ufes_essays_1,Primeira Redação UFES,Enviou sua primeira redação UFES,📝,2,0,0,essays_count,1,t,2025-12-05 19:41:56.97665,ufes
+270,ufes_essays_5,Escritor UFES,Enviou 5 redações UFES,✍️,5,1,0,essays_count,5,t,2025-12-05 19:41:56.97665,ufes
+271,ufes_essays_10,Redator Dedicado UFES,Enviou 10 redações UFES,📚,10,2,0,essays_count,10,t,2025-12-05 19:41:56.97665,ufes
+327,ufpa_essays_1,Primeira Redação UFPA,Enviou sua primeira redação UFPA,📝,2,0,0,essays_count,1,t,2025-12-05 21:01:27.612288,ufpa
+328,ufpa_essays_5,Escritor UFPA,Enviou 5 redações UFPA,✍️,5,1,0,essays_count,5,t,2025-12-05 21:01:27.612288,ufpa
+329,ufpa_essays_10,Redator Dedicado UFPA,Enviou 10 redações UFPA,📚,10,2,0,essays_count,10,t,2025-12-05 21:01:27.612288,ufpa
+333,ufpa_lessons_5,Iniciante UFPA,Completou 5 lições da UFPA,📖,5,1,0,lessons,5,t,2025-12-05 21:01:27.612288,ufpa
+334,ufpa_lessons_15,Estudante UFPA,Completou 15 lições da UFPA,📚,10,3,0,lessons,15,t,2025-12-05 21:01:27.612288,ufpa
+335,ufpa_lessons_20,Mestre UFPA,Completou todas as 20 lições UFPA,🎓,30,5,0,lessons,20,t,2025-12-05 21:01:27.612288,ufpa
+336,ufpb_essays_1,Primeira Redação UFPB,Enviou sua primeira redação UFPB,📝,2,0,0,essays_count,1,t,2025-12-05 21:01:41.496087,ufpb
+337,ufpb_essays_5,Escritor UFPB,Enviou 5 redações UFPB,✍️,5,1,0,essays_count,5,t,2025-12-05 21:01:41.496087,ufpb
+338,ufpb_essays_10,Redator Dedicado UFPB,Enviou 10 redações UFPB,📚,10,2,0,essays_count,10,t,2025-12-05 21:01:41.496087,ufpb
+376,ufrn_essays_5,Escritor UFRN,Enviou 5 redações UFRN,✍️,5,1,0,essays_count,5,t,2025-12-05 21:56:08.95478,ufrn
+435,uft_lessons_5,Iniciante UFT,Completou 5 lições da UFT,📖,5,1,0,lessons,5,t,2025-12-05 22:32:17.700083,uft
+436,uft_lessons_15,Estudante UFT,Completou 15 lições da UFT,📚,10,3,0,lessons,15,t,2025-12-05 22:32:17.700083,uft
+151,uerj_essays_1,Primeira Redação UERJ,Enviou sua primeira redação UERJ,📝,2,0,0,essays_count,1,t,2025-12-05 10:31:16.575376,uerj
+152,uerj_essays_5,Escritor UERJ,Enviou 5 redações UERJ,✍️,5,1,0,essays_count,5,t,2025-12-05 10:31:16.575376,uerj
+153,uerj_essays_10,Redator Dedicado UERJ,Enviou 10 redações UERJ,📚,10,2,0,essays_count,10,t,2025-12-05 10:31:16.575376,uerj
+102,streak_7,Estudante Dedicado,7 dias seguidos de estudo,🔥,5,1,0,streak,7,t,2025-12-05 10:15:52.911554,
+103,streak_30,Mestre da Consistência,30 dias seguidos de estudo,🌟,20,3,0,streak,30,t,2025-12-05 10:15:52.911554,
+104,streak_100,Lenda da Disciplina,100 dias seguidos de estudo,👑,50,10,0,streak,100,t,2025-12-05 10:15:52.911554,
+105,enem_essays_1,Primeira Redação ENEM,Enviou sua primeira redação ENEM,📝,2,0,0,essays_count,1,t,2025-12-05 10:15:52.913235,enem
+106,enem_essays_5,Escritor ENEM,Enviou 5 redações ENEM,✍️,5,1,0,essays_count,5,t,2025-12-05 10:15:52.913235,enem
+107,enem_essays_10,Redator Dedicado ENEM,Enviou 10 redações ENEM,📚,10,2,0,essays_count,10,t,2025-12-05 10:15:52.913235,enem
+108,enem_bronze,Nota Bronze ENEM,Atingiu 600+ no ENEM,🥉,10,2,0,score,600,t,2025-12-05 10:15:52.913235,enem
+109,enem_prata,Nota Prata ENEM,Atingiu 800+ no ENEM,🥈,20,5,0,score,800,t,2025-12-05 10:15:52.913235,enem
+110,enem_ouro,Nota Ouro ENEM,Atingiu 900+ no ENEM,🥇,30,10,0,score,900,t,2025-12-05 10:15:52.913235,enem
+111,enem_perfeito,Nota 1000 ENEM,Atingiu nota máxima no ENEM,💎,50,20,0,score,1000,t,2025-12-05 10:15:52.913235,enem
+112,enem_lessons_5,Iniciante ENEM,Completou 5 lições do ENEM,📖,5,1,0,lessons,5,t,2025-12-05 10:15:52.913235,enem
+113,enem_lessons_15,Estudante ENEM,Completou 15 lições do ENEM,📚,10,3,0,lessons,15,t,2025-12-05 10:15:52.913235,enem
+114,enem_lessons_25,Mestre ENEM,Completou todas as 25 lições ENEM,🎓,30,5,0,lessons,25,t,2025-12-05 10:15:52.913235,enem
+115,fuvest_essays_1,Primeira Redação FUVEST,Enviou sua primeira redação FUVEST,📝,2,0,0,essays_count,1,t,2025-12-05 10:15:52.914627,fuvest
+116,fuvest_essays_5,Escritor FUVEST,Enviou 5 redações FUVEST,✍️,5,1,0,essays_count,5,t,2025-12-05 10:15:52.914627,fuvest
+117,fuvest_essays_10,Redator Dedicado FUVEST,Enviou 10 redações FUVEST,📚,10,2,0,essays_count,10,t,2025-12-05 10:15:52.914627,fuvest
+118,fuvest_bronze,Nota Bronze FUVEST,Atingiu 60+ na FUVEST,🥉,10,2,0,score,60,t,2025-12-05 10:15:52.914627,fuvest
+119,fuvest_prata,Nota Prata FUVEST,Atingiu 80+ na FUVEST,🥈,20,5,0,score,80,t,2025-12-05 10:15:52.914627,fuvest
+120,fuvest_ouro,Nota Ouro FUVEST,Atingiu 90+ na FUVEST,🥇,30,10,0,score,90,t,2025-12-05 10:15:52.914627,fuvest
+121,fuvest_lessons_5,Iniciante FUVEST,Completou 5 lições da FUVEST,📖,5,1,0,lessons,5,t,2025-12-05 10:15:52.914627,fuvest
+122,fuvest_lessons_15,Estudante FUVEST,Completou 15 lições da FUVEST,📚,10,3,0,lessons,15,t,2025-12-05 10:15:52.914627,fuvest
+123,fuvest_lessons_25,Mestre FUVEST,Completou todas as 25 lições FUVEST,🎓,30,5,0,lessons,25,t,2025-12-05 10:15:52.914627,fuvest
+124,unicamp_essays_1,Primeira Redação UNICAMP,Enviou sua primeira redação UNICAMP,📝,2,0,0,essays_count,1,t,2025-12-05 10:15:52.91598,unicamp
+125,unicamp_essays_5,Escritor UNICAMP,Enviou 5 redações UNICAMP,✍️,5,1,0,essays_count,5,t,2025-12-05 10:15:52.91598,unicamp
+126,unicamp_essays_10,Redator Dedicado UNICAMP,Enviou 10 redações UNICAMP,📚,10,2,0,essays_count,10,t,2025-12-05 10:15:52.91598,unicamp
+127,unicamp_bronze,Nota Bronze UNICAMP,Atingiu 60+ na UNICAMP,🥉,10,2,0,score,60,t,2025-12-05 10:15:52.91598,unicamp
+128,unicamp_prata,Nota Prata UNICAMP,Atingiu 80+ na UNICAMP,🥈,20,5,0,score,80,t,2025-12-05 10:15:52.91598,unicamp
+129,unicamp_ouro,Nota Ouro UNICAMP,Atingiu 90+ na UNICAMP,🥇,30,10,0,score,90,t,2025-12-05 10:15:52.91598,unicamp
+130,unicamp_lessons_5,Iniciante UNICAMP,Completou 5 lições da UNICAMP,📖,5,1,0,lessons,5,t,2025-12-05 10:15:52.91598,unicamp
+131,unicamp_lessons_15,Estudante UNICAMP,Completou 15 lições UNICAMP,📚,10,3,0,lessons,15,t,2025-12-05 10:15:52.91598,unicamp
+132,unicamp_lessons_25,Mestre UNICAMP,Completou todas as lições UNICAMP,🎓,30,5,0,lessons,25,t,2025-12-05 10:15:52.91598,unicamp
+133,unesp_essays_1,Primeira Redação UNESP,Enviou sua primeira redação UNESP,📝,2,0,0,essays_count,1,t,2025-12-05 10:15:52.917334,unesp
+134,unesp_essays_5,Escritor UNESP,Enviou 5 redações UNESP,✍️,5,1,0,essays_count,5,t,2025-12-05 10:15:52.917334,unesp
+135,unesp_essays_10,Redator Dedicado UNESP,Enviou 10 redações UNESP,📚,10,2,0,essays_count,10,t,2025-12-05 10:15:52.917334,unesp
+136,unesp_bronze,Nota Bronze UNESP,Atingiu 60+ na UNESP,🥉,10,2,0,score,60,t,2025-12-05 10:15:52.917334,unesp
+137,unesp_prata,Nota Prata UNESP,Atingiu 80+ na UNESP,🥈,20,5,0,score,80,t,2025-12-05 10:15:52.917334,unesp
+138,unesp_ouro,Nota Ouro UNESP,Atingiu 90+ na UNESP,🥇,30,10,0,score,90,t,2025-12-05 10:15:52.917334,unesp
+139,unesp_lessons_5,Iniciante UNESP,Completou 5 lições da UNESP,📖,5,1,0,lessons,5,t,2025-12-05 10:15:52.917334,unesp
+140,unesp_lessons_15,Estudante UNESP,Completou 15 lições UNESP,📚,10,3,0,lessons,15,t,2025-12-05 10:15:52.917334,unesp
+141,unesp_lessons_25,Mestre UNESP,Completou todas as lições UNESP,🎓,30,5,0,lessons,25,t,2025-12-05 10:15:52.917334,unesp
+142,ita_essays_1,Primeira Redação ITA,Enviou sua primeira redação ITA,📝,2,0,0,essays_count,1,t,2025-12-05 10:15:52.918647,ita
+143,ita_essays_5,Escritor ITA,Enviou 5 redações ITA,✍️,5,1,0,essays_count,5,t,2025-12-05 10:15:52.918647,ita
+144,ita_essays_10,Redator Dedicado ITA,Enviou 10 redações ITA,📚,10,2,0,essays_count,10,t,2025-12-05 10:15:52.918647,ita
+145,ita_bronze,Nota Bronze ITA,Atingiu 60+ no ITA,🥉,10,2,0,score,60,t,2025-12-05 10:15:52.918647,ita
+146,ita_prata,Nota Prata ITA,Atingiu 80+ no ITA,🥈,20,5,0,score,80,t,2025-12-05 10:15:52.918647,ita
+147,ita_ouro,Nota Ouro ITA,Atingiu 90+ no ITA,🥇,30,10,0,score,90,t,2025-12-05 10:15:52.918647,ita
+148,ita_lessons_5,Iniciante ITA,Completou 5 lições do ITA,📖,5,1,0,lessons,5,t,2025-12-05 10:15:52.918647,ita
+149,ita_lessons_15,Estudante ITA,Completou 15 lições ITA,📚,10,3,0,lessons,15,t,2025-12-05 10:15:52.918647,ita
+150,ita_lessons_25,Mestre ITA,Completou todas as lições ITA,🎓,30,5,0,lessons,25,t,2025-12-05 10:15:52.918647,ita
+155,uerj_prata,Nota Prata UERJ,Atingiu 80+ na UERJ,🥈,20,5,0,score,80,t,2025-12-05 10:31:16.575376,uerj
+156,uerj_ouro,Nota Ouro UERJ,Atingiu 90+ na UERJ,🥇,30,10,0,score,90,t,2025-12-05 10:31:16.575376,uerj
+157,uerj_lessons_5,Iniciante UERJ,Completou 5 lições da UERJ,📖,5,1,0,lessons,5,t,2025-12-05 10:31:16.575376,uerj
+158,uerj_lessons_15,Estudante UERJ,Completou 15 lições da UERJ,📚,10,3,0,lessons,15,t,2025-12-05 10:31:16.575376,uerj
+159,uerj_lessons_20,Mestre UERJ,Completou todas as 20 lições UERJ,🎓,30,5,0,lessons,20,t,2025-12-05 10:31:16.575376,uerj
+160,ufmg_essays_1,Primeira Redação UFMG,Enviou sua primeira redação UFMG,📝,2,0,0,essays_count,1,t,2025-12-05 10:37:33.200157,ufmg
+161,ufmg_essays_5,Escritor UFMG,Enviou 5 redações UFMG,✍️,5,1,0,essays_count,5,t,2025-12-05 10:37:33.200157,ufmg
+162,ufmg_essays_10,Redator Dedicado UFMG,Enviou 10 redações UFMG,📚,10,2,0,essays_count,10,t,2025-12-05 10:37:33.200157,ufmg
+163,ufmg_bronze,Nota Bronze UFMG,Atingiu 60+ na UFMG,🥉,10,2,0,score,60,t,2025-12-05 10:37:33.200157,ufmg
+164,ufmg_prata,Nota Prata UFMG,Atingiu 80+ na UFMG,🥈,20,5,0,score,80,t,2025-12-05 10:37:33.200157,ufmg
+165,ufmg_ouro,Nota Ouro UFMG,Atingiu 90+ na UFMG,🥇,30,10,0,score,90,t,2025-12-05 10:37:33.200157,ufmg
+166,ufmg_lessons_5,Iniciante UFMG,Completou 5 lições da UFMG,📖,5,1,0,lessons,5,t,2025-12-05 10:37:33.200157,ufmg
+167,ufmg_lessons_15,Estudante UFMG,Completou 15 lições da UFMG,📚,10,3,0,lessons,15,t,2025-12-05 10:37:33.200157,ufmg
+168,ufmg_lessons_20,Mestre UFMG,Completou todas as 20 lições UFMG,🎓,30,5,0,lessons,20,t,2025-12-05 10:37:33.200157,ufmg
+497,pucrs_ouro,Nota Ouro PUCRS,Atingiu 90+ na PUCRS,🥇,30,10,0,score,90,t,2025-12-05 23:11:53.392037,pucrs
+169,afa_essays_1,Primeira Redação AFA,Enviou sua primeira redação AFA,📝,2,0,0,essays_count,1,t,2025-12-05 10:42:39.302531,afa
+170,afa_essays_5,Escritor AFA,Enviou 5 redações AFA,✍️,5,1,0,essays_count,5,t,2025-12-05 10:42:39.302531,afa
+171,afa_essays_10,Redator Dedicado AFA,Enviou 10 redações AFA,📚,10,2,0,essays_count,10,t,2025-12-05 10:42:39.302531,afa
+172,afa_bronze,Nota Bronze AFA,Atingiu 60+ na AFA,🥉,10,2,0,score,60,t,2025-12-05 10:42:39.302531,afa
+173,afa_prata,Nota Prata AFA,Atingiu 80+ na AFA,🥈,20,5,0,score,80,t,2025-12-05 10:42:39.302531,afa
+174,afa_ouro,Nota Ouro AFA,Atingiu 90+ na AFA,🥇,30,10,0,score,90,t,2025-12-05 10:42:39.302531,afa
+175,afa_lessons_5,Iniciante AFA,Completou 5 lições da AFA,📖,5,1,0,lessons,5,t,2025-12-05 10:42:39.302531,afa
+176,afa_lessons_15,Estudante AFA,Completou 15 lições da AFA,📚,10,3,0,lessons,15,t,2025-12-05 10:42:39.302531,afa
+177,afa_lessons_20,Mestre AFA,Completou todas as 20 lições AFA,🎓,30,5,0,lessons,20,t,2025-12-05 10:42:39.302531,afa
+178,cacd_essays_1,Primeira Redação CACD,Enviou sua primeira redação CACD,📝,2,0,0,essays_count,1,t,2025-12-05 10:47:17.815534,cacd
+179,cacd_essays_5,Escritor Diplomático,Enviou 5 redações CACD,✍️,5,1,0,essays_count,5,t,2025-12-05 10:47:17.815534,cacd
+180,cacd_essays_10,Diplomata em Formação,Enviou 10 redações CACD,📚,10,2,0,essays_count,10,t,2025-12-05 10:47:17.815534,cacd
+181,cacd_bronze,Nota Bronze CACD,Atingiu 60+ no CACD,🥉,10,2,0,score,60,t,2025-12-05 10:47:17.815534,cacd
+182,cacd_prata,Nota Prata CACD,Atingiu 80+ no CACD,🥈,20,5,0,score,80,t,2025-12-05 10:47:17.815534,cacd
+183,cacd_ouro,Nota Ouro CACD,Atingiu 90+ no CACD,🥇,30,10,0,score,90,t,2025-12-05 10:47:17.815534,cacd
+184,cacd_lessons_5,Iniciante CACD,Completou 5 lições do CACD,📖,5,1,0,lessons,5,t,2025-12-05 10:47:17.815534,cacd
+185,cacd_lessons_15,Estudante CACD,Completou 15 lições do CACD,📚,10,3,0,lessons,15,t,2025-12-05 10:47:17.815534,cacd
+186,cacd_lessons_20,Mestre CACD,Completou todas as 20 lições CACD,🎓,30,5,0,lessons,20,t,2025-12-05 10:47:17.815534,cacd
+187,sisu_essays_1,Primeira Redação SISU,Enviou sua primeira redação para o SISU,📝,2,0,0,essays_count,1,t,2025-12-05 10:54:46.218641,sisu
+188,sisu_essays_5,Candidato SISU,Enviou 5 redações para o SISU,✍️,5,1,0,essays_count,5,t,2025-12-05 10:54:46.218641,sisu
+189,sisu_essays_10,Veterano SISU,Enviou 10 redações para o SISU,📚,10,2,0,essays_count,10,t,2025-12-05 10:54:46.218641,sisu
+190,sisu_bronze,Nota Bronze SISU,Atingiu 600+ na redação SISU,🥉,10,2,0,score,600,t,2025-12-05 10:54:46.218641,sisu
+191,sisu_prata,Nota Prata SISU,Atingiu 800+ na redação SISU,🥈,20,5,0,score,800,t,2025-12-05 10:54:46.218641,sisu
+192,sisu_ouro,Nota Ouro SISU,Atingiu 900+ na redação SISU,🥇,30,10,0,score,900,t,2025-12-05 10:54:46.218641,sisu
+193,sisu_mil,Nota 1000 SISU,Atingiu nota máxima na redação!,💎,50,20,0,score,1000,t,2025-12-05 10:54:46.218641,sisu
+194,sisu_lessons_5,Iniciante SISU,Completou 5 lições do SISU,📖,5,1,0,lessons,5,t,2025-12-05 10:54:46.218641,sisu
+195,sisu_lessons_15,Estudante SISU,Completou 15 lições do SISU,📚,10,3,0,lessons,15,t,2025-12-05 10:54:46.218641,sisu
+196,sisu_lessons_25,Mestre SISU,Completou todas as 25 lições SISU,🎓,30,5,0,lessons,25,t,2025-12-05 10:54:46.218641,sisu
+197,ufac_essays_1,Primeira Redação UFAC,Enviou sua primeira redação UFAC,📝,2,0,0,essays_count,1,t,2025-12-05 18:27:36.399021,ufac
+198,ufac_essays_5,Escritor UFAC,Enviou 5 redações UFAC,✍️,5,1,0,essays_count,5,t,2025-12-05 18:27:36.399021,ufac
+199,ufac_essays_10,Redator Dedicado UFAC,Enviou 10 redações UFAC,📚,10,2,0,essays_count,10,t,2025-12-05 18:27:36.399021,ufac
+203,ufac_lessons_5,Iniciante UFAC,Completou 5 lições da UFAC,📖,5,1,0,lessons,5,t,2025-12-05 18:27:36.399021,ufac
+204,ufac_lessons_15,Estudante UFAC,Completou 15 lições da UFAC,📚,10,3,0,lessons,15,t,2025-12-05 18:27:36.399021,ufac
+205,ufac_lessons_20,Mestre UFAC,Completou todas as 20 lições UFAC,🎓,30,5,0,lessons,20,t,2025-12-05 18:27:36.399021,ufac
+206,ufal_essays_1,Primeira Redação UFAL,Enviou sua primeira redação UFAL,📝,2,0,0,essays_count,1,t,2025-12-05 18:34:59.025287,ufal
+207,ufal_essays_5,Escritor UFAL,Enviou 5 redações UFAL,✍️,5,1,0,essays_count,5,t,2025-12-05 18:34:59.025287,ufal
+208,ufal_essays_10,Redator Dedicado UFAL,Enviou 10 redações UFAL,📚,10,2,0,essays_count,10,t,2025-12-05 18:34:59.025287,ufal
+202,ufac_ouro,Nota Ouro UFAC,Atingiu 900+ na UFAC,🥇,30,10,0,score,900,t,2025-12-05 18:27:36.399021,ufac
+209,ufal_bronze,Nota Bronze UFAL,Atingiu 600+ na UFAL,🥉,10,2,0,score,600,t,2025-12-05 18:34:59.025287,ufal
+201,ufac_prata,Nota Prata UFAC,Atingiu 800+ na UFAC,🥈,20,5,0,score,800,t,2025-12-05 18:27:36.399021,ufac
+213,ufal_lessons_15,Estudante UFAL,Completou 15 lições da UFAL,📚,10,3,0,lessons,15,t,2025-12-05 18:34:59.025287,ufal
+214,ufal_lessons_20,Mestre UFAL,Completou todas as 20 lições UFAL,🎓,30,5,0,lessons,20,t,2025-12-05 18:34:59.025287,ufal
+215,unifap_essays_1,Primeira Redação UNIFAP,Enviou sua primeira redação UNIFAP,📝,2,0,0,essays_count,1,t,2025-12-05 18:48:38.902043,unifap
+216,unifap_essays_5,Escritor UNIFAP,Enviou 5 redações UNIFAP,✍️,5,1,0,essays_count,5,t,2025-12-05 18:48:38.902043,unifap
+217,unifap_essays_10,Redator Dedicado UNIFAP,Enviou 10 redações UNIFAP,📚,10,2,0,essays_count,10,t,2025-12-05 18:48:38.902043,unifap
+221,unifap_lessons_5,Iniciante UNIFAP,Completou 5 lições da UNIFAP,📖,5,1,0,lessons,5,t,2025-12-05 18:48:38.902043,unifap
+222,unifap_lessons_15,Estudante UNIFAP,Completou 15 lições da UNIFAP,📚,10,3,0,lessons,15,t,2025-12-05 18:48:38.902043,unifap
+223,unifap_lessons_20,Mestre UNIFAP,Completou todas as 20 lições UNIFAP,🎓,30,5,0,lessons,20,t,2025-12-05 18:48:38.902043,unifap
+224,ufam_essays_1,Primeira Redação UFAM,Enviou sua primeira redação UFAM,📝,2,0,0,essays_count,1,t,2025-12-05 18:56:29.201418,ufam
+225,ufam_essays_5,Escritor UFAM,Enviou 5 redações UFAM,✍️,5,1,0,essays_count,5,t,2025-12-05 18:56:29.201418,ufam
+226,ufam_essays_10,Redator Dedicado UFAM,Enviou 10 redações UFAM,📚,10,2,0,essays_count,10,t,2025-12-05 18:56:29.201418,ufam
+230,ufam_lessons_5,Iniciante UFAM,Completou 5 lições da UFAM,📖,5,1,0,lessons,5,t,2025-12-05 18:56:29.201418,ufam
+231,ufam_lessons_15,Estudante UFAM,Completou 15 lições da UFAM,📚,10,3,0,lessons,15,t,2025-12-05 18:56:29.201418,ufam
+232,ufam_lessons_20,Mestre UFAM,Completou todas as 20 lições UFAM,🎓,30,5,0,lessons,20,t,2025-12-05 18:56:29.201418,ufam
+233,ufba_essays_1,Primeira Redação UFBA,Enviou sua primeira redação UFBA,📝,2,0,0,essays_count,1,t,2025-12-05 19:05:53.188943,ufba
+234,ufba_essays_5,Escritor UFBA,Enviou 5 redações UFBA,✍️,5,1,0,essays_count,5,t,2025-12-05 19:05:53.188943,ufba
+235,ufba_essays_10,Redator Dedicado UFBA,Enviou 10 redações UFBA,📚,10,2,0,essays_count,10,t,2025-12-05 19:05:53.188943,ufba
+239,ufba_lessons_5,Iniciante UFBA,Completou 5 lições da UFBA,📖,5,1,0,lessons,5,t,2025-12-05 19:05:53.188943,ufba
+240,ufba_lessons_15,Estudante UFBA,Completou 15 lições da UFBA,📚,10,3,0,lessons,15,t,2025-12-05 19:05:53.188943,ufba
+241,ufba_lessons_20,Mestre UFBA,Completou todas as 20 lições UFBA,🎓,30,5,0,lessons,20,t,2025-12-05 19:05:53.188943,ufba
+242,ufc_essays_1,Primeira Redação UFC,Enviou sua primeira redação UFC,📝,2,0,0,essays_count,1,t,2025-12-05 19:16:10.959943,ufc
+243,ufc_essays_5,Escritor UFC,Enviou 5 redações UFC,✍️,5,1,0,essays_count,5,t,2025-12-05 19:16:10.959943,ufc
+244,ufc_essays_10,Redator Dedicado UFC,Enviou 10 redações UFC,📚,10,2,0,essays_count,10,t,2025-12-05 19:16:10.959943,ufc
+248,ufc_lessons_5,Iniciante UFC,Completou 5 lições da UFC,📖,5,1,0,lessons,5,t,2025-12-05 19:16:10.959943,ufc
+249,ufc_lessons_15,Estudante UFC,Completou 15 lições da UFC,📚,10,3,0,lessons,15,t,2025-12-05 19:16:10.959943,ufc
+250,ufc_lessons_20,Mestre UFC,Completou todas as 20 lições UFC,🎓,30,5,0,lessons,20,t,2025-12-05 19:16:10.959943,ufc
+251,unb_essays_1,Primeira Redação UnB,Enviou sua primeira redação UnB,📝,2,0,0,essays_count,1,t,2025-12-05 19:28:09.713022,unb
+252,unb_essays_5,Escritor UnB,Enviou 5 redações UnB,✍️,5,1,0,essays_count,5,t,2025-12-05 19:28:09.713022,unb
+253,unb_essays_10,Redator Dedicado UnB,Enviou 10 redações UnB,📚,10,2,0,essays_count,10,t,2025-12-05 19:28:09.713022,unb
+257,unb_lessons_5,Iniciante UnB,Completou 5 lições da UnB,📖,5,1,0,lessons,5,t,2025-12-05 19:28:09.713022,unb
+258,unb_lessons_15,Estudante UnB,Completou 15 lições da UnB,📚,10,3,0,lessons,15,t,2025-12-05 19:28:09.713022,unb
+259,unb_lessons_20,Mestre UnB,Completou todas as 20 lições UnB,🎓,30,5,0,lessons,20,t,2025-12-05 19:28:09.713022,unb
+260,udf_essays_1,Primeira Redação UDF,Enviou sua primeira redação UDF,📝,2,0,0,essays_count,1,t,2025-12-05 19:35:06.422977,udf
+261,udf_essays_5,Escritor UDF,Enviou 5 redações UDF,✍️,5,1,0,essays_count,5,t,2025-12-05 19:35:06.422977,udf
+262,udf_essays_10,Redator Dedicado UDF,Enviou 10 redações UDF,📚,10,2,0,essays_count,10,t,2025-12-05 19:35:06.422977,udf
+219,unifap_prata,Nota Prata UNIFAP,Atingiu 800+ na UNIFAP,🥈,20,5,0,score,800,t,2025-12-05 18:48:38.902043,unifap
+220,unifap_ouro,Nota Ouro UNIFAP,Atingiu 900+ na UNIFAP,🥇,30,10,0,score,900,t,2025-12-05 18:48:38.902043,unifap
+227,ufam_bronze,Nota Bronze UFAM,Atingiu 600+ na UFAM,🥉,10,2,0,score,600,t,2025-12-05 18:56:29.201418,ufam
+228,ufam_prata,Nota Prata UFAM,Atingiu 800+ na UFAM,🥈,20,5,0,score,800,t,2025-12-05 18:56:29.201418,ufam
+229,ufam_ouro,Nota Ouro UFAM,Atingiu 900+ na UFAM,🥇,30,10,0,score,900,t,2025-12-05 18:56:29.201418,ufam
+210,ufal_prata,Nota Prata UFAL,Atingiu 800+ na UFAL,🥈,20,5,0,score,800,t,2025-12-05 18:34:59.025287,ufal
+211,ufal_ouro,Nota Ouro UFAL,Atingiu 900+ na UFAL,🥇,30,10,0,score,900,t,2025-12-05 18:34:59.025287,ufal
+236,ufba_bronze,Nota Bronze UFBA,Atingiu 600+ na UFBA,🥉,10,2,0,score,600,t,2025-12-05 19:05:53.188943,ufba
+237,ufba_prata,Nota Prata UFBA,Atingiu 800+ na UFBA,🥈,20,5,0,score,800,t,2025-12-05 19:05:53.188943,ufba
+238,ufba_ouro,Nota Ouro UFBA,Atingiu 900+ na UFBA,🥇,30,10,0,score,900,t,2025-12-05 19:05:53.188943,ufba
+245,ufc_bronze,Nota Bronze UFC,Atingiu 600+ na UFC,🥉,10,2,0,score,600,t,2025-12-05 19:16:10.959943,ufc
+246,ufc_prata,Nota Prata UFC,Atingiu 800+ na UFC,🥈,20,5,0,score,800,t,2025-12-05 19:16:10.959943,ufc
+247,ufc_ouro,Nota Ouro UFC,Atingiu 900+ na UFC,🥇,30,10,0,score,900,t,2025-12-05 19:16:10.959943,ufc
+263,udf_bronze,Nota Bronze UDF,Atingiu 600+ na UDF,🥉,10,2,0,score,600,t,2025-12-05 19:35:06.422977,udf
+264,udf_prata,Nota Prata UDF,Atingiu 800+ na UDF,🥈,20,5,0,score,800,t,2025-12-05 19:35:06.422977,udf
+265,udf_ouro,Nota Ouro UDF,Atingiu 900+ na UDF,🥇,30,10,0,score,900,t,2025-12-05 19:35:06.422977,udf
+255,unb_prata,Nota Prata UnB,Atingiu 8+ na UnB,🥈,20,5,0,score,8,t,2025-12-05 19:28:09.713022,unb
+275,ufes_lessons_5,Iniciante UFES,Completou 5 lições da UFES,📖,5,1,0,lessons,5,t,2025-12-05 19:41:56.97665,ufes
+276,ufes_lessons_15,Estudante UFES,Completou 15 lições da UFES,📚,10,3,0,lessons,15,t,2025-12-05 19:41:56.97665,ufes
+277,ufes_lessons_20,Mestre UFES,Completou todas as 20 lições UFES,🎓,30,5,0,lessons,20,t,2025-12-05 19:41:56.97665,ufes
+278,ufg_essays_1,Primeira Redação UFG,Enviou sua primeira redação UFG,📝,2,0,0,essays_count,1,t,2025-12-05 19:49:01.874583,ufg
+279,ufg_essays_5,Escritor UFG,Enviou 5 redações UFG,✍️,5,1,0,essays_count,5,t,2025-12-05 19:49:01.874583,ufg
+280,ufg_essays_10,Redator Dedicado UFG,Enviou 10 redações UFG,📚,10,2,0,essays_count,10,t,2025-12-05 19:49:01.874583,ufg
+284,ufg_lessons_5,Iniciante UFG,Completou 5 lições da UFG,📖,5,1,0,lessons,5,t,2025-12-05 19:49:01.874583,ufg
+285,ufg_lessons_15,Estudante UFG,Completou 15 lições da UFG,📚,10,3,0,lessons,15,t,2025-12-05 19:49:01.874583,ufg
+286,ufg_lessons_20,Mestre UFG,Completou todas as 20 lições UFG,🎓,30,5,0,lessons,20,t,2025-12-05 19:49:01.874583,ufg
+287,ufma_essays_1,Primeira Redação UFMA,Enviou sua primeira redação UFMA,📝,2,0,0,essays_count,1,t,2025-12-05 19:54:33.304868,ufma
+288,ufma_essays_5,Escritor UFMA,Enviou 5 redações UFMA,✍️,5,1,0,essays_count,5,t,2025-12-05 19:54:33.304868,ufma
+289,ufma_essays_10,Redator Dedicado UFMA,Enviou 10 redações UFMA,📚,10,2,0,essays_count,10,t,2025-12-05 19:54:33.304868,ufma
+293,ufma_lessons_5,Iniciante UFMA,Completou 5 lições da UFMA,📖,5,1,0,lessons,5,t,2025-12-05 19:54:33.304868,ufma
+294,ufma_lessons_15,Estudante UFMA,Completou 15 lições da UFMA,📚,10,3,0,lessons,15,t,2025-12-05 19:54:33.304868,ufma
+295,ufma_lessons_20,Mestre UFMA,Completou todas as 20 lições UFMA,🎓,30,5,0,lessons,20,t,2025-12-05 19:54:33.304868,ufma
+296,ufmt_essays_1,Primeira Redação UFMT,Enviou sua primeira redação UFMT,📝,2,0,0,essays_count,1,t,2025-12-05 20:02:28.871279,ufmt
+297,ufmt_essays_5,Escritor UFMT,Enviou 5 redações UFMT,✍️,5,1,0,essays_count,5,t,2025-12-05 20:02:28.871279,ufmt
+298,ufmt_essays_10,Redator Dedicado UFMT,Enviou 10 redações UFMT,📚,10,2,0,essays_count,10,t,2025-12-05 20:02:28.871279,ufmt
+302,ufmt_lessons_5,Iniciante UFMT,Completou 5 lições da UFMT,📖,5,1,0,lessons,5,t,2025-12-05 20:02:28.871279,ufmt
+303,ufmt_lessons_15,Estudante UFMT,Completou 15 lições da UFMT,📚,10,3,0,lessons,15,t,2025-12-05 20:02:28.871279,ufmt
+304,ufmt_lessons_20,Mestre UFMT,Completou todas as 20 lições UFMT,🎓,30,5,0,lessons,20,t,2025-12-05 20:02:28.871279,ufmt
+305,ufms_essays_1,Primeira Redação UFMS,Enviou sua primeira redação UFMS,📝,2,0,0,essays_count,1,t,2025-12-05 20:08:55.171186,ufms
+306,ufms_essays_5,Escritor UFMS,Enviou 5 redações UFMS,✍️,5,1,0,essays_count,5,t,2025-12-05 20:08:55.171186,ufms
+307,ufms_essays_10,Redator Dedicado UFMS,Enviou 10 redações UFMS,📚,10,2,0,essays_count,10,t,2025-12-05 20:08:55.171186,ufms
+311,ufms_lessons_5,Iniciante UFMS,Completou 5 lições da UFMS,📖,5,1,0,lessons,5,t,2025-12-05 20:08:55.171186,ufms
+312,ufms_lessons_15,Estudante UFMS,Completou 15 lições da UFMS,📚,10,3,0,lessons,15,t,2025-12-05 20:08:55.171186,ufms
+313,ufms_lessons_20,Mestre UFMS,Completou todas as 20 lições UFMS,🎓,30,5,0,lessons,20,t,2025-12-05 20:08:55.171186,ufms
+282,ufg_prata,Nota Prata UFG,Atingiu 800+ na UFG,🥈,20,5,0,score,800,t,2025-12-05 19:49:01.874583,ufg
+283,ufg_ouro,Nota Ouro UFG,Atingiu 900+ na UFG,🥇,30,10,0,score,900,t,2025-12-05 19:49:01.874583,ufg
+299,ufmt_bronze,Nota Bronze UFMT,Atingiu 600+ na UFMT,🥉,10,2,0,score,600,t,2025-12-05 20:02:28.871279,ufmt
+301,ufmt_ouro,Nota Ouro UFMT,Atingiu 900+ na UFMT,🥇,30,10,0,score,900,t,2025-12-05 20:02:28.871279,ufmt
+308,ufms_bronze,Nota Bronze UFMS,Atingiu 600+ na UFMS,🥉,10,2,0,score,600,t,2025-12-05 20:08:55.171186,ufms
+309,ufms_prata,Nota Prata UFMS,Atingiu 800+ na UFMS,🥈,20,5,0,score,800,t,2025-12-05 20:08:55.171186,ufms
+310,ufms_ouro,Nota Ouro UFMS,Atingiu 900+ na UFMS,🥇,30,10,0,score,900,t,2025-12-05 20:08:55.171186,ufms
+272,ufes_bronze,Nota Bronze UFES,Atingiu 600+ na UFES,🥉,10,2,0,score,600,t,2025-12-05 19:41:56.97665,ufes
+273,ufes_prata,Nota Prata UFES,Atingiu 800+ na UFES,🥈,20,5,0,score,800,t,2025-12-05 19:41:56.97665,ufes
+274,ufes_ouro,Nota Ouro UFES,Atingiu 900+ na UFES,🥇,30,10,0,score,900,t,2025-12-05 19:41:56.97665,ufes
+291,ufma_prata,Nota Prata UFMA,Atingiu 800+ na UFMA,🥈,20,5,0,score,800,t,2025-12-05 19:54:33.304868,ufma
+292,ufma_ouro,Nota Ouro UFMA,Atingiu 900+ na UFMA,🥇,30,10,0,score,900,t,2025-12-05 19:54:33.304868,ufma
+281,ufg_bronze,Nota Bronze UFG,Atingiu 600+ na UFG,🥉,10,2,0,score,600,t,2025-12-05 19:49:01.874583,ufg
+300,ufmt_prata,Nota Prata UFMT,Atingiu 800+ na UFMT,🥈,20,5,0,score,800,t,2025-12-05 20:02:28.871279,ufmt
+342,ufpb_lessons_5,Iniciante UFPB,Completou 5 lições da UFPB,📖,5,1,0,lessons,5,t,2025-12-05 21:01:41.496087,ufpb
+343,ufpb_lessons_15,Estudante UFPB,Completou 15 lições da UFPB,📚,10,3,0,lessons,15,t,2025-12-05 21:01:41.496087,ufpb
+344,ufpb_lessons_20,Mestre UFPB,Completou todas as 20 lições UFPB,🎓,30,5,0,lessons,20,t,2025-12-05 21:01:41.496087,ufpb
+348,ufpr_essays_1,Primeira Redação UFPR,Enviou sua primeira redação UFPR,📝,2,0,0,essays_count,1,t,2025-12-05 21:23:42.623617,ufpr
+349,ufpr_essays_5,Escritor UFPR,Enviou 5 redações UFPR,✍️,5,1,0,essays_count,5,t,2025-12-05 21:23:42.623617,ufpr
+350,ufpr_essays_10,Redator Dedicado UFPR,Enviou 10 redações UFPR,📚,10,2,0,essays_count,10,t,2025-12-05 21:23:42.623617,ufpr
+354,ufpr_lessons_5,Iniciante UFPR,Completou 5 lições da UFPR,📖,5,1,0,lessons,5,t,2025-12-05 21:23:42.623617,ufpr
+355,ufpr_lessons_15,Estudante UFPR,Completou 15 lições da UFPR,📚,10,3,0,lessons,15,t,2025-12-05 21:23:42.623617,ufpr
+356,ufpr_lessons_20,Mestre UFPR,Completou todas as 20 lições UFPR,🎓,30,5,0,lessons,20,t,2025-12-05 21:23:42.623617,ufpr
+366,ufpi_essays_1,Primeira Redação UFPI,Enviou sua primeira redação UFPI,📝,2,0,0,essays_count,1,t,2025-12-05 21:46:42.180387,ufpi
+367,ufpi_essays_5,Escritor UFPI,Enviou 5 redações UFPI,✍️,5,1,0,essays_count,5,t,2025-12-05 21:46:42.180387,ufpi
+368,ufpi_essays_10,Redator Dedicado UFPI,Enviou 10 redações UFPI,📚,10,2,0,essays_count,10,t,2025-12-05 21:46:42.180387,ufpi
+372,ufpi_lessons_5,Iniciante UFPI,Completou 5 lições da UFPI,📖,5,1,0,lessons,5,t,2025-12-05 21:46:42.180387,ufpi
+373,ufpi_lessons_15,Estudante UFPI,Completou 15 lições da UFPI,📚,10,3,0,lessons,15,t,2025-12-05 21:46:42.180387,ufpi
+374,ufpi_lessons_20,Mestre UFPI,Completou todas as 20 lições UFPI,🎓,30,5,0,lessons,20,t,2025-12-05 21:46:42.180387,ufpi
+375,ufrn_essays_1,Primeira Redação UFRN,Enviou sua primeira redação UFRN,📝,2,0,0,essays_count,1,t,2025-12-05 21:56:08.95478,ufrn
+330,ufpa_bronze,Nota Bronze UFPA,Atingiu 600+ na UFPA,🥉,10,2,0,score,600,t,2025-12-05 21:01:27.612288,ufpa
+331,ufpa_prata,Nota Prata UFPA,Atingiu 800+ na UFPA,🥈,20,5,0,score,800,t,2025-12-05 21:01:27.612288,ufpa
+332,ufpa_ouro,Nota Ouro UFPA,Atingiu 900+ na UFPA,🥇,30,10,0,score,900,t,2025-12-05 21:01:27.612288,ufpa
+351,ufpr_bronze,Nota Bronze UFPR,Atingiu 36+ na UFPR,🥉,10,2,0,score,36,t,2025-12-05 21:23:42.623617,ufpr
+352,ufpr_prata,Nota Prata UFPR,Atingiu 48+ na UFPR,🥈,20,5,0,score,48,t,2025-12-05 21:23:42.623617,ufpr
+353,ufpr_ouro,Nota Ouro UFPR,Atingiu 54+ na UFPR,🥇,30,10,0,score,54,t,2025-12-05 21:23:42.623617,ufpr
+339,ufpb_bronze,Nota Bronze UFPB,Atingiu 600+ na UFPB,🥉,10,2,0,score,600,t,2025-12-05 21:01:41.496087,ufpb
+340,ufpb_prata,Nota Prata UFPB,Atingiu 800+ na UFPB,🥈,20,5,0,score,800,t,2025-12-05 21:01:41.496087,ufpb
+341,ufpb_ouro,Nota Ouro UFPB,Atingiu 900+ na UFPB,🥇,30,10,0,score,900,t,2025-12-05 21:01:41.496087,ufpb
+369,ufpi_bronze,Nota Bronze UFPI,Atingiu 600+ na UFPI,🥉,10,2,0,score,600,t,2025-12-05 21:46:42.180387,ufpi
+370,ufpi_prata,Nota Prata UFPI,Atingiu 800+ na UFPI,🥈,20,5,0,score,800,t,2025-12-05 21:46:42.180387,ufpi
+371,ufpi_ouro,Nota Ouro UFPI,Atingiu 900+ na UFPI,🥇,30,10,0,score,900,t,2025-12-05 21:46:42.180387,ufpi
+377,ufrn_essays_10,Redator Dedicado UFRN,Enviou 10 redações UFRN,📚,10,2,0,essays_count,10,t,2025-12-05 21:56:08.95478,ufrn
+381,ufrn_lessons_5,Iniciante UFRN,Completou 5 lições da UFRN,📖,5,1,0,lessons,5,t,2025-12-05 21:56:08.95478,ufrn
+382,ufrn_lessons_15,Estudante UFRN,Completou 15 lições da UFRN,📚,10,3,0,lessons,15,t,2025-12-05 21:56:08.95478,ufrn
+383,ufrn_lessons_20,Mestre UFRN,Completou todas as 20 lições UFRN,🎓,30,5,0,lessons,20,t,2025-12-05 21:56:08.95478,ufrn
+384,ufrgs_essays_1,Primeira Redação UFRGS,Enviou sua primeira redação UFRGS,📝,2,0,0,essays_count,1,t,2025-12-05 22:01:49.745104,ufrgs
+385,ufrgs_essays_5,Escritor UFRGS,Enviou 5 redações UFRGS,✍️,5,1,0,essays_count,5,t,2025-12-05 22:01:49.745104,ufrgs
+386,ufrgs_essays_10,Redator Dedicado UFRGS,Enviou 10 redações UFRGS,📚,10,2,0,essays_count,10,t,2025-12-05 22:01:49.745104,ufrgs
+390,ufrgs_lessons_5,Iniciante UFRGS,Completou 5 lições da UFRGS,📖,5,1,0,lessons,5,t,2025-12-05 22:01:49.745104,ufrgs
+391,ufrgs_lessons_15,Estudante UFRGS,Completou 15 lições da UFRGS,📚,10,3,0,lessons,15,t,2025-12-05 22:01:49.745104,ufrgs
+392,ufrgs_lessons_20,Mestre UFRGS,Completou todas as 20 lições UFRGS,🎓,30,5,0,lessons,20,t,2025-12-05 22:01:49.745104,ufrgs
+393,unir_essays_1,Primeira Redação UNIR,Enviou sua primeira redação UNIR,📝,2,0,0,essays_count,1,t,2025-12-05 22:07:40.702441,unir
+394,unir_essays_5,Escritor UNIR,Enviou 5 redações UNIR,✍️,5,1,0,essays_count,5,t,2025-12-05 22:07:40.702441,unir
+395,unir_essays_10,Redator Dedicado UNIR,Enviou 10 redações UNIR,📚,10,2,0,essays_count,10,t,2025-12-05 22:07:40.702441,unir
+399,unir_lessons_5,Iniciante UNIR,Completou 5 lições da UNIR,📖,5,1,0,lessons,5,t,2025-12-05 22:07:40.702441,unir
+400,unir_lessons_15,Estudante UNIR,Completou 15 lições da UNIR,📚,10,3,0,lessons,15,t,2025-12-05 22:07:40.702441,unir
+401,unir_lessons_20,Mestre UNIR,Completou todas as 20 lições UNIR,🎓,30,5,0,lessons,20,t,2025-12-05 22:07:40.702441,unir
+402,uerr_essays_1,Primeira Redação UERR,Enviou sua primeira redação UERR,📝,2,0,0,essays_count,1,t,2025-12-05 22:13:20.769072,uerr
+403,uerr_essays_5,Escritor UERR,Enviou 5 redações UERR,✍️,5,1,0,essays_count,5,t,2025-12-05 22:13:20.769072,uerr
+404,uerr_essays_10,Redator Dedicado UERR,Enviou 10 redações UERR,📚,10,2,0,essays_count,10,t,2025-12-05 22:13:20.769072,uerr
+408,uerr_lessons_5,Iniciante UERR,Completou 5 lições da UERR,📖,5,1,0,lessons,5,t,2025-12-05 22:13:20.769072,uerr
+409,uerr_lessons_15,Estudante UERR,Completou 15 lições da UERR,📚,10,3,0,lessons,15,t,2025-12-05 22:13:20.769072,uerr
+410,uerr_lessons_20,Mestre UERR,Completou todas as 20 lições UERR,🎓,30,5,0,lessons,20,t,2025-12-05 22:13:20.769072,uerr
+411,ufsc_essays_1,Primeira Redação UFSC,Enviou sua primeira redação UFSC,📝,2,0,0,essays_count,1,t,2025-12-05 22:19:11.977805,ufsc
+412,ufsc_essays_5,Escritor UFSC,Enviou 5 redações UFSC,✍️,5,1,0,essays_count,5,t,2025-12-05 22:19:11.977805,ufsc
+413,ufsc_essays_10,Redator Dedicado UFSC,Enviou 10 redações UFSC,📚,10,2,0,essays_count,10,t,2025-12-05 22:19:11.977805,ufsc
+417,ufsc_lessons_5,Iniciante UFSC,Completou 5 lições da UFSC,📖,5,1,0,lessons,5,t,2025-12-05 22:19:11.977805,ufsc
+418,ufsc_lessons_15,Estudante UFSC,Completou 15 lições da UFSC,📚,10,3,0,lessons,15,t,2025-12-05 22:19:11.977805,ufsc
+419,ufsc_lessons_20,Mestre UFSC,Completou todas as 20 lições UFSC,🎓,30,5,0,lessons,20,t,2025-12-05 22:19:11.977805,ufsc
+420,ufs_essays_1,Primeira Redação UFS,Enviou sua primeira redação UFS,📝,2,0,0,essays_count,1,t,2025-12-05 22:27:08.182536,ufs
+421,ufs_essays_5,Escritor UFS,Enviou 5 redações UFS,✍️,5,1,0,essays_count,5,t,2025-12-05 22:27:08.182536,ufs
+422,ufs_essays_10,Redator Dedicado UFS,Enviou 10 redações UFS,📚,10,2,0,essays_count,10,t,2025-12-05 22:27:08.182536,ufs
+426,ufs_lessons_5,Iniciante UFS,Completou 5 lições da UFS,📖,5,1,0,lessons,5,t,2025-12-05 22:27:08.182536,ufs
+427,ufs_lessons_15,Estudante UFS,Completou 15 lições da UFS,📚,10,3,0,lessons,15,t,2025-12-05 22:27:08.182536,ufs
+428,ufs_lessons_20,Mestre UFS,Completou todas as 20 lições UFS,🎓,30,5,0,lessons,20,t,2025-12-05 22:27:08.182536,ufs
+429,uft_essays_1,Primeira Redação UFT,Enviou sua primeira redação UFT,📝,2,0,0,essays_count,1,t,2025-12-05 22:32:17.700083,uft
+430,uft_essays_5,Escritor UFT,Enviou 5 redações UFT,✍️,5,1,0,essays_count,5,t,2025-12-05 22:32:17.700083,uft
+431,uft_essays_10,Redator Dedicado UFT,Enviou 10 redações UFT,📚,10,2,0,essays_count,10,t,2025-12-05 22:32:17.700083,uft
+389,ufrgs_ouro,Nota Ouro UFRGS,Atingiu 27+ na UFRGS,🥇,30,10,0,score,27,t,2025-12-05 22:01:49.745104,ufrgs
+414,ufsc_bronze,Nota Bronze UFSC,Atingiu 6+ na UFSC,🥉,10,2,0,score,6,t,2025-12-05 22:19:11.977805,ufsc
+415,ufsc_prata,Nota Prata UFSC,Atingiu 8+ na UFSC,🥈,20,5,0,score,8,t,2025-12-05 22:19:11.977805,ufsc
+416,ufsc_ouro,Nota Ouro UFSC,Atingiu 9+ na UFSC,🥇,30,10,0,score,9,t,2025-12-05 22:19:11.977805,ufsc
+396,unir_bronze,Nota Bronze UNIR,Atingiu 600+ na UNIR,🥉,10,2,0,score,600,t,2025-12-05 22:07:40.702441,unir
+397,unir_prata,Nota Prata UNIR,Atingiu 800+ na UNIR,🥈,20,5,0,score,800,t,2025-12-05 22:07:40.702441,unir
+398,unir_ouro,Nota Ouro UNIR,Atingiu 900+ na UNIR,🥇,30,10,0,score,900,t,2025-12-05 22:07:40.702441,unir
+405,uerr_bronze,Nota Bronze UERR,Atingiu 600+ na UERR,🥉,10,2,0,score,600,t,2025-12-05 22:13:20.769072,uerr
+406,uerr_prata,Nota Prata UERR,Atingiu 800+ na UERR,🥈,20,5,0,score,800,t,2025-12-05 22:13:20.769072,uerr
+407,uerr_ouro,Nota Ouro UERR,Atingiu 900+ na UERR,🥇,30,10,0,score,900,t,2025-12-05 22:13:20.769072,uerr
+378,ufrn_bronze,Nota Bronze UFRN,Atingiu 600+ na UFRN,🥉,10,2,0,score,600,t,2025-12-05 21:56:08.95478,ufrn
+379,ufrn_prata,Nota Prata UFRN,Atingiu 800+ na UFRN,🥈,20,5,0,score,800,t,2025-12-05 21:56:08.95478,ufrn
+380,ufrn_ouro,Nota Ouro UFRN,Atingiu 900+ na UFRN,🥇,30,10,0,score,900,t,2025-12-05 21:56:08.95478,ufrn
+423,ufs_bronze,Nota Bronze UFS,Atingiu 600+ na UFS,🥉,10,2,0,score,600,t,2025-12-05 22:27:08.182536,ufs
+424,ufs_prata,Nota Prata UFS,Atingiu 800+ na UFS,🥈,20,5,0,score,800,t,2025-12-05 22:27:08.182536,ufs
+425,ufs_ouro,Nota Ouro UFS,Atingiu 900+ na UFS,🥇,30,10,0,score,900,t,2025-12-05 22:27:08.182536,ufs
+437,uft_lessons_20,Mestre UFT,Completou todas as 20 lições UFT,🎓,30,5,0,lessons,20,t,2025-12-05 22:32:17.700083,uft
+438,pucsp_essays_1,Primeira Redação PUC-SP,Enviou sua primeira redação PUC-SP,📝,2,0,0,essays_count,1,t,2025-12-05 22:39:25.159666,pucsp
+439,pucsp_essays_5,Escritor PUC-SP,Enviou 5 redações PUC-SP,✍️,5,1,0,essays_count,5,t,2025-12-05 22:39:25.159666,pucsp
+440,pucsp_essays_10,Redator Dedicado PUC-SP,Enviou 10 redações PUC-SP,📚,10,2,0,essays_count,10,t,2025-12-05 22:39:25.159666,pucsp
+441,pucsp_bronze,Nota Bronze PUC-SP,Atingiu 60+ na PUC-SP,🥉,10,2,0,score,60,t,2025-12-05 22:39:25.159666,pucsp
+442,pucsp_prata,Nota Prata PUC-SP,Atingiu 80+ na PUC-SP,🥈,20,5,0,score,80,t,2025-12-05 22:39:25.159666,pucsp
+443,pucsp_ouro,Nota Ouro PUC-SP,Atingiu 90+ na PUC-SP,🥇,30,10,0,score,90,t,2025-12-05 22:39:25.159666,pucsp
+444,pucsp_lessons_5,Iniciante PUC-SP,Completou 5 lições da PUC-SP,📖,5,1,0,lessons,5,t,2025-12-05 22:39:25.159666,pucsp
+445,pucsp_lessons_15,Estudante PUC-SP,Completou 15 lições da PUC-SP,📚,10,3,0,lessons,15,t,2025-12-05 22:39:25.159666,pucsp
+446,pucsp_lessons_20,Mestre PUC-SP,Completou todas as 20 lições PUC-SP,🎓,30,5,0,lessons,20,t,2025-12-05 22:39:25.159666,pucsp
+447,puccampinas_essays_1,Primeira Redação PUC-Campinas,Enviou sua primeira redação PUC-Campinas,📝,2,0,0,essays_count,1,t,2025-12-05 22:46:43.484659,puccampinas
+448,puccampinas_essays_5,Escritor PUC-Campinas,Enviou 5 redações PUC-Campinas,✍️,5,1,0,essays_count,5,t,2025-12-05 22:46:43.484659,puccampinas
+449,puccampinas_essays_10,Redator Dedicado PUC-Campinas,Enviou 10 redações PUC-Campinas,📚,10,2,0,essays_count,10,t,2025-12-05 22:46:43.484659,puccampinas
+450,puccampinas_bronze,Nota Bronze PUC-Campinas,Atingiu 60+ na PUC-Campinas,🥉,10,2,0,score,60,t,2025-12-05 22:46:43.484659,puccampinas
+451,puccampinas_prata,Nota Prata PUC-Campinas,Atingiu 80+ na PUC-Campinas,🥈,20,5,0,score,80,t,2025-12-05 22:46:43.484659,puccampinas
+452,puccampinas_ouro,Nota Ouro PUC-Campinas,Atingiu 90+ na PUC-Campinas,🥇,30,10,0,score,90,t,2025-12-05 22:46:43.484659,puccampinas
+453,puccampinas_lessons_5,Iniciante PUC-Campinas,Completou 5 lições da PUC-Campinas,📖,5,1,0,lessons,5,t,2025-12-05 22:46:43.484659,puccampinas
+454,puccampinas_lessons_15,Estudante PUC-Campinas,Completou 15 lições da PUC-Campinas,📚,10,3,0,lessons,15,t,2025-12-05 22:46:43.484659,puccampinas
+455,puccampinas_lessons_20,Mestre PUC-Campinas,Completou todas as 20 lições PUC-Campinas,🎓,30,5,0,lessons,20,t,2025-12-05 22:46:43.484659,puccampinas
+456,pucminas_essays_1,Primeira Redação PUC-Minas,Enviou sua primeira redação PUC-Minas,📝,2,0,0,essays_count,1,t,2025-12-05 22:51:13.706706,pucminas
+457,pucminas_essays_5,Escritor PUC-Minas,Enviou 5 redações PUC-Minas,✍️,5,1,0,essays_count,5,t,2025-12-05 22:51:13.706706,pucminas
+458,pucminas_essays_10,Redator Dedicado PUC-Minas,Enviou 10 redações PUC-Minas,📚,10,2,0,essays_count,10,t,2025-12-05 22:51:13.706706,pucminas
+462,pucminas_lessons_5,Iniciante PUC-Minas,Completou 5 lições da PUC-Minas,📖,5,1,0,lessons,5,t,2025-12-05 22:51:13.706706,pucminas
+463,pucminas_lessons_15,Estudante PUC-Minas,Completou 15 lições da PUC-Minas,📚,10,3,0,lessons,15,t,2025-12-05 22:51:13.706706,pucminas
+464,pucminas_lessons_20,Mestre PUC-Minas,Completou todas as 20 lições PUC-Minas,🎓,30,5,0,lessons,20,t,2025-12-05 22:51:13.706706,pucminas
+465,pucpr_essays_1,Primeira Redação PUCPR,Enviou sua primeira redação PUCPR,📝,2,0,0,essays_count,1,t,2025-12-05 22:55:48.403369,pucpr
+466,pucpr_essays_5,Escritor PUCPR,Enviou 5 redações PUCPR,✍️,5,1,0,essays_count,5,t,2025-12-05 22:55:48.403369,pucpr
+467,pucpr_essays_10,Redator Dedicado PUCPR,Enviou 10 redações PUCPR,📚,10,2,0,essays_count,10,t,2025-12-05 22:55:48.403369,pucpr
+471,pucpr_lessons_5,Iniciante PUCPR,Completou 5 lições da PUCPR,📖,5,1,0,lessons,5,t,2025-12-05 22:55:48.403369,pucpr
+472,pucpr_lessons_15,Estudante PUCPR,Completou 15 lições da PUCPR,📚,10,3,0,lessons,15,t,2025-12-05 22:55:48.403369,pucpr
+473,pucpr_lessons_20,Mestre PUCPR,Completou todas as 20 lições PUCPR,🎓,30,5,0,lessons,20,t,2025-12-05 22:55:48.403369,pucpr
+474,pucrio_essays_1,Primeira Redação PUC-Rio,Enviou sua primeira redação PUC-Rio,📝,2,0,0,essays_count,1,t,2025-12-05 23:00:15.95073,pucrio
+475,pucrio_essays_5,Escritor PUC-Rio,Enviou 5 redações PUC-Rio,✍️,5,1,0,essays_count,5,t,2025-12-05 23:00:15.95073,pucrio
+476,pucrio_essays_10,Redator Dedicado PUC-Rio,Enviou 10 redações PUC-Rio,📚,10,2,0,essays_count,10,t,2025-12-05 23:00:15.95073,pucrio
+477,pucrio_bronze,Nota Bronze PUC-Rio,Atingiu 60+ na PUC-Rio,🥉,10,2,0,score,60,t,2025-12-05 23:00:15.95073,pucrio
+478,pucrio_prata,Nota Prata PUC-Rio,Atingiu 80+ na PUC-Rio,🥈,20,5,0,score,80,t,2025-12-05 23:00:15.95073,pucrio
+479,pucrio_ouro,Nota Ouro PUC-Rio,Atingiu 90+ na PUC-Rio,🥇,30,10,0,score,90,t,2025-12-05 23:00:15.95073,pucrio
+480,pucrio_lessons_5,Iniciante PUC-Rio,Completou 5 lições da PUC-Rio,📖,5,1,0,lessons,5,t,2025-12-05 23:00:15.95073,pucrio
+481,pucrio_lessons_15,Estudante PUC-Rio,Completou 15 lições da PUC-Rio,📚,10,3,0,lessons,15,t,2025-12-05 23:00:15.95073,pucrio
+482,pucrio_lessons_20,Mestre PUC-Rio,Completou todas as 20 lições PUC-Rio,🎓,30,5,0,lessons,20,t,2025-12-05 23:00:15.95073,pucrio
+483,pucgoias_essays_1,Primeira Redação PUC-Goiás,Enviou sua primeira redação PUC-Goiás,📝,2,0,0,essays_count,1,t,2025-12-05 23:04:37.066442,pucgoias
+461,pucminas_ouro,Nota Ouro PUC-Minas,Atingiu 9+ na PUC-Minas,🥇,30,10,0,score,9,t,2025-12-05 22:51:13.706706,pucminas
+468,pucpr_bronze,Nota Bronze PUCPR,Atingiu 6+ na PUCPR,🥉,10,2,0,score,6,t,2025-12-05 22:55:48.403369,pucpr
+469,pucpr_prata,Nota Prata PUCPR,Atingiu 8+ na PUCPR,🥈,20,5,0,score,8,t,2025-12-05 22:55:48.403369,pucpr
+470,pucpr_ouro,Nota Ouro PUCPR,Atingiu 9+ na PUCPR,🥇,30,10,0,score,9,t,2025-12-05 22:55:48.403369,pucpr
+432,uft_bronze,Nota Bronze UFT,Atingiu 600+ na UFT,🥉,10,2,0,score,600,t,2025-12-05 22:32:17.700083,uft
+433,uft_prata,Nota Prata UFT,Atingiu 800+ na UFT,🥈,20,5,0,score,800,t,2025-12-05 22:32:17.700083,uft
+434,uft_ouro,Nota Ouro UFT,Atingiu 900+ na UFT,🥇,30,10,0,score,900,t,2025-12-05 22:32:17.700083,uft
+484,pucgoias_essays_5,Escritor PUC-Goiás,Enviou 5 redações PUC-Goiás,✍️,5,1,0,essays_count,5,t,2025-12-05 23:04:37.066442,pucgoias
+485,pucgoias_essays_10,Redator Dedicado PUC-Goiás,Enviou 10 redações PUC-Goiás,📚,10,2,0,essays_count,10,t,2025-12-05 23:04:37.066442,pucgoias
+486,pucgoias_bronze,Nota Bronze PUC-Goiás,Atingiu 60+ na PUC-Goiás,🥉,10,2,0,score,60,t,2025-12-05 23:04:37.066442,pucgoias
+487,pucgoias_prata,Nota Prata PUC-Goiás,Atingiu 80+ na PUC-Goiás,🥈,20,5,0,score,80,t,2025-12-05 23:04:37.066442,pucgoias
+488,pucgoias_ouro,Nota Ouro PUC-Goiás,Atingiu 90+ na PUC-Goiás,🥇,30,10,0,score,90,t,2025-12-05 23:04:37.066442,pucgoias
+489,pucgoias_lessons_5,Iniciante PUC-Goiás,Completou 5 lições da PUC-Goiás,📖,5,1,0,lessons,5,t,2025-12-05 23:04:37.066442,pucgoias
+490,pucgoias_lessons_15,Estudante PUC-Goiás,Completou 15 lições da PUC-Goiás,📚,10,3,0,lessons,15,t,2025-12-05 23:04:37.066442,pucgoias
+491,pucgoias_lessons_20,Mestre PUC-Goiás,Completou todas as 20 lições PUC-Goiás,🎓,30,5,0,lessons,20,t,2025-12-05 23:04:37.066442,pucgoias
+492,pucrs_essays_1,Primeira Redação PUCRS,Enviou sua primeira redação PUCRS,📝,2,0,0,essays_count,1,t,2025-12-05 23:11:53.392037,pucrs
+493,pucrs_essays_5,Escritor PUCRS,Enviou 5 redações PUCRS,✍️,5,1,0,essays_count,5,t,2025-12-05 23:11:53.392037,pucrs
+494,pucrs_essays_10,Redator Dedicado PUCRS,Enviou 10 redações PUCRS,📚,10,2,0,essays_count,10,t,2025-12-05 23:11:53.392037,pucrs
+495,pucrs_bronze,Nota Bronze PUCRS,Atingiu 60+ na PUCRS,🥉,10,2,0,score,60,t,2025-12-05 23:11:53.392037,pucrs
+496,pucrs_prata,Nota Prata PUCRS,Atingiu 80+ na PUCRS,🥈,20,5,0,score,80,t,2025-12-05 23:11:53.392037,pucrs
+498,pucrs_lessons_5,Iniciante PUCRS,Completou 5 lições da PUCRS,📖,5,1,0,lessons,5,t,2025-12-05 23:11:53.392037,pucrs
+499,pucrs_lessons_15,Estudante PUCRS,Completou 15 lições da PUCRS,📚,10,3,0,lessons,15,t,2025-12-05 23:11:53.392037,pucrs
+500,pucrs_lessons_20,Mestre PUCRS,Completou todas as 20 lições PUCRS,🎓,30,5,0,lessons,20,t,2025-12-05 23:11:53.392037,pucrs
+501,ufrr_essays_1,Primeira Redação UFRR,Enviou sua primeira redação UFRR,📝,2,0,0,essays_count,1,t,2025-12-05 23:35:22.91591,ufrr
+502,ufrr_essays_5,Escritor UFRR,Enviou 5 redações UFRR,✍️,5,1,0,essays_count,5,t,2025-12-05 23:35:22.91591,ufrr
+503,ufrr_essays_10,Redator Dedicado UFRR,Enviou 10 redações UFRR,📚,10,2,0,essays_count,10,t,2025-12-05 23:35:22.91591,ufrr
+507,ufrr_lessons_5,Iniciante UFRR,Completou 5 lições da UFRR,📖,5,1,0,lessons,5,t,2025-12-05 23:35:22.91591,ufrr
+508,ufrr_lessons_15,Estudante UFRR,Completou 15 lições da UFRR,📚,10,3,0,lessons,15,t,2025-12-05 23:35:22.91591,ufrr
+509,ufrr_lessons_20,Mestre UFRR,Completou todas as 20 lições UFRR,🎓,30,5,0,lessons,20,t,2025-12-05 23:35:22.91591,ufrr
+510,ufpe_essays_1,Primeira Redação UFPE,Enviou sua primeira redação UFPE,📝,2,0,0,essays_count,1,t,2025-12-05 23:38:48.407753,ufpe
+511,ufpe_essays_5,Escritor UFPE,Enviou 5 redações UFPE,✍️,5,1,0,essays_count,5,t,2025-12-05 23:38:48.407753,ufpe
+512,ufpe_essays_10,Redator Dedicado UFPE,Enviou 10 redações UFPE,📚,10,2,0,essays_count,10,t,2025-12-05 23:38:48.407753,ufpe
+516,ufpe_lessons_5,Iniciante UFPE,Completou 5 lições da UFPE,📖,5,1,0,lessons,5,t,2025-12-05 23:38:48.407753,ufpe
+517,ufpe_lessons_15,Estudante UFPE,Completou 15 lições da UFPE,📚,10,3,0,lessons,15,t,2025-12-05 23:38:48.407753,ufpe
+518,ufpe_lessons_20,Mestre UFPE,Completou todas as 20 lições UFPE,🎓,30,5,0,lessons,20,t,2025-12-05 23:38:48.407753,ufpe
+254,unb_bronze,Nota Bronze UnB,Atingiu 6+ na UnB,🥉,10,2,0,score,6,t,2025-12-05 19:28:09.713022,unb
+387,ufrgs_bronze,Nota Bronze UFRGS,Atingiu 18+ na UFRGS,🥉,10,2,0,score,18,t,2025-12-05 22:01:49.745104,ufrgs
+388,ufrgs_prata,Nota Prata UFRGS,Atingiu 24+ na UFRGS,🥈,20,5,0,score,24,t,2025-12-05 22:01:49.745104,ufrgs
+459,pucminas_bronze,Nota Bronze PUC-Minas,Atingiu 6+ na PUC-Minas,🥉,10,2,0,score,6,t,2025-12-05 22:51:13.706706,pucminas
+460,pucminas_prata,Nota Prata PUC-Minas,Atingiu 8+ na PUC-Minas,🥈,20,5,0,score,8,t,2025-12-05 22:51:13.706706,pucminas
+200,ufac_bronze,Nota Bronze UFAC,Atingiu 600+ na UFAC,🥉,10,2,0,score,600,t,2025-12-05 18:27:36.399021,ufac
+218,unifap_bronze,Nota Bronze UNIFAP,Atingiu 600+ na UNIFAP,🥉,10,2,0,score,600,t,2025-12-05 18:48:38.902043,unifap
+504,ufrr_bronze,Nota Bronze UFRR,Atingiu 600+ na UFRR,🥉,10,2,0,score,600,t,2025-12-05 23:35:22.91591,ufrr
+505,ufrr_prata,Nota Prata UFRR,Atingiu 800+ na UFRR,🥈,20,5,0,score,800,t,2025-12-05 23:35:22.91591,ufrr
+506,ufrr_ouro,Nota Ouro UFRR,Atingiu 900+ na UFRR,🥇,30,10,0,score,900,t,2025-12-05 23:35:22.91591,ufrr
+290,ufma_bronze,Nota Bronze UFMA,Atingiu 600+ na UFMA,🥉,10,2,0,score,600,t,2025-12-05 19:54:33.304868,ufma
+513,ufpe_bronze,Nota Bronze UFPE,Atingiu 600+ na UFPE,🥉,10,2,0,score,600,t,2025-12-05 23:38:48.407753,ufpe
+514,ufpe_prata,Nota Prata UFPE,Atingiu 800+ na UFPE,🥈,20,5,0,score,800,t,2025-12-05 23:38:48.407753,ufpe
+515,ufpe_ouro,Nota Ouro UFPE,Atingiu 900+ na UFPE,🥇,30,10,0,score,900,t,2025-12-05 23:38:48.407753,ufpe

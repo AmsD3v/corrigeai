@@ -35,6 +35,7 @@ import Blog from './pages/Blog';
 import BlogPostPage from './pages/BlogPost';
 import BlogAdmin from './pages/Admin/BlogAdmin';
 import BlogEditor from './pages/Admin/BlogEditor';
+import Sobre from './pages/Sobre';
 
 
 
@@ -56,6 +57,10 @@ function App() {
         {/* Blog Público */}
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
+
+        {/* Páginas Institucionais */}
+        <Route path="/sobre" element={<Sobre />} />
+        <Route path="/recuperar-senha" element={<ForgotPassword />} />
 
         {/* Rotas Protegidas */}
         <Route element={<ProtectedRoute />}>
