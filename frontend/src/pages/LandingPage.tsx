@@ -804,6 +804,9 @@ const LandingPage = () => {
                 src="/owl-thumbs-up-plate.png"
                 alt="Character"
                 className="hero-image"
+                fetchPriority="high"
+                loading="eager"
+                decoding="sync"
               />
             </div>
           </div>
