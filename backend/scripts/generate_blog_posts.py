@@ -1,12 +1,12 @@
 """
-Script para gerar posts de blog automaticamente usando IA.
-Cria posts sobre competências de TODOS os vestibulares cadastrados.
+Script para gerar posts de blog sobre competências de TODOS os vestibulares.
+Cada post inclui link para o site oficial do vestibular.
 
 Uso:
-    python scripts/generate_blog_posts.py --list
-    python scripts/generate_blog_posts.py --generate-all --dry-run
-    python scripts/generate_blog_posts.py --generate-all --max-posts 100 --publish
-    python scripts/generate_blog_posts.py --exam enem --competence 1 --publish
+    python scripts/generate_blog_posts.py --list          # Lista vestibulares
+    python scripts/generate_blog_posts.py --count         # Conta total de posts possíveis
+    python scripts/generate_blog_posts.py --generate-all  # Gera todos os posts
+    python scripts/generate_blog_posts.py --publish       # Gera e publica
 """
 
 import os
@@ -15,14 +15,11 @@ import asyncio
 import argparse
 import logging
 from datetime import datetime
-from typing import Optional
 from pathlib import Path
 
-# Add parent directory to path
+# Setup path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-# Import after path setup
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -34,11 +31,11 @@ from src.database import init_db_engine
 from src.models import BlogPost, BlogTag
 from src.exam_criteria import EXAM_TYPES
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Initialize database connection
+# Initialize database
 init_db_engine()
 
 # Configure Gemini
@@ -47,212 +44,145 @@ if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
 
-def diagnose_existing_posts():
-    """Mostra os slugs existentes no banco para diagnóstico."""
-    db = database.SessionLocal()
-    try:
-        from src.models import BlogPost
-        posts = db.query(BlogPost).all()
-        logger.info(f"\n📊 DIAGNÓSTICO: {len(posts)} posts no banco")
-        logger.info("Primeiros 10 slugs:")
-        for p in posts[:10]:
-            logger.info(f"   - {p.slug}")
-        return len(posts)
-    finally:
-        db.close()
+# ============================================================
+# LINKS OFICIAIS DOS VESTIBULARES
+# ============================================================
+LINKS_OFICIAIS = {
+    "enem": ("INEP/ENEM", "https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem"),
+    "fuvest": ("FUVEST", "https://www.fuvest.br/"),
+    "unicamp": ("COMVEST/UNICAMP", "https://www.comvest.unicamp.br/"),
+    "ita": ("ITA", "http://www.ita.br/"),
+    "unesp": ("VUNESP/UNESP", "https://www.vunesp.com.br/"),
+    "uerj": ("UERJ Vestibular", "https://www.uerj.br/vestibular/"),
+    "ufmg": ("COPEVE/UFMG", "https://www.ufmg.br/copeve/"),
+    "afa": ("AFA", "https://www.fab.mil.br/afa/"),
+    "cacd": ("Itamaraty/CACD", "https://www.gov.br/mre/pt-br/assuntos/carreiras/ingresso-no-itamaraty"),
+    "sisu": ("SISU/MEC", "https://sisu.mec.gov.br/"),
+    "unb": ("CESPE/UnB", "https://www.cespe.unb.br/"),
+    "ufpr": ("NC/UFPR", "https://www.nc.ufpr.br/"),
+    "ufrgs": ("COPERSE/UFRGS", "https://www.ufrgs.br/coperse/"),
+    "ufsc": ("UFSC Vestibular", "https://vestibular.ufsc.br/"),
+    "pucsp": ("PUC-SP Vestibular", "https://www.pucsp.br/vestibular"),
+    "pucrs": ("PUCRS Vestibular", "https://www.pucrs.br/vestibular/"),
+    "pucrio": ("PUC-Rio Vestibular", "https://www.puc-rio.br/vestibular/"),
+    "pucminas": ("PUC-Minas Vestibular", "https://www.pucminas.br/vestibular/"),
+    "pucpr": ("PUCPR Vestibular", "https://www.pucpr.br/vestibular/"),
+    "puccampinas": ("PUC-Campinas Vestibular", "https://www.puc-campinas.edu.br/vestibular/"),
+    "pucgoias": ("PUC-Goiás Vestibular", "https://www.pucgoias.edu.br/vestibular/"),
+}
+
+# Default para federais via SISU
+DEFAULT_LINK = ("SISU/MEC", "https://sisu.mec.gov.br/")
 
 
-def get_vestibulares_from_criteria():
-    """
-    Converte EXAM_TYPES do exam_criteria.py para o formato do gerador de posts.
-    Retorna todos os 40+ vestibulares cadastrados.
-    """
-    vestibulares = {}
-    
-    for key, criteria in EXAM_TYPES.items():
-        # Criar tuplas (nome, descrição) para cada competência
-        competencias = []
-        for i, comp in enumerate(criteria.competencies, 1):
-            # Se a competência for longa, simplificar o nome
-            comp_name = comp.split(':')[0].strip() if ':' in comp else comp
-            if len(comp_name) > 50:
-                comp_name = f"Competência {i}"
-            competencias.append((comp_name, comp))
-        
-        vestibulares[key] = {
-            "nome": criteria.short_name,
-            "descricao": criteria.name,
-            "competencias": competencias
-        }
-    
-    return vestibulares
-
-
-# Carrega todos os vestibulares dinamicamente
-VESTIBULARES = get_vestibulares_from_criteria()
-
-
+# ============================================================
+# FUNÇÕES AUXILIARES
+# ============================================================
 def slugify(text: str) -> str:
     """Converte texto para slug URL-friendly."""
     import re
     import unicodedata
-    
-    # Normaliza unicode e remove acentos
     text = unicodedata.normalize('NFKD', text)
     text = text.encode('ascii', 'ignore').decode('ascii')
-    
-    # Converte para minúsculas e substitui espaços
     text = text.lower().strip()
     text = re.sub(r'[^\w\s-]', '', text)
     text = re.sub(r'[-\s]+', '-', text)
+    return text[:70]
+
+
+def get_link_oficial(vestibular: str) -> tuple:
+    """Retorna (nome, url) do link oficial."""
+    return LINKS_OFICIAIS.get(vestibular, DEFAULT_LINK)
+
+
+def build_vestibulares_data():
+    """Constrói dados dos vestibulares a partir do exam_criteria."""
+    data = []
     
-    return text[:80]  # Limitar tamanho do slug
-
-# Links oficiais dos vestibulares para SEO (outbound links de autoridade)
-LINKS_OFICIAIS = {
-    "enem": "https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem",
-    "fuvest": "https://www.fuvest.br/",
-    "unicamp": "https://www.comvest.unicamp.br/",
-    "ita": "http://www.ita.br/",
-    "unesp": "https://www.vunesp.com.br/",
-    "uerj": "https://www.uerj.br/vestibular/",
-    "ufmg": "https://www.ufmg.br/copeve/",
-    "afa": "https://www.fab.mil.br/afa/",
-    "cacd": "https://www.gov.br/mre/pt-br/assuntos/carreiras/ingresso-no-itamaraty",
-    "sisu": "https://sisu.mec.gov.br/",
-    "unb": "https://www.cespe.unb.br/",
-    "ufpr": "https://www.nc.ufpr.br/",
-    "ufrgs": "https://www.ufrgs.br/coperse/",
-    "ufsc": "https://vestibular.ufsc.br/",
-    # Federais via SISU - link do SISU
-    "ufac": "https://sisu.mec.gov.br/",
-    "unifap": "https://sisu.mec.gov.br/",
-    "ufam": "https://sisu.mec.gov.br/",
-    "ufpa": "https://sisu.mec.gov.br/",
-    "unir": "https://sisu.mec.gov.br/",
-    "ufrr": "https://sisu.mec.gov.br/",
-    "uft": "https://sisu.mec.gov.br/",
-    "ufal": "https://sisu.mec.gov.br/",
-    "ufba": "https://sisu.mec.gov.br/",
-    "ufc": "https://sisu.mec.gov.br/",
-    "ufma": "https://sisu.mec.gov.br/",
-    "ufpb": "https://sisu.mec.gov.br/",
-    "ufpe": "https://sisu.mec.gov.br/",
-    "ufpi": "https://sisu.mec.gov.br/",
-    "ufrn": "https://sisu.mec.gov.br/",
-    "ufs": "https://sisu.mec.gov.br/",
-    "udf": "https://sisu.mec.gov.br/",
-    "ufg": "https://sisu.mec.gov.br/",
-    "ufmt": "https://sisu.mec.gov.br/",
-    "ufms": "https://sisu.mec.gov.br/",
-    "ufes": "https://sisu.mec.gov.br/",
-    "uerr": "https://sisu.mec.gov.br/",
-    # PUCs
-    "pucsp": "https://www.pucsp.br/vestibular",
-    "pucrs": "https://www.pucrs.br/vestibular/",
-    "pucrio": "https://www.puc-rio.br/vestibular/",
-    "pucminas": "https://www.pucminas.br/vestibular/",
-    "pucpr": "https://www.pucpr.br/vestibular/",
-    "puccampinas": "https://www.puc-campinas.edu.br/vestibular/",
-    "pucgoias": "https://www.pucgoias.edu.br/vestibular/"
-}
-
-
-def generate_post_prompt(vestibular: str, competencia: tuple, info: dict) -> str:
-    """Gera o prompt para criação do post com links externos para SEO."""
-    comp_nome, comp_desc = competencia
-    link_oficial = LINKS_OFICIAIS.get(vestibular, "https://sisu.mec.gov.br/")
+    for vest_key, criteria in EXAM_TYPES.items():
+        link_nome, link_url = get_link_oficial(vest_key)
+        
+        for idx, competencia in enumerate(criteria.competencies, 1):
+            # Simplificar nome da competência
+            comp_nome = competencia.split(':')[0].strip() if ':' in competencia else competencia
+            if len(comp_nome) > 40:
+                comp_nome = f"Competência {idx}"
+            
+            data.append({
+                "vestibular_key": vest_key,
+                "vestibular_nome": criteria.short_name,
+                "vestibular_descricao": criteria.name,
+                "competencia_idx": idx,
+                "competencia_nome": comp_nome,
+                "competencia_desc": competencia,
+                "link_nome": link_nome,
+                "link_url": link_url,
+                "slug": slugify(f"{vest_key}-comp-{idx}"),
+            })
     
-    return f"""Você é um especialista em redação para vestibulares brasileiros. 
-Escreva um artigo completo e detalhado sobre a seguinte competência do {info['nome']}:
+    return data
 
-**Vestibular**: {info['nome']} - {info['descricao']}
-**Competência**: {comp_nome}
-**Descrição**: {comp_desc}
-**Link Oficial do Vestibular**: {link_oficial}
+
+# ============================================================
+# GERAÇÃO DE CONTEÚDO
+# ============================================================
+def build_prompt(item: dict) -> str:
+    """Constrói o prompt para geração do post."""
+    return f"""Você é um especialista em redação para vestibulares brasileiros.
+Escreva um artigo completo sobre a seguinte competência:
+
+**Vestibular**: {item['vestibular_nome']} - {item['vestibular_descricao']}
+**Competência {item['competencia_idx']}**: {item['competencia_nome']}
+**Descrição completa**: {item['competencia_desc']}
+**Site oficial**: {item['link_url']}
 
 ESTRUTURA DO ARTIGO (em markdown):
 
-1. **Introdução** (2 parágrafos)
-   - O que é esta competência
-   - Por que é importante para a nota
-   - Mencione o site oficial do vestibular com link
+## Introdução
+- O que é esta competência (2 parágrafos)
+- Por que é importante para a nota
+- Link para o site oficial: [{item['link_nome']}]({item['link_url']})
 
-2. **O que os avaliadores buscam** (3-4 parágrafos)
-   - Critérios específicos de avaliação
-   - Como a nota é atribuída
-   - Erros que zeram ou diminuem a nota
+## O que os avaliadores buscam
+- Critérios específicos de avaliação (3-4 parágrafos)
+- Como a nota é atribuída
+- Erros que zeram ou diminuem a nota
 
-3. **Dicas práticas para melhorar** (5-7 itens)
-   - Técnicas específicas e aplicáveis
-   - Exemplos práticos
+## Dicas práticas para melhorar
+- 5-7 técnicas específicas e aplicáveis
+- Exemplos práticos
 
-4. **Erros comuns a evitar** (4-5 itens)
-   - Erros frequentes dos candidatos
-   - Como identificar e corrigir
+## Erros comuns a evitar
+- 4-5 erros frequentes
+- Como identificar e corrigir
 
-5. **Exemplo prático** (se aplicável)
-   - Um trecho de redação exemplar
-   - Análise do que está bom
+## Recursos oficiais
+Consulte as diretrizes oficiais em [{item['link_nome']}]({item['link_url']}) para informações atualizadas sobre os critérios de avaliação.
 
-6. **Recursos oficiais** (1 parágrafo)
-   - Link para o site oficial: {link_oficial}
-   - Mencione que o candidato deve consultar as diretrizes oficiais
-
-7. **Conclusão** (1-2 parágrafos)
-   - Resumo das principais dicas
-   - Call-to-action: "Pratique sua redação agora no [CorrigeAI](https://corrigeai.online) e receba feedback instantâneo com IA!"
+## Conclusão
+- Resumo das principais dicas
+- "Pratique sua redação no [CorrigeAI](https://corrigeai.online) e receba feedback instantâneo com IA!"
 
 REGRAS:
-- Use linguagem clara e acessível para estudantes
-- Seja específico e prático, não genérico
-- Use listas, negrito e itálico para destacar pontos importantes
-- O artigo deve ter entre 1000-1500 palavras
-- NÃO inclua o título no conteúdo (será adicionado separadamente)
-- Use markdown para formatação
-- IMPORTANTE: Inclua o link oficial ({link_oficial}) pelo menos 1-2 vezes no texto
-- Inclua link interno para CorrigeAI na conclusão
+- Linguagem clara e acessível
+- 1000-1500 palavras
+- Use markdown (negrito, listas, etc.)
+- NÃO inclua título (será adicionado separadamente)
+- OBRIGATÓRIO: inclua o link [{item['link_nome']}]({item['link_url']}) pelo menos 2 vezes
 
-Escreva o artigo completo:"""
+Escreva o artigo:"""
 
 
-async def generate_post_content(vestibular: str, competencia: tuple, info: dict, comp_index: int) -> dict:
+async def generate_content(item: dict) -> str:
     """Gera o conteúdo do post usando Gemini."""
-    
     model = genai.GenerativeModel('gemini-2.0-flash')
-    
-    prompt = generate_post_prompt(vestibular, competencia, info)
+    prompt = build_prompt(item)
     
     try:
         response = await model.generate_content_async(prompt)
-        content = response.text
-        
-        comp_nome = competencia[0]
-        vest_nome = info['nome']
-        
-        # Título único com vestibular e índice
-        title = f"{vest_nome}: {comp_nome} - Guia Completo de Redação"
-        
-        # Slug único: vestibular-competencia-numero
-        slug = slugify(f"{vestibular}-competencia-{comp_index}")
-        
-        # Gerar excerpt
-        excerpt = f"Aprenda tudo sobre {comp_nome} do {vest_nome}: o que os avaliadores buscam, dicas práticas e erros comuns a evitar."
-        
-        return {
-            "title": title[:200],
-            "slug": slug,
-            "content": content,
-            "excerpt": excerpt[:300],
-            "meta_title": f"{comp_nome} - {vest_nome} | CorrigeAI"[:70],
-            "meta_description": excerpt[:160],
-            "vestibular": vestibular,
-            "competencia": comp_nome,
-            "comp_index": comp_index
-        }
-        
+        return response.text
     except Exception as e:
-        logger.error(f"Erro ao gerar conteúdo: {e}")
+        logger.error(f"Erro Gemini: {e}")
         return None
 
 
@@ -260,58 +190,40 @@ def get_or_create_tag(db: Session, name: str, color: str = "#4F46E5") -> BlogTag
     """Obtém ou cria uma tag."""
     slug = slugify(name)
     tag = db.query(BlogTag).filter(BlogTag.slug == slug).first()
-    
     if not tag:
-        tag = BlogTag(
-            name=name[:50],
-            slug=slug,
-            color=color
-        )
+        tag = BlogTag(name=name[:50], slug=slug, color=color)
         db.add(tag)
         db.commit()
         db.refresh(tag)
-        logger.info(f"Tag criada: {name}")
-    
     return tag
 
 
-def save_post(db: Session, post_data: dict, publish: bool = False) -> BlogPost:
-    """Salva o post no banco de dados."""
-    
+def save_post(db: Session, item: dict, content: str, publish: bool) -> BlogPost:
+    """Salva o post no banco."""
     # Verificar se já existe
-    existing = db.query(BlogPost).filter(BlogPost.slug == post_data["slug"]).first()
+    existing = db.query(BlogPost).filter(BlogPost.slug == item['slug']).first()
     if existing:
-        logger.warning(f"Post já existe: {post_data['slug']}")
+        logger.info(f"   ⏭️  Já existe: {item['slug']}")
         return existing
     
-    # Criar/obter tags
-    tags = []
-    
-    # Tag do vestibular
-    vest_info = VESTIBULARES.get(post_data["vestibular"], {})
-    vest_tag = get_or_create_tag(
-        db, 
-        vest_info.get("nome", post_data["vestibular"].upper()),
-        "#4F46E5"
-    )
-    tags.append(vest_tag)
-    
-    # Tag de "Competências"
-    comp_tag = get_or_create_tag(db, "Competências", "#10b981")
-    tags.append(comp_tag)
-    
-    # Tag de "Dicas de Redação"
-    dicas_tag = get_or_create_tag(db, "Dicas de Redação", "#f59e0b")
-    tags.append(dicas_tag)
+    # Tags
+    tags = [
+        get_or_create_tag(db, item['vestibular_nome'], "#4F46E5"),
+        get_or_create_tag(db, "Competências", "#10b981"),
+        get_or_create_tag(db, "Dicas de Redação", "#f59e0b"),
+    ]
     
     # Criar post
+    title = f"{item['vestibular_nome']}: {item['competencia_nome']} - Guia Completo"
+    excerpt = f"Aprenda sobre {item['competencia_nome']} do {item['vestibular_nome']}: critérios de avaliação, dicas práticas e erros a evitar."
+    
     post = BlogPost(
-        title=post_data["title"][:200],
-        slug=post_data["slug"],
-        content=post_data["content"],
-        excerpt=post_data["excerpt"],
-        meta_title=post_data["meta_title"],
-        meta_description=post_data["meta_description"],
+        title=title[:200],
+        slug=item['slug'],
+        content=content,
+        excerpt=excerpt[:300],
+        meta_title=f"{item['competencia_nome']} - {item['vestibular_nome']} | CorrigeAI"[:70],
+        meta_description=excerpt[:160],
         is_published=publish,
         published_at=datetime.utcnow() if publish else None,
         tags=tags
@@ -320,191 +232,129 @@ def save_post(db: Session, post_data: dict, publish: bool = False) -> BlogPost:
     db.add(post)
     db.commit()
     db.refresh(post)
-    
-    logger.info(f"Post {'publicado' if publish else 'criado (rascunho)'}: {post.title}")
     return post
 
 
-async def generate_all_posts(max_posts: int = 100, publish: bool = False, dry_run: bool = False):
-    """Gera posts para TODOS os vestibulares e competências."""
-    
+# ============================================================
+# COMANDOS PRINCIPAIS
+# ============================================================
+async def generate_all(publish: bool = False, max_posts: int = 300):
+    """Gera todos os posts."""
     db = database.SessionLocal()
-    posts_generated = 0
-    posts_skipped = 0
+    items = build_vestibulares_data()
     
-    # Calcular total de posts possíveis
-    total_possible = sum(len(v["competencias"]) for v in VESTIBULARES.values())
-    logger.info(f"\n📚 Total de vestibulares: {len(VESTIBULARES)}")
-    logger.info(f"📝 Total de posts possíveis: {total_possible}")
-    logger.info(f"🎯 Limite definido: {max_posts}\n")
+    logger.info(f"\n{'='*60}")
+    logger.info(f"📚 GERANDO POSTS PARA {len(EXAM_TYPES)} VESTIBULARES")
+    logger.info(f"📝 Total de posts: {len(items)}")
+    logger.info(f"{'='*60}\n")
+    
+    created = 0
+    skipped = 0
+    errors = 0
     
     try:
-        for vest_key, vest_info in VESTIBULARES.items():
-            if posts_generated >= max_posts:
+        for i, item in enumerate(items, 1):
+            if created >= max_posts:
+                logger.info(f"\n⚠️ Limite de {max_posts} posts atingido.")
                 break
-                
-            logger.info(f"\n{'='*60}")
-            logger.info(f"📌 Vestibular: {vest_info['nome']} ({vest_info['descricao'][:50]}...)")
-            logger.info(f"   Competências: {len(vest_info['competencias'])}")
-            logger.info(f"{'='*60}")
             
-            for idx, competencia in enumerate(vest_info["competencias"], 1):
-                if posts_generated >= max_posts:
-                    break
-                
-                comp_nome = competencia[0]
-                logger.info(f"\n  [{idx}/{len(vest_info['competencias'])}] {comp_nome}")
-                
-                # Verificar se já existe - NOVO formato de slug único
-                slug_novo = slugify(f"{vest_key}-competencia-{idx}")
-                
-                # Verificar também formatos antigos possíveis
-                slug_antigo1 = slugify(f"{comp_nome}-{vest_key}-guia")
-                slug_antigo2 = slugify(f"competencia-{idx}-{vest_key}-guia-completo")
-                
-                existing = db.query(BlogPost).filter(
-                    (BlogPost.slug == slug_novo) | 
-                    (BlogPost.slug == slug_antigo1) |
-                    (BlogPost.slug == slug_antigo2)
-                ).first()
-                
-                if existing:
-                    logger.info(f"      ⏭️  Já existe ({existing.slug}), pulando...")
-                    posts_skipped += 1
-                    continue
-                
-                if dry_run:
-                    logger.info(f"      🔍 [DRY RUN] Seria criado: {slug}")
-                    posts_generated += 1
-                    continue
-                
-                # Gerar conteúdo (passando o índice para slug único)
-                post_data = await generate_post_content(vest_key, competencia, vest_info, idx)
-                
-                if post_data:
-                    save_post(db, post_data, publish=publish)
-                    posts_generated += 1
-                    logger.info(f"      ✅ Post #{posts_generated} criado!")
-                    
-                    # Delay para não sobrecarregar a API
-                    await asyncio.sleep(2)
-                else:
-                    logger.error(f"      ❌ Falha ao gerar conteúdo")
-        
-        logger.info(f"\n{'='*60}")
-        logger.info(f"📊 RESUMO FINAL")
-        logger.info(f"{'='*60}")
-        logger.info(f"   ✅ Posts gerados: {posts_generated}")
-        logger.info(f"   ⏭️  Posts pulados (já existiam): {posts_skipped}")
-        logger.info(f"   📚 Total vestibulares processados: {len(VESTIBULARES)}")
-        logger.info(f"{'='*60}\n")
-        
+            logger.info(f"[{i}/{len(items)}] {item['vestibular_nome']} - {item['competencia_nome']}")
+            
+            # Verificar se já existe
+            existing = db.query(BlogPost).filter(BlogPost.slug == item['slug']).first()
+            if existing:
+                logger.info(f"   ⏭️ Já existe")
+                skipped += 1
+                continue
+            
+            # Gerar conteúdo
+            content = await generate_content(item)
+            if not content:
+                logger.error(f"   ❌ Erro ao gerar")
+                errors += 1
+                continue
+            
+            # Salvar
+            save_post(db, item, content, publish)
+            created += 1
+            logger.info(f"   ✅ Criado! ({created} total)")
+            
+            # Delay para API
+            await asyncio.sleep(1.5)
+    
     finally:
         db.close()
-
-
-async def generate_single_post(exam: str, competence_index: int, publish: bool = False):
-    """Gera um único post para um vestibular e competência específicos."""
     
-    if exam not in VESTIBULARES:
-        logger.error(f"Vestibular não encontrado: {exam}")
-        logger.info(f"Disponíveis: {list(VESTIBULARES.keys())}")
-        return
-    
-    vest_info = VESTIBULARES[exam]
-    
-    if competence_index < 1 or competence_index > len(vest_info["competencias"]):
-        logger.error(f"Competência inválida: {competence_index}")
-        logger.info(f"Disponíveis: 1 a {len(vest_info['competencias'])}")
-        return
-    
-    competencia = vest_info["competencias"][competence_index - 1]
-    
-    db = database.SessionLocal()
-    try:
-        logger.info(f"Gerando: {competencia[0]} ({vest_info['nome']})")
-        
-        # Passando o índice para slug único
-        post_data = await generate_post_content(exam, competencia, vest_info, competence_index)
-        
-        if post_data:
-            save_post(db, post_data, publish=publish)
-            logger.info("Post criado com sucesso!")
-        else:
-            logger.error("Falha ao gerar conteúdo")
-            
-    finally:
-        db.close()
+    logger.info(f"\n{'='*60}")
+    logger.info(f"📊 RESULTADO FINAL")
+    logger.info(f"   ✅ Criados: {created}")
+    logger.info(f"   ⏭️ Pulados: {skipped}")
+    logger.info(f"   ❌ Erros: {errors}")
+    logger.info(f"{'='*60}\n")
 
 
 def list_vestibulares():
-    """Lista todos os vestibulares e suas competências."""
+    """Lista todos os vestibulares e competências."""
+    items = build_vestibulares_data()
+    
     print(f"\n{'='*70}")
-    print(f"📚 VESTIBULARES DISPONÍVEIS ({len(VESTIBULARES)} total)")
+    print(f"📚 VESTIBULARES DISPONÍVEIS ({len(EXAM_TYPES)} total)")
     print(f"{'='*70}\n")
     
-    total_comps = 0
-    for key, info in VESTIBULARES.items():
-        num_comps = len(info['competencias'])
-        total_comps += num_comps
-        print(f"  {key:12} | {info['nome']:15} | {num_comps} competências")
-        for i, comp in enumerate(info['competencias'], 1):
-            comp_name = comp[0][:45] + "..." if len(comp[0]) > 45 else comp[0]
-            print(f"               |    {i}. {comp_name}")
-        print()
+    current_vest = None
+    for item in items:
+        if item['vestibular_key'] != current_vest:
+            current_vest = item['vestibular_key']
+            link = item['link_url']
+            print(f"\n🎓 {item['vestibular_nome']} ({item['vestibular_key']})")
+            print(f"   🔗 {link}")
+        print(f"   {item['competencia_idx']}. {item['competencia_nome']}")
     
-    print(f"{'='*70}")
-    print(f"📊 TOTAL: {len(VESTIBULARES)} vestibulares, {total_comps} posts possíveis")
+    print(f"\n{'='*70}")
+    print(f"📊 TOTAL: {len(EXAM_TYPES)} vestibulares, {len(items)} posts")
     print(f"{'='*70}\n")
+
+
+def count_posts():
+    """Conta posts no banco de dados."""
+    db = database.SessionLocal()
+    try:
+        total = db.query(BlogPost).count()
+        publicados = db.query(BlogPost).filter(BlogPost.is_published == True).count()
+        rascunhos = db.query(BlogPost).filter(BlogPost.is_published == False).count()
+        
+        print(f"\n📊 POSTS NO BANCO:")
+        print(f"   Total: {total}")
+        print(f"   Publicados: {publicados}")
+        print(f"   Rascunhos: {rascunhos}\n")
+    finally:
+        db.close()
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Gerador automático de posts de blog sobre TODOS os vestibulares")
-    
-    parser.add_argument("--generate-all", action="store_true", help="Gera posts para todos os vestibulares")
-    parser.add_argument("--exam", type=str, help="Vestibular específico (enem, fuvest, unicamp, etc.)")
-    parser.add_argument("--competence", type=int, help="Número da competência (1, 2, 3...)")
-    parser.add_argument("--max-posts", type=int, default=200, help="Máximo de posts a gerar (padrão: 200)")
-    parser.add_argument("--publish", action="store_true", help="Publicar posts imediatamente")
-    parser.add_argument("--dry-run", action="store_true", help="Simula sem criar posts")
-    parser.add_argument("--list", action="store_true", help="Lista vestibulares e competências")
-    parser.add_argument("--diagnose", action="store_true", help="Mostra slugs existentes no banco")
+    parser = argparse.ArgumentParser(description="Gerador de posts de blog")
+    parser.add_argument("--list", action="store_true", help="Lista vestibulares")
+    parser.add_argument("--count", action="store_true", help="Conta posts no banco")
+    parser.add_argument("--generate-all", action="store_true", help="Gera todos os posts")
+    parser.add_argument("--publish", action="store_true", help="Publica posts ao criar")
+    parser.add_argument("--max-posts", type=int, default=300, help="Limite de posts")
     
     args = parser.parse_args()
     
-    if args.diagnose:
-        diagnose_existing_posts()
-        return
-    
     if args.list:
-        asyncio.run(generate_all_posts(
-            max_posts=args.max_posts,
-            publish=args.publish,
-            dry_run=args.dry_run
-        ))
-    elif args.exam and args.competence:
-        asyncio.run(generate_single_post(
-            exam=args.exam,
-            competence_index=args.competence,
-            publish=args.publish
-        ))
+        list_vestibulares()
+    elif args.count:
+        count_posts()
+    elif args.generate_all:
+        asyncio.run(generate_all(publish=args.publish, max_posts=args.max_posts))
     else:
         parser.print_help()
-        print("\n" + "="*60)
+        print("\n" + "="*50)
         print("EXEMPLOS:")
-        print("="*60)
-        print("  # Listar todos os vestibulares")
         print("  python scripts/generate_blog_posts.py --list")
-        print()
-        print("  # Simular geração (dry-run)")
-        print("  python scripts/generate_blog_posts.py --generate-all --dry-run")
-        print()
-        print("  # Gerar 50 posts e publicar")
-        print("  python scripts/generate_blog_posts.py --generate-all --max-posts 50 --publish")
-        print()
-        print("  # Gerar post específico")
-        print("  python scripts/generate_blog_posts.py --exam enem --competence 1 --publish")
-        print("="*60)
+        print("  python scripts/generate_blog_posts.py --count")
+        print("  python scripts/generate_blog_posts.py --generate-all --publish")
+        print("="*50)
 
 
 if __name__ == "__main__":
