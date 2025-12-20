@@ -30,6 +30,10 @@ const BlogAdmin = () => {
     const [selectedPosts, setSelectedPosts] = useState<Set<number>>(new Set());
     const [deletingBulk, setDeletingBulk] = useState(false);
 
+    // Paginação
+    const [currentPage, setCurrentPage] = useState(1);
+    const postsPerPage = 10;
+
     useEffect(() => {
         loadPosts();
     }, []);
@@ -40,12 +44,19 @@ const BlogAdmin = () => {
             const response = await api.get('/api/blog/admin/posts');
             setPosts(response.data);
             setSelectedPosts(new Set()); // Limpar seleção ao recarregar
+            setCurrentPage(1); // Reset para primeira página
         } catch (error) {
             console.error('Erro ao carregar posts:', error);
         } finally {
             setLoading(false);
         }
     };
+
+    // Cálculos de paginação
+    const totalPages = Math.ceil(posts.length / postsPerPage);
+    const startIndex = (currentPage - 1) * postsPerPage;
+    const endIndex = startIndex + postsPerPage;
+    const currentPosts = posts.slice(startIndex, endIndex);
 
     // Seleção individual
     const toggleSelect = (id: number) => {
@@ -58,13 +69,18 @@ const BlogAdmin = () => {
         setSelectedPosts(newSelected);
     };
 
-    // Selecionar/Desselecionar todos
+    // Selecionar/Desselecionar todos (da página atual)
     const toggleSelectAll = () => {
-        if (selectedPosts.size === posts.length) {
-            setSelectedPosts(new Set());
+        const currentIds = currentPosts.map(p => p.id);
+        const allCurrentSelected = currentIds.every(id => selectedPosts.has(id));
+
+        const newSelected = new Set(selectedPosts);
+        if (allCurrentSelected) {
+            currentIds.forEach(id => newSelected.delete(id));
         } else {
-            setSelectedPosts(new Set(posts.map(p => p.id)));
+            currentIds.forEach(id => newSelected.add(id));
         }
+        setSelectedPosts(newSelected);
     };
 
     // Deleção em massa
@@ -132,7 +148,8 @@ const BlogAdmin = () => {
         });
     };
 
-    const allSelected = posts.length > 0 && selectedPosts.size === posts.length;
+    const currentIds = currentPosts.map(p => p.id);
+    const allSelected = currentPosts.length > 0 && currentIds.every(id => selectedPosts.has(id));
     const someSelected = selectedPosts.size > 0;
 
     return (
@@ -313,7 +330,7 @@ const BlogAdmin = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {posts.map(post => (
+                            {currentPosts.map(post => (
                                 <tr
                                     key={post.id}
                                     style={{
@@ -433,6 +450,87 @@ const BlogAdmin = () => {
                             ))}
                         </tbody>
                     </table>
+                )}
+
+                {/* Paginação */}
+                {totalPages > 1 && (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '16px 20px',
+                        borderTop: '1px solid #334155',
+                        background: '#0f1419'
+                    }}>
+                        <div style={{ color: '#94a3b8', fontSize: '14px' }}>
+                            Mostrando {startIndex + 1}-{Math.min(endIndex, posts.length)} de {posts.length} posts
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <button
+                                onClick={() => setCurrentPage(1)}
+                                disabled={currentPage === 1}
+                                style={{
+                                    padding: '8px 12px',
+                                    background: currentPage === 1 ? '#1e293b' : '#334155',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    color: currentPage === 1 ? '#64748b' : '#fff',
+                                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                                    fontSize: '12px'
+                                }}
+                            >
+                                ⟪ Primeira
+                            </button>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                style={{
+                                    padding: '8px 12px',
+                                    background: currentPage === 1 ? '#1e293b' : '#334155',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    color: currentPage === 1 ? '#64748b' : '#fff',
+                                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                                    fontSize: '12px'
+                                }}
+                            >
+                                ← Anterior
+                            </button>
+                            <span style={{ color: '#fff', padding: '0 12px', fontSize: '14px' }}>
+                                Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                style={{
+                                    padding: '8px 12px',
+                                    background: currentPage === totalPages ? '#1e293b' : '#334155',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    color: currentPage === totalPages ? '#64748b' : '#fff',
+                                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                                    fontSize: '12px'
+                                }}
+                            >
+                                Próxima →
+                            </button>
+                            <button
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={currentPage === totalPages}
+                                style={{
+                                    padding: '8px 12px',
+                                    background: currentPage === totalPages ? '#1e293b' : '#334155',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    color: currentPage === totalPages ? '#64748b' : '#fff',
+                                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                                    fontSize: '12px'
+                                }}
+                            >
+                                Última ⟫
+                            </button>
+                        </div>
+                    </div>
                 )}
             </div>
         </AdminLayout>
