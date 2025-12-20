@@ -99,6 +99,103 @@ VESTIBULARES_PRINCIPAIS = {
             ("Autoria", "Posicionamento crítico e criatividade"),
             ("Repertório", "Conhecimento de mundo e repertório cultural")
         ]
+    },
+    "uerj": {
+        "nome": "UERJ",
+        "descricao": "Universidade do Estado do Rio de Janeiro",
+        "competencias": [
+            ("Adequação ao tema", "Desenvolvimento do tema proposto e gênero textual"),
+            ("Articulação textual", "Coesão, coerência e organização de ideias"),
+            ("Domínio da língua", "Gramática, ortografia e vocabulário")
+        ]
+    },
+    "ufmg": {
+        "nome": "UFMG",
+        "descricao": "Universidade Federal de Minas Gerais",
+        "competencias": [
+            ("Abordagem temática", "Compreensão e desenvolvimento do tema"),
+            ("Articulação argumentativa", "Qualidade e consistência dos argumentos"),
+            ("Fundamentação", "Uso adequado de informações e dados"),
+            ("Domínio linguístico", "Gramática, ortografia e expressão")
+        ]
+    },
+    "afa": {
+        "nome": "AFA",
+        "descricao": "Academia da Força Aérea",
+        "competencias": [
+            ("Adequação ao tema", "Desenvolvimento do tema proposto"),
+            ("Clareza e objetividade", "Exposição clara de ideias"),
+            ("Coerência e coesão", "Estruturação textual"),
+            ("Argumentação lógica", "Fundamentação dos argumentos"),
+            ("Domínio linguístico", "Norma culta da língua portuguesa")
+        ]
+    },
+    "cacd": {
+        "nome": "CACD",
+        "descricao": "Concurso de Admissão à Carreira de Diplomata",
+        "competencias": [
+            ("Aprofundamento temático", "Domínio do assunto"),
+            ("Argumentação sofisticada", "Fundamentação elaborada"),
+            ("Norma culta formal", "Domínio linguístico elevado"),
+            ("Articulação lógica", "Estruturação e progressão"),
+            ("Perspectiva geopolítica", "Relações internacionais")
+        ]
+    },
+    "unb": {
+        "nome": "UnB",
+        "descricao": "Universidade de Brasília",
+        "competencias": [
+            ("Macroestrutura", "Adequação ao tema, estrutura e coerência global"),
+            ("Microestrutura", "Ortografia, morfossintaxe, pontuação e vocabulário")
+        ]
+    },
+    "ufpr": {
+        "nome": "UFPR",
+        "descricao": "Universidade Federal do Paraná",
+        "competencias": [
+            ("Questão 1", "Produção textual conforme gênero solicitado"),
+            ("Questão 2", "Produção textual conforme gênero solicitado"),
+            ("Questão 3", "Produção textual conforme gênero solicitado")
+        ]
+    },
+    "ufrgs": {
+        "nome": "UFRGS",
+        "descricao": "Universidade Federal do Rio Grande do Sul",
+        "competencias": [
+            ("Aspecto Analítico", "Estrutura, conteúdo e organização"),
+            ("Aspecto Holístico", "Efeito geral, clareza e consistência"),
+            ("Expressão Linguística", "Ortografia, sintaxe e vocabulário")
+        ]
+    },
+    "ufsc": {
+        "nome": "UFSC",
+        "descricao": "Universidade Federal de Santa Catarina",
+        "competencias": [
+            ("Adequação à proposta", "Tema e gênero textual"),
+            ("Norma padrão", "Ortografia, gramática e pontuação"),
+            ("Coerência e coesão", "Articulação e progressão das ideias"),
+            ("Informatividade", "Argumentação conforme gênero")
+        ]
+    },
+    "pucsp": {
+        "nome": "PUC-SP",
+        "descricao": "Pontifícia Universidade Católica de São Paulo",
+        "competencias": [
+            ("Tipo de texto", "Adequação ao gênero dissertativo"),
+            ("Adequação ao tema", "Desenvolvimento do assunto proposto"),
+            ("Coerência", "Lógica e viabilidade das ideias"),
+            ("Coesão", "Articulação e elementos coesivos"),
+            ("Norma padrão", "Gramática, ortografia e pontuação")
+        ]
+    },
+    "pucrs": {
+        "nome": "PUCRS",
+        "descricao": "Pontifícia Universidade Católica do Rio Grande do Sul",
+        "competencias": [
+            ("Conteúdo", "Conhecimento, compreensão e análise do tema"),
+            ("Estrutura", "Organização, parágrafos e encadeamento lógico"),
+            ("Expressão Linguística", "Norma culta, vocabulário e legibilidade")
+        ]
     }
 }
 
