@@ -67,7 +67,7 @@ async def list_tags(db: Session = Depends(get_db)):
 @router.get("/admin/posts", response_model=List[BlogPostListResponse])
 async def admin_list_posts(
     skip: int = 0,
-    limit: int = 50,
+    limit: int = 500,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -80,6 +80,7 @@ async def admin_list_posts(
     ).offset(skip).limit(limit).all()
     
     return posts
+
 
 
 @router.get("/admin/posts/{id}", response_model=BlogPostResponse)
