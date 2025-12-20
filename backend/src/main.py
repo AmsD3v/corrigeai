@@ -233,6 +233,10 @@ app.include_router(exam_criteria_router.router, tags=["exam-criteria"])
 from .routers import blog
 app.include_router(blog.router, prefix="/api/blog", tags=["blog"])
 
+# SEO router (sitemap dinâmico)
+from .routers import seo
+app.include_router(seo.router, prefix="/api", tags=["seo"])
+
 # Serve uploaded files (blog images)
 from fastapi.staticfiles import StaticFiles
 import os

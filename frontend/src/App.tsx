@@ -36,6 +36,8 @@ import BlogPostPage from './pages/BlogPost';
 import BlogAdmin from './pages/Admin/BlogAdmin';
 import BlogEditor from './pages/Admin/BlogEditor';
 import Sobre from './pages/Sobre';
+import Demonstracao from './pages/Demonstracao';
+import Repertorios from './pages/Repertorios';
 
 
 
@@ -58,8 +60,10 @@ function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
 
-        {/* Páginas Institucionais */}
+        {/* Páginas Institucionais e SEO */}
         <Route path="/sobre" element={<Sobre />} />
+        <Route path="/demonstracao" element={<Demonstracao />} />
+        <Route path="/repertorios" element={<Repertorios />} />
         <Route path="/recuperar-senha" element={<ForgotPassword />} />
 
         {/* Rotas Protegidas */}
