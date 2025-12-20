@@ -27,6 +27,8 @@ const BlogAdmin = () => {
     const [posts, setPosts] = useState<BlogPost[]>([]);
     const [loading, setLoading] = useState(true);
     const [deleting, setDeleting] = useState<number | null>(null);
+    const [selectedPosts, setSelectedPosts] = useState<Set<number>>(new Set());
+    const [deletingBulk, setDeletingBulk] = useState(false);
 
     useEffect(() => {
         loadPosts();
@@ -37,10 +39,64 @@ const BlogAdmin = () => {
             setLoading(true);
             const response = await api.get('/api/blog/admin/posts');
             setPosts(response.data);
+            setSelectedPosts(new Set()); // Limpar seleção ao recarregar
         } catch (error) {
             console.error('Erro ao carregar posts:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Seleção individual
+    const toggleSelect = (id: number) => {
+        const newSelected = new Set(selectedPosts);
+        if (newSelected.has(id)) {
+            newSelected.delete(id);
+        } else {
+            newSelected.add(id);
+        }
+        setSelectedPosts(newSelected);
+    };
+
+    // Selecionar/Desselecionar todos
+    const toggleSelectAll = () => {
+        if (selectedPosts.size === posts.length) {
+            setSelectedPosts(new Set());
+        } else {
+            setSelectedPosts(new Set(posts.map(p => p.id)));
+        }
+    };
+
+    // Deleção em massa
+    const handleBulkDelete = async () => {
+        if (selectedPosts.size === 0) return;
+
+        const count = selectedPosts.size;
+        if (!confirm(`Tem certeza que deseja excluir ${count} post(s) selecionado(s)?`)) return;
+
+        try {
+            setDeletingBulk(true);
+
+            // Deletar cada post selecionado
+            const deletePromises = Array.from(selectedPosts).map(id =>
+                api.delete(`/api/blog/admin/posts/${id}`).catch(err => {
+                    console.error(`Erro ao deletar post ${id}:`, err);
+                    return null;
+                })
+            );
+
+            await Promise.all(deletePromises);
+
+            // Atualizar lista
+            setPosts(posts.filter(p => !selectedPosts.has(p.id)));
+            setSelectedPosts(new Set());
+
+            alert(`${count} post(s) excluído(s) com sucesso!`);
+        } catch (error) {
+            console.error('Erro ao deletar posts:', error);
+            alert('Erro ao deletar alguns posts');
+        } finally {
+            setDeletingBulk(false);
         }
     };
 
@@ -51,6 +107,8 @@ const BlogAdmin = () => {
             setDeleting(id);
             await api.delete(`/api/blog/admin/posts/${id}`);
             setPosts(posts.filter(p => p.id !== id));
+            selectedPosts.delete(id);
+            setSelectedPosts(new Set(selectedPosts));
         } catch (error) {
             console.error('Erro ao deletar post:', error);
             alert('Erro ao deletar post');
@@ -79,6 +137,9 @@ const BlogAdmin = () => {
             year: 'numeric'
         });
     };
+
+    const allSelected = posts.length > 0 && selectedPosts.size === posts.length;
+    const someSelected = selectedPosts.size > 0;
 
     return (
         <AdminLayout activePage="/admin/blog">
@@ -164,6 +225,44 @@ const BlogAdmin = () => {
                 </div>
             </div>
 
+            {/* Barra de ações em massa */}
+            {someSelected && (
+                <div style={{
+                    background: '#1e293b',
+                    border: '1px solid #ef4444',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}>
+                    <span style={{ color: '#fff', fontSize: '14px' }}>
+                        📌 <strong>{selectedPosts.size}</strong> post(s) selecionado(s)
+                    </span>
+                    <button
+                        onClick={handleBulkDelete}
+                        disabled={deletingBulk}
+                        style={{
+                            padding: '8px 16px',
+                            background: '#ef4444',
+                            border: 'none',
+                            borderRadius: '6px',
+                            color: '#fff',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: deletingBulk ? 'not-allowed' : 'pointer',
+                            opacity: deletingBulk ? 0.6 : 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                        }}
+                    >
+                        {deletingBulk ? '⏳ Excluindo...' : '🗑️ Excluir Selecionados'}
+                    </button>
+                </div>
+            )}
+
             {/* Posts Table */}
             <div style={{
                 background: '#1a1f2e',
@@ -198,6 +297,20 @@ const BlogAdmin = () => {
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr style={{ background: '#0f1419' }}>
+                                <th style={{ padding: '16px', textAlign: 'center', color: '#94a3b8', fontSize: '13px', width: '50px' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={allSelected}
+                                        onChange={toggleSelectAll}
+                                        style={{
+                                            width: '18px',
+                                            height: '18px',
+                                            cursor: 'pointer',
+                                            accentColor: '#4F46E5'
+                                        }}
+                                        title={allSelected ? 'Desselecionar todos' : 'Selecionar todos'}
+                                    />
+                                </th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px' }}>Título</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px' }}>Tags</th>
                                 <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '13px' }}>Status</th>
@@ -207,7 +320,26 @@ const BlogAdmin = () => {
                         </thead>
                         <tbody>
                             {posts.map(post => (
-                                <tr key={post.id} style={{ borderTop: '1px solid #334155' }}>
+                                <tr
+                                    key={post.id}
+                                    style={{
+                                        borderTop: '1px solid #334155',
+                                        background: selectedPosts.has(post.id) ? '#1e293b' : 'transparent'
+                                    }}
+                                >
+                                    <td style={{ padding: '16px', textAlign: 'center' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedPosts.has(post.id)}
+                                            onChange={() => toggleSelect(post.id)}
+                                            style={{
+                                                width: '18px',
+                                                height: '18px',
+                                                cursor: 'pointer',
+                                                accentColor: '#4F46E5'
+                                            }}
+                                        />
+                                    </td>
                                     <td style={{ padding: '16px' }}>
                                         <div style={{ color: '#fff', fontWeight: '600', marginBottom: '4px' }}>
                                             {post.title}
