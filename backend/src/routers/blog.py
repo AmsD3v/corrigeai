@@ -216,6 +216,9 @@ async def bulk_delete_posts(
     db: Session = Depends(get_db)
 ):
     """Delete multiple blog posts at once (admin only)"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Acesso negado")
     
@@ -223,20 +226,37 @@ async def bulk_delete_posts(
     if not post_ids:
         raise HTTPException(status_code=400, detail="Nenhum ID fornecido")
     
+    logger.info(f"Bulk delete - IDs recebidos: {post_ids}")
+    
     try:
         # Buscar posts a serem deletados
         posts = db.query(BlogPost).filter(BlogPost.id.in_(post_ids)).all()
         deleted_count = len(posts)
         
-        # Deletar cada post (limpa tags automaticamente via relacionamento)
+        logger.info(f"Bulk delete - Posts encontrados: {deleted_count}")
+        
+        if deleted_count == 0:
+            return {"message": "Nenhum post encontrado para deletar", "deleted": 0}
+        
+        # Deletar cada post
         for post in posts:
+            logger.info(f"Deletando post ID: {post.id} - {post.title[:30]}...")
             post.tags = []  # Limpar relacionamento many-to-many
+            db.flush()  # Flush para persistir a limpeza das tags
             db.delete(post)
         
+        db.flush()  # Flush final antes do commit
         db.commit()
+        
+        logger.info(f"Bulk delete - Commit realizado! {deleted_count} posts deletados.")
+        
+        # Verificar se realmente deletou
+        remaining = db.query(BlogPost).filter(BlogPost.id.in_(post_ids)).count()
+        logger.info(f"Bulk delete - Posts restantes com esses IDs: {remaining}")
         
         return {"message": f"{deleted_count} post(s) deletado(s) com sucesso", "deleted": deleted_count}
     except Exception as e:
+        logger.error(f"Bulk delete - ERRO: {str(e)}")
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Erro ao deletar posts: {str(e)}")
 
