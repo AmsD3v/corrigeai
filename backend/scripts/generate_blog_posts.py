@@ -93,10 +93,60 @@ def slugify(text: str) -> str:
     
     return text[:80]  # Limitar tamanho do slug
 
+# Links oficiais dos vestibulares para SEO (outbound links de autoridade)
+LINKS_OFICIAIS = {
+    "enem": "https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem",
+    "fuvest": "https://www.fuvest.br/",
+    "unicamp": "https://www.comvest.unicamp.br/",
+    "ita": "http://www.ita.br/",
+    "unesp": "https://www.vunesp.com.br/",
+    "uerj": "https://www.uerj.br/vestibular/",
+    "ufmg": "https://www.ufmg.br/copeve/",
+    "afa": "https://www.fab.mil.br/afa/",
+    "cacd": "https://www.gov.br/mre/pt-br/assuntos/carreiras/ingresso-no-itamaraty",
+    "sisu": "https://sisu.mec.gov.br/",
+    "unb": "https://www.cespe.unb.br/",
+    "ufpr": "https://www.nc.ufpr.br/",
+    "ufrgs": "https://www.ufrgs.br/coperse/",
+    "ufsc": "https://vestibular.ufsc.br/",
+    # Federais via SISU - link do SISU
+    "ufac": "https://sisu.mec.gov.br/",
+    "unifap": "https://sisu.mec.gov.br/",
+    "ufam": "https://sisu.mec.gov.br/",
+    "ufpa": "https://sisu.mec.gov.br/",
+    "unir": "https://sisu.mec.gov.br/",
+    "ufrr": "https://sisu.mec.gov.br/",
+    "uft": "https://sisu.mec.gov.br/",
+    "ufal": "https://sisu.mec.gov.br/",
+    "ufba": "https://sisu.mec.gov.br/",
+    "ufc": "https://sisu.mec.gov.br/",
+    "ufma": "https://sisu.mec.gov.br/",
+    "ufpb": "https://sisu.mec.gov.br/",
+    "ufpe": "https://sisu.mec.gov.br/",
+    "ufpi": "https://sisu.mec.gov.br/",
+    "ufrn": "https://sisu.mec.gov.br/",
+    "ufs": "https://sisu.mec.gov.br/",
+    "udf": "https://sisu.mec.gov.br/",
+    "ufg": "https://sisu.mec.gov.br/",
+    "ufmt": "https://sisu.mec.gov.br/",
+    "ufms": "https://sisu.mec.gov.br/",
+    "ufes": "https://sisu.mec.gov.br/",
+    "uerr": "https://sisu.mec.gov.br/",
+    # PUCs
+    "pucsp": "https://www.pucsp.br/vestibular",
+    "pucrs": "https://www.pucrs.br/vestibular/",
+    "pucrio": "https://www.puc-rio.br/vestibular/",
+    "pucminas": "https://www.pucminas.br/vestibular/",
+    "pucpr": "https://www.pucpr.br/vestibular/",
+    "puccampinas": "https://www.puc-campinas.edu.br/vestibular/",
+    "pucgoias": "https://www.pucgoias.edu.br/vestibular/"
+}
+
 
 def generate_post_prompt(vestibular: str, competencia: tuple, info: dict) -> str:
-    """Gera o prompt para criação do post."""
+    """Gera o prompt para criação do post com links externos para SEO."""
     comp_nome, comp_desc = competencia
+    link_oficial = LINKS_OFICIAIS.get(vestibular, "https://sisu.mec.gov.br/")
     
     return f"""Você é um especialista em redação para vestibulares brasileiros. 
 Escreva um artigo completo e detalhado sobre a seguinte competência do {info['nome']}:
@@ -104,12 +154,14 @@ Escreva um artigo completo e detalhado sobre a seguinte competência do {info['n
 **Vestibular**: {info['nome']} - {info['descricao']}
 **Competência**: {comp_nome}
 **Descrição**: {comp_desc}
+**Link Oficial do Vestibular**: {link_oficial}
 
 ESTRUTURA DO ARTIGO (em markdown):
 
 1. **Introdução** (2 parágrafos)
    - O que é esta competência
    - Por que é importante para a nota
+   - Mencione o site oficial do vestibular com link
 
 2. **O que os avaliadores buscam** (3-4 parágrafos)
    - Critérios específicos de avaliação
@@ -128,9 +180,13 @@ ESTRUTURA DO ARTIGO (em markdown):
    - Um trecho de redação exemplar
    - Análise do que está bom
 
-6. **Conclusão** (1-2 parágrafos)
+6. **Recursos oficiais** (1 parágrafo)
+   - Link para o site oficial: {link_oficial}
+   - Mencione que o candidato deve consultar as diretrizes oficiais
+
+7. **Conclusão** (1-2 parágrafos)
    - Resumo das principais dicas
-   - Call-to-action para praticar no CorrigeAI
+   - Call-to-action: "Pratique sua redação agora no [CorrigeAI](https://corrigeai.online) e receba feedback instantâneo com IA!"
 
 REGRAS:
 - Use linguagem clara e acessível para estudantes
@@ -139,6 +195,8 @@ REGRAS:
 - O artigo deve ter entre 1000-1500 palavras
 - NÃO inclua o título no conteúdo (será adicionado separadamente)
 - Use markdown para formatação
+- IMPORTANTE: Inclua o link oficial ({link_oficial}) pelo menos 1-2 vezes no texto
+- Inclua link interno para CorrigeAI na conclusão
 
 Escreva o artigo completo:"""
 
