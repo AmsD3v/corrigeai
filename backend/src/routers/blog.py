@@ -219,11 +219,22 @@ async def bulk_delete_posts(
     if not post_ids:
         raise HTTPException(status_code=400, detail="Nenhum ID fornecido")
     
-    # Deletar posts
-    deleted_count = db.query(BlogPost).filter(BlogPost.id.in_(post_ids)).delete(synchronize_session=False)
-    db.commit()
-    
-    return {"message": f"{deleted_count} post(s) deletado(s) com sucesso", "deleted": deleted_count}
+    try:
+        # Buscar posts a serem deletados
+        posts = db.query(BlogPost).filter(BlogPost.id.in_(post_ids)).all()
+        deleted_count = len(posts)
+        
+        # Deletar cada post (limpa tags automaticamente via relacionamento)
+        for post in posts:
+            post.tags = []  # Limpar relacionamento many-to-many
+            db.delete(post)
+        
+        db.commit()
+        
+        return {"message": f"{deleted_count} post(s) deletado(s) com sucesso", "deleted": deleted_count}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Erro ao deletar posts: {str(e)}")
 
 
 
