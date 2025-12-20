@@ -1249,8 +1249,10 @@ const LandingPage = () => {
                 marginTop: '24px'
               }}>
                 <img
-                  src="/owl-desk.webp"  // coloque aqui o path estático do mascote (por ex: /mascote-corrigeai.png)
+                  src="/owl-desk.webp"
                   alt="Mascote CorrigeAI"
+                  width={420}
+                  height={420}
                   style={{
                     width: '100%',
                     maxWidth: '420px',
@@ -1446,7 +1448,7 @@ const LandingPage = () => {
                 justifyContent: 'center',
                 overflow: 'hidden'
               }}>
-                <img src="/owl_custom.webp" alt="Logo" style={{ width: '85%', height: '85%', objectFit: 'contain' }} />
+                <img src="/owl_custom.webp" alt="Logo" width={30} height={30} style={{ objectFit: 'contain' }} />
               </div>
               <span style={{ fontSize: '18px', fontWeight: '700', color: '#fff' }}>CorrigeAI</span>
             </div>
