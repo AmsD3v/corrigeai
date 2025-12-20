@@ -793,7 +793,7 @@ const LandingPage = () => {
                 </button>
               </div>
 
-              <p className="hero-note" style={{ fontSize: '14px', color: '#64748b', marginBottom: isMobile ? '0' : '24px' }}>
+              <p className="hero-note" style={{ fontSize: '14px', color: '#9ca3af', marginBottom: isMobile ? '0' : '24px' }}>
                 Gratuito • Sem cartão de crédito • Feedback imediato
               </p>
             </div>
@@ -819,16 +819,16 @@ const LandingPage = () => {
           <div className="container">
             {/* Timeline Header */}
             <div style={{ textAlign: 'center', marginBottom: '80px' }} className="reveal-on-scroll">
-              <p style={{ color: '#64748b', fontSize: '13px', fontWeight: '600', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              <p style={{ color: '#9ca3af', fontSize: '13px', fontWeight: '600', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Transparente e didático
               </p>
               <h2 style={{ fontSize: '42px', fontWeight: '800', color: '#fff', marginBottom: '16px' }}>Como funciona</h2>
               <p style={{ fontSize: '16px', color: '#94a3b8', marginBottom: '8px' }}>
                 Da entrega ao feedback: Tudo pensado para você evoluir com clareza.
               </p>
-              <p style={{ fontSize: '14px', color: '#64748b' }}>
+              <p style={{ fontSize: '14px', color: '#9ca3af' }}>
                 Nossa simulação reproduz o processo oficial de correção do Enem.{' '}
-                <a href="#" style={{ color: '#4F46E5', textDecoration: 'none' }}>Veja como é a correção →</a>
+                <a href="#" style={{ color: '#4F46E5', textDecoration: 'underline' }}>Veja como é a correção →</a>
               </p>
             </div>
 
@@ -934,7 +934,7 @@ const LandingPage = () => {
                 <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', marginBottom: '12px' }}>
                   Três avaliadores digitais analisam sua redação de forma independente, como no processo do Enem.
                 </p>
-                <p style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', margin: 0 }}>
+                <p style={{ fontSize: '13px', color: '#9ca3af', fontStyle: 'italic', margin: 0 }}>
                   Padrão Enem (3 corretores) • +200 pts
                 </p>
                 <div style={{ display: 'inline-flex', flexDirection: 'row', gap: '8px', marginTop: '12px' }}>
@@ -955,7 +955,7 @@ const LandingPage = () => {
                     </div>
                   ))}
                 </div>
-                <p style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', marginBottom: 0 }}>
+                <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px', marginBottom: 0 }}>
                   Já calibrados e validados para o formato do Enem
                 </p>
               </div>
@@ -1074,7 +1074,7 @@ const LandingPage = () => {
                   </p>
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: '600', color: '#fff' }}>Marina, estudante</div>
-                    <div style={{ fontSize: '13px', color: '#64748b' }}>São Paulo, Brasil</div>
+                    <div style={{ fontSize: '13px', color: '#9ca3af' }}>São Paulo, Brasil</div>
                   </div>
                 </div>
               </div>
@@ -1341,7 +1341,7 @@ const LandingPage = () => {
                         <div style={{
                           fontSize: '18px',
                           fontWeight: '600',
-                          color: '#64748b',
+                          color: '#9ca3af',
                           textDecoration: 'line-through',
                           marginBottom: '4px'
                         }}>
@@ -1353,11 +1353,11 @@ const LandingPage = () => {
                         R$ {priceInReais}
                       </div>
 
-                      <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>
+                      <p style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '16px' }}>
                         {pkg.credits} créditos para correção de redações
                       </p>
 
-                      <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>
+                      <p style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '16px' }}>
                         ({pkg.credits} Redações = R$ {pricePerCredit}/crédito)
                       </p>
 
@@ -1392,7 +1392,7 @@ const LandingPage = () => {
               gap: '16px',
               flexWrap: 'wrap'
             }}>
-              <p style={{ fontSize: '13px', color: '#64748b', maxWidth: '600px', margin: 0 }}>
+              <p style={{ fontSize: '13px', color: '#9ca3af', maxWidth: '600px', margin: 0 }}>
                 Valores e formas ilustrativas para didática. Você pode ajustar quantidades, formas e regras a qualquer momento.
               </p>
               <img src="/corricoin.webp" alt="Coin" style={{ width: '64px', height: '64px', opacity: 0.6 }} />
@@ -1456,7 +1456,7 @@ const LandingPage = () => {
               <a href="#" style={{ color: '#94a3b8', textDecoration: 'none' }}>Termos</a>
             </div>
 
-            <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>© 2025 CorrigeAI. Todos os direitos reservados.</p>
+            <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>© 2025 CorrigeAI. Todos os direitos reservados.</p>
           </div>
         </footer>
 
