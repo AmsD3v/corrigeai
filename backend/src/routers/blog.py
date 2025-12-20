@@ -199,10 +199,14 @@ async def delete_post(
     if not post:
         raise HTTPException(status_code=404, detail="Post não encontrado")
     
-    db.delete(post)
-    db.commit()
-    
-    return {"message": "Post deletado com sucesso"}
+    try:
+        post.tags = []  # Limpar relacionamento many-to-many
+        db.delete(post)
+        db.commit()
+        return {"message": "Post deletado com sucesso"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Erro ao deletar: {str(e)}")
 
 
 @router.post("/admin/posts/bulk-delete")
