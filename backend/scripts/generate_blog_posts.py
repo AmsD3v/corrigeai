@@ -18,6 +18,7 @@ from typing import Optional
 from pathlib import Path
 
 # Add parent directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Import after path setup
@@ -27,8 +28,8 @@ load_dotenv()
 import google.generativeai as genai
 from sqlalchemy.orm import Session
 
-from database import SessionLocal
-from models import BlogPost, BlogTag
+from src.database import SessionLocal
+from src.models import BlogPost, BlogTag
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
