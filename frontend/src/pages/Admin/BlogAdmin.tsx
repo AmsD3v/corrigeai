@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 import api from '../../services/api';
@@ -30,21 +30,44 @@ const BlogAdmin = () => {
     const [selectedPosts, setSelectedPosts] = useState<Set<number>>(new Set());
     const [deletingBulk, setDeletingBulk] = useState(false);
 
-    // Paginação
-    const [currentPage, setCurrentPage] = useState(1);
-    const postsPerPage = 10;
+    // Scroll infinito
+    const [visibleCount, setVisibleCount] = useState(20);
+    const postsPerLoad = 20;
+    const tableRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         loadPosts();
     }, []);
+
+    // Detectar scroll para carregar mais
+    useEffect(() => {
+        const handleScroll = () => {
+            if (!tableRef.current) return;
+
+            const { scrollTop, scrollHeight, clientHeight } = tableRef.current;
+
+            // Se chegou perto do final (100px), carregar mais
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                if (visibleCount < posts.length) {
+                    setVisibleCount(prev => Math.min(prev + postsPerLoad, posts.length));
+                }
+            }
+        };
+
+        const tableElement = tableRef.current;
+        if (tableElement) {
+            tableElement.addEventListener('scroll', handleScroll);
+            return () => tableElement.removeEventListener('scroll', handleScroll);
+        }
+    }, [visibleCount, posts.length]);
 
     const loadPosts = async () => {
         try {
             setLoading(true);
             const response = await api.get('/api/blog/admin/posts');
             setPosts(response.data);
-            setSelectedPosts(new Set()); // Limpar seleção ao recarregar
-            setCurrentPage(1); // Reset para primeira página
+            setSelectedPosts(new Set());
+            setVisibleCount(20); // Reset para primeiros 20
         } catch (error) {
             console.error('Erro ao carregar posts:', error);
         } finally {
@@ -52,11 +75,9 @@ const BlogAdmin = () => {
         }
     };
 
-    // Cálculos de paginação
-    const totalPages = Math.ceil(posts.length / postsPerPage);
-    const startIndex = (currentPage - 1) * postsPerPage;
-    const endIndex = startIndex + postsPerPage;
-    const currentPosts = posts.slice(startIndex, endIndex);
+    // Posts visíveis no scroll infinito
+    const visiblePosts = posts.slice(0, visibleCount);
+
 
     // Seleção individual
     const toggleSelect = (id: number) => {
@@ -71,7 +92,7 @@ const BlogAdmin = () => {
 
     // Selecionar/Desselecionar todos (da página atual)
     const toggleSelectAll = () => {
-        const currentIds = currentPosts.map(p => p.id);
+        const currentIds = visiblePosts.map(p => p.id);
         const allCurrentSelected = currentIds.every(id => selectedPosts.has(id));
 
         const newSelected = new Set(selectedPosts);
@@ -148,8 +169,8 @@ const BlogAdmin = () => {
         });
     };
 
-    const currentIds = currentPosts.map(p => p.id);
-    const allSelected = currentPosts.length > 0 && currentIds.every(id => selectedPosts.has(id));
+    const currentIds = visiblePosts.map(p => p.id);
+    const allSelected = visiblePosts.length > 0 && currentIds.every(id => selectedPosts.has(id));
     const someSelected = selectedPosts.size > 0;
 
     return (
@@ -275,12 +296,16 @@ const BlogAdmin = () => {
             )}
 
             {/* Posts Table */}
-            <div style={{
-                background: '#1a1f2e',
-                border: '1px solid #334155',
-                borderRadius: '12px',
-                overflow: 'hidden'
-            }}>
+            <div
+                ref={tableRef}
+                style={{
+                    background: '#1a1f2e',
+                    border: '1px solid #334155',
+                    borderRadius: '12px',
+                    overflow: 'auto',
+                    maxHeight: '600px'
+                }}
+            >
                 {loading ? (
                     <div style={{ padding: '60px', textAlign: 'center', color: '#94a3b8' }}>
                         Carregando posts...
@@ -330,7 +355,7 @@ const BlogAdmin = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {currentPosts.map(post => (
+                            {visiblePosts.map(post => (
                                 <tr
                                     key={post.id}
                                     style={{
@@ -452,84 +477,29 @@ const BlogAdmin = () => {
                     </table>
                 )}
 
-                {/* Paginação */}
-                {totalPages > 1 && (
+                {/* Indicador de scroll infinito */}
+                {visibleCount < posts.length && (
                     <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
                         padding: '16px 20px',
+                        textAlign: 'center',
                         borderTop: '1px solid #334155',
-                        background: '#0f1419'
+                        background: '#0f1419',
+                        color: '#94a3b8',
+                        fontSize: '14px'
                     }}>
-                        <div style={{ color: '#94a3b8', fontSize: '14px' }}>
-                            Mostrando {startIndex + 1}-{Math.min(endIndex, posts.length)} de {posts.length} posts
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                            <button
-                                onClick={() => setCurrentPage(1)}
-                                disabled={currentPage === 1}
-                                style={{
-                                    padding: '8px 12px',
-                                    background: currentPage === 1 ? '#1e293b' : '#334155',
-                                    border: 'none',
-                                    borderRadius: '6px',
-                                    color: currentPage === 1 ? '#64748b' : '#fff',
-                                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                                    fontSize: '12px'
-                                }}
-                            >
-                                ⟪ Primeira
-                            </button>
-                            <button
-                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                disabled={currentPage === 1}
-                                style={{
-                                    padding: '8px 12px',
-                                    background: currentPage === 1 ? '#1e293b' : '#334155',
-                                    border: 'none',
-                                    borderRadius: '6px',
-                                    color: currentPage === 1 ? '#64748b' : '#fff',
-                                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                                    fontSize: '12px'
-                                }}
-                            >
-                                ← Anterior
-                            </button>
-                            <span style={{ color: '#fff', padding: '0 12px', fontSize: '14px' }}>
-                                Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
-                            </span>
-                            <button
-                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                disabled={currentPage === totalPages}
-                                style={{
-                                    padding: '8px 12px',
-                                    background: currentPage === totalPages ? '#1e293b' : '#334155',
-                                    border: 'none',
-                                    borderRadius: '6px',
-                                    color: currentPage === totalPages ? '#64748b' : '#fff',
-                                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                                    fontSize: '12px'
-                                }}
-                            >
-                                Próxima →
-                            </button>
-                            <button
-                                onClick={() => setCurrentPage(totalPages)}
-                                disabled={currentPage === totalPages}
-                                style={{
-                                    padding: '8px 12px',
-                                    background: currentPage === totalPages ? '#1e293b' : '#334155',
-                                    border: 'none',
-                                    borderRadius: '6px',
-                                    color: currentPage === totalPages ? '#64748b' : '#fff',
-                                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                                    fontSize: '12px'
-                                }}
-                            >
-                                Última ⟫
-                            </button>
-                        </div>
+                        ⬇️ Role para carregar mais ({visibleCount} de {posts.length} posts)
+                    </div>
+                )}
+                {visibleCount >= posts.length && posts.length > 0 && (
+                    <div style={{
+                        padding: '16px 20px',
+                        textAlign: 'center',
+                        borderTop: '1px solid #334155',
+                        background: '#0f1419',
+                        color: '#64748b',
+                        fontSize: '14px'
+                    }}>
+                        ✅ Todos os {posts.length} posts carregados
                     </div>
                 )}
             </div>
