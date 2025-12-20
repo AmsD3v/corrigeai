@@ -32,6 +32,9 @@ export default defineConfig({
     target: 'es2020',
     // Inline small assets
     assetsInlineLimit: 4096,
+    // CSS optimization
+    cssCodeSplit: true,
+    cssMinify: 'lightningcss',
   },
   // Optimize dependencies
   optimizeDeps: {
