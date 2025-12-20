@@ -28,12 +28,15 @@ load_dotenv()
 import google.generativeai as genai
 from sqlalchemy.orm import Session
 
-from src.database import SessionLocal
+from src.database import SessionLocal, init_db_engine
 from src.models import BlogPost, BlogTag
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# Initialize database connection
+init_db_engine()
 
 # Configure Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
