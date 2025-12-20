@@ -58,12 +58,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://api.corrigeai.online" crossorigin />
 
-  <!-- Load fonts asynchronously - NOT render blocking -->
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" as="style"
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
-    media="print" onload="this.media='all';this.onload=null;" />
+  <!-- Optimized Font Loading - Only Inter, fewer weights, async -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" media="print"
+    onload="this.media='all';this.onload=null;" />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" />
+  </noscript>
 
   <!-- Preload Hero Image (LCP element) -->
   <link rel="preload" as="image" href="/owl-thumbs-up-plate.webp" type="image/webp" fetchpriority="high" />
