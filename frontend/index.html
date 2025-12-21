@@ -191,7 +191,17 @@
     style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Pular para o conteúdo
     principal</a>
   <main id="main-content">
-    <div id="root"></div>
+    <div id="root">
+      <!-- Initial content for faster FCP -->
+      <div id="initial-loader"
+        style="min-height:100vh;background:#0f1419;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+        <div
+          style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;">
+          <img src="/owl_custom.webp" alt="Logo" width="40" height="40" style="object-fit:contain;" />
+        </div>
+        <div style="color:#fff;font-size:24px;font-weight:700;">CorrigeAI</div>
+      </div>
+    </div>
   </main>
   <script type="module" src="/src/main.tsx"></script>
 </body>
