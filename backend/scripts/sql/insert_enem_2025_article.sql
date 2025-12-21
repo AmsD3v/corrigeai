@@ -1,23 +1,24 @@
 -- ============================================================
 -- Artigo: Tema ENEM 2025 - Perspectivas sobre Envelhecimento
 -- Execute no banco de dados para adicionar o post
+-- NOMES CORRETOS: blog_post, blog_tag, blog_post_tag
 -- ============================================================
 
 -- Garantir que a tag existe
-INSERT INTO blog_tags (name, slug, created_at)
+INSERT INTO blog_tag (name, slug, created_at)
 SELECT 'ENEM 2025', 'enem-2025', NOW()
-WHERE NOT EXISTS (SELECT 1 FROM blog_tags WHERE slug = 'enem-2025');
+WHERE NOT EXISTS (SELECT 1 FROM blog_tag WHERE slug = 'enem-2025');
 
-INSERT INTO blog_tags (name, slug, created_at)
+INSERT INTO blog_tag (name, slug, created_at)
 SELECT 'Temas de Redação', 'temas-de-redacao', NOW()
-WHERE NOT EXISTS (SELECT 1 FROM blog_tags WHERE slug = 'temas-de-redacao');
+WHERE NOT EXISTS (SELECT 1 FROM blog_tag WHERE slug = 'temas-de-redacao');
 
-INSERT INTO blog_tags (name, slug, created_at)
+INSERT INTO blog_tag (name, slug, created_at)
 SELECT 'Repertórios', 'repertorios', NOW()
-WHERE NOT EXISTS (SELECT 1 FROM blog_tags WHERE slug = 'repertorios');
+WHERE NOT EXISTS (SELECT 1 FROM blog_tag WHERE slug = 'repertorios');
 
 -- Inserir o artigo sobre o tema ENEM 2025
-INSERT INTO blog_posts (
+INSERT INTO blog_post (
     title,
     slug,
     excerpt,
@@ -129,36 +130,36 @@ Nossa inteligência artificial foi **treinada especificamente** para avaliar red
 ) ON CONFLICT (slug) DO NOTHING;
 
 -- Associar tags ao post
-INSERT INTO blog_post_tags (post_id, tag_id)
+INSERT INTO blog_post_tag (post_id, tag_id)
 SELECT 
-    (SELECT id FROM blog_posts WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira'),
-    (SELECT id FROM blog_tags WHERE slug = 'enem-2025')
+    (SELECT id FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira'),
+    (SELECT id FROM blog_tag WHERE slug = 'enem-2025')
 WHERE NOT EXISTS (
-    SELECT 1 FROM blog_post_tags 
-    WHERE post_id = (SELECT id FROM blog_posts WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira')
-    AND tag_id = (SELECT id FROM blog_tags WHERE slug = 'enem-2025')
+    SELECT 1 FROM blog_post_tag 
+    WHERE post_id = (SELECT id FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira')
+    AND tag_id = (SELECT id FROM blog_tag WHERE slug = 'enem-2025')
 );
 
-INSERT INTO blog_post_tags (post_id, tag_id)
+INSERT INTO blog_post_tag (post_id, tag_id)
 SELECT 
-    (SELECT id FROM blog_posts WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira'),
-    (SELECT id FROM blog_tags WHERE slug = 'temas-de-redacao')
+    (SELECT id FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira'),
+    (SELECT id FROM blog_tag WHERE slug = 'temas-de-redacao')
 WHERE NOT EXISTS (
-    SELECT 1 FROM blog_post_tags 
-    WHERE post_id = (SELECT id FROM blog_posts WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira')
-    AND tag_id = (SELECT id FROM blog_tags WHERE slug = 'temas-de-redacao')
+    SELECT 1 FROM blog_post_tag 
+    WHERE post_id = (SELECT id FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira')
+    AND tag_id = (SELECT id FROM blog_tag WHERE slug = 'temas-de-redacao')
 );
 
-INSERT INTO blog_post_tags (post_id, tag_id)
+INSERT INTO blog_post_tag (post_id, tag_id)
 SELECT 
-    (SELECT id FROM blog_posts WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira'),
-    (SELECT id FROM blog_tags WHERE slug = 'repertorios')
+    (SELECT id FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira'),
+    (SELECT id FROM blog_tag WHERE slug = 'repertorios')
 WHERE NOT EXISTS (
-    SELECT 1 FROM blog_post_tags 
-    WHERE post_id = (SELECT id FROM blog_posts WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira')
-    AND tag_id = (SELECT id FROM blog_tags WHERE slug = 'repertorios')
+    SELECT 1 FROM blog_post_tag 
+    WHERE post_id = (SELECT id FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira')
+    AND tag_id = (SELECT id FROM blog_tag WHERE slug = 'repertorios')
 );
 
 -- Verificar se foi criado
-SELECT id, title, slug, is_published FROM blog_posts 
+SELECT id, title, slug, is_published FROM blog_post 
 WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira';
