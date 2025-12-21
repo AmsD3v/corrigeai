@@ -89,7 +89,7 @@ const Header = () => {
                                 overflow: 'hidden',
                             }}
                         >
-                            <img src="/owl_custom.webp" alt="Logo" width={24} height={24} style={{ objectFit: 'contain' }} />
+                            <img src="/owl_custom.webp" alt="Logo" width={20} height={20} style={{ objectFit: 'contain' }} />
                         </div>
                         {/* Texto */}
                         <span
