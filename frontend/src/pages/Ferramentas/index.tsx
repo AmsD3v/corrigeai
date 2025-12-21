@@ -20,6 +20,14 @@ const ferramentas = [
         tags: ['Temas reais', 'ENEM 2025'],
     },
     {
+        id: 'estatisticas',
+        titulo: 'Estatísticas de Correções',
+        descricao: 'Dados reais: média de notas, erros comuns e taxa de melhoria dos estudantes.',
+        icone: '📊',
+        link: '/estatisticas',
+        tags: ['Dados reais', 'Atualizado'],
+    },
+    {
         id: 'repertorios',
         titulo: 'Repertórios Socioculturais',
         descricao: 'Explore nossa biblioteca de repertórios para usar na sua redação.',

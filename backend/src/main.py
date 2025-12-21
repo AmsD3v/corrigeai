@@ -237,6 +237,10 @@ app.include_router(blog.router, prefix="/api/blog", tags=["blog"])
 from .routers import seo
 app.include_router(seo.router, prefix="/api", tags=["seo"])
 
+# Public Stats router (estatísticas públicas para SEO)
+from .routers import public_stats
+app.include_router(public_stats.router, prefix="/api", tags=["public"])
+
 # Serve uploaded files (blog images)
 from fastapi.staticfiles import StaticFiles
 import os
