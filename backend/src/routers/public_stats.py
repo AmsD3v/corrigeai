@@ -10,7 +10,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 
 from src.database import get_db
-from src.models import Essay, User
+from src.models import Submission, Correction, User
 
 router = APIRouter(prefix="/public", tags=["public"])
 
@@ -58,21 +58,18 @@ def get_cached_stats(db: Session) -> PublicStats:
 def calculate_stats(db: Session) -> PublicStats:
     """Calcula estatísticas reais do banco de dados."""
     
-    # Total de correções (redações com nota)
-    total_correcoes = db.query(func.count(Essay.id)).filter(
-        Essay.total_score.isnot(None),
-        Essay.total_score > 0
+    # Total de correções
+    total_correcoes = db.query(func.count(Correction.id)).scalar() or 0
+    
+    # Usuários que fizeram pelo menos 1 correção (via Submission)
+    usuarios_ativos = db.query(func.count(func.distinct(Submission.owner_id))).filter(
+        Submission.correction != None
     ).scalar() or 0
     
-    # Usuários que fizeram pelo menos 1 correção
-    usuarios_ativos = db.query(func.count(func.distinct(Essay.user_id))).filter(
-        Essay.total_score.isnot(None)
-    ).scalar() or 0
-    
-    # Média de nota geral
-    media_nota_geral = db.query(func.avg(Essay.total_score)).filter(
-        Essay.total_score.isnot(None),
-        Essay.total_score > 0
+    # Média de nota geral (total_score da Correction)
+    media_nota_geral = db.query(func.avg(Correction.total_score)).filter(
+        Correction.total_score.isnot(None),
+        Correction.total_score > 0
     ).scalar() or 0
     
     # Média por competência
@@ -89,7 +86,7 @@ def calculate_stats(db: Session) -> PublicStats:
         col_name = f"competency_{i}_score"
         try:
             media = db.execute(
-                text(f"SELECT AVG({col_name}) FROM essays WHERE {col_name} IS NOT NULL AND {col_name} > 0")
+                text(f"SELECT AVG({col_name}) FROM correction WHERE {col_name} IS NOT NULL AND {col_name} > 0")
             ).scalar() or 0
             media_por_competencia.append(CompetenciaStats(
                 competencia=i,
@@ -127,18 +124,17 @@ def calculate_stats(db: Session) -> PublicStats:
         ))
     
     # Taxa de melhoria: comparar primeira e última redação dos usuários
-    # Simplificado: usar um valor baseado na dispersão
     try:
-        # Verificar se há variação positiva entre usuários com múltiplas redações
         result = db.execute(text("""
             WITH user_scores AS (
                 SELECT 
-                    user_id,
-                    MIN(total_score) as first_score,
-                    MAX(total_score) as best_score
-                FROM essays 
-                WHERE total_score IS NOT NULL AND total_score > 0
-                GROUP BY user_id
+                    s.owner_id as user_id,
+                    MIN(c.total_score) as first_score,
+                    MAX(c.total_score) as best_score
+                FROM correction c
+                JOIN submission s ON c.submission_id = s.id
+                WHERE c.total_score IS NOT NULL AND c.total_score > 0
+                GROUP BY s.owner_id
                 HAVING COUNT(*) >= 2
             )
             SELECT AVG((best_score - first_score) / NULLIF(first_score, 0) * 100) as taxa
