@@ -5,42 +5,86 @@ import SEOHead from '../../components/SEOHead';
 
 // Temas pré-definidos para exibição pública (sem API)
 const TEMAS_EXEMPLO = [
+    // ENEM
     {
         id: 1,
+        titulo: 'Perspectivas acerca do envelhecimento na sociedade brasileira',
+        ano: '2025',
+        vestibular: 'ENEM',
+        destaque: true,
+    },
+    {
+        id: 2,
         titulo: 'Desafios para o enfrentamento da invisibilidade do trabalho de cuidado no Brasil',
         ano: '2023',
         vestibular: 'ENEM',
     },
     {
-        id: 2,
+        id: 3,
         titulo: 'Desafios para a valorização de comunidades e povos tradicionais no Brasil',
         ano: '2022',
         vestibular: 'ENEM',
     },
-    {
-        id: 3,
-        titulo: 'Invisibilidade e registro civil: garantia de acesso à cidadania no Brasil',
-        ano: '2021',
-        vestibular: 'ENEM',
-    },
+    // FUVEST
     {
         id: 4,
-        titulo: 'O estigma associado às doenças mentais na sociedade brasileira',
-        ano: '2020',
-        vestibular: 'ENEM',
+        titulo: 'O papel da ciência no mundo contemporâneo',
+        ano: '2024',
+        vestibular: 'FUVEST',
     },
     {
         id: 5,
-        titulo: 'Democratização do acesso ao cinema no Brasil',
-        ano: '2019',
-        vestibular: 'ENEM',
+        titulo: 'A importância do acesso à cultura para a formação cidadã',
+        ano: '2023',
+        vestibular: 'FUVEST',
     },
+    // UNICAMP
     {
         id: 6,
-        titulo: 'Perspectivas acerca do envelhecimento na sociedade brasileira',
-        ano: '2025',
-        vestibular: 'ENEM',
-        destaque: true,
+        titulo: 'Inteligência artificial: avanços e riscos para a sociedade',
+        ano: '2024',
+        vestibular: 'UNICAMP',
+    },
+    {
+        id: 7,
+        titulo: 'O papel das redes sociais na formação de opinião pública',
+        ano: '2023',
+        vestibular: 'UNICAMP',
+    },
+    // UFRGS
+    {
+        id: 8,
+        titulo: 'Desafios da mobilidade urbana nas grandes cidades brasileiras',
+        ano: '2024',
+        vestibular: 'UFRGS',
+    },
+    // UERJ
+    {
+        id: 9,
+        titulo: 'A preservação do patrimônio histórico e cultural brasileiro',
+        ano: '2024',
+        vestibular: 'UERJ',
+    },
+    // UNB
+    {
+        id: 10,
+        titulo: 'Fake news e seus impactos na democracia',
+        ano: '2024',
+        vestibular: 'UNB',
+    },
+    // PUC
+    {
+        id: 11,
+        titulo: 'Saúde mental dos jovens na era digital',
+        ano: '2024',
+        vestibular: 'PUC-SP',
+    },
+    // UFMG
+    {
+        id: 12,
+        titulo: 'O combate às desigualdades sociais no Brasil pós-pandemia',
+        ano: '2023',
+        vestibular: 'UFMG',
     },
 ];
 
@@ -54,10 +98,10 @@ const GeradorTemasPublico = () => {
     return (
         <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%)' }}>
             <SEOHead
-                title="Temas de Redação ENEM 2025: Lista Completa | CorrigeAI"
-                description="Veja os temas de redação do ENEM dos últimos anos e pratique com correção por IA. Prepare-se para o ENEM 2025 com temas anteriores."
+                title="Temas de Redação: ENEM, FUVEST, UNICAMP e Vestibulares 2025 | CorrigeAI"
+                description="Veja temas de redação do ENEM, FUVEST, UNICAMP, UFRGS e outros vestibulares. Pratique com temas reais e receba correção por IA."
                 canonical="https://corrigeai.online/ferramentas/gerador-temas"
-                keywords="temas redação enem 2025, temas enem anteriores, temas de redação, praticar redação enem"
+                keywords="temas redação enem 2025, temas fuvest, temas unicamp, vestibulares, praticar redação"
             />
             <Header />
 
@@ -74,10 +118,10 @@ const GeradorTemasPublico = () => {
                 {/* Header */}
                 <div style={{ textAlign: 'center', marginBottom: '40px' }}>
                     <h1 style={{ fontSize: '36px', fontWeight: '800', color: '#fff', marginBottom: '16px' }}>
-                        📚 Temas de Redação ENEM
+                        📚 Temas de Redação - Vestibulares
                     </h1>
                     <p style={{ fontSize: '18px', color: '#94a3b8', maxWidth: '600px', margin: '0 auto' }}>
-                        Pratique com temas reais do ENEM e receba correção instantânea com IA
+                        Pratique com temas reais do ENEM, FUVEST, UNICAMP e outros vestibulares
                     </p>
                 </div>
 
