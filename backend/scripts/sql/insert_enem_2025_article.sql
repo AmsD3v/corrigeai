@@ -1,10 +1,9 @@
 -- ============================================================
 -- Artigo: Tema ENEM 2025 - Perspectivas sobre Envelhecimento
--- Execute no banco de dados para adicionar o post
--- NOMES CORRETOS: blog_post, blog_tag, blog_post_tag
+-- Estrutura correta: blog_post, blog_tag, blog_post_tag
 -- ============================================================
 
--- Garantir que a tag existe
+-- Garantir que as tags existem
 INSERT INTO blog_tag (name, slug, created_at)
 SELECT 'ENEM 2025', 'enem-2025', NOW()
 WHERE NOT EXISTS (SELECT 1 FROM blog_tag WHERE slug = 'enem-2025');
@@ -23,9 +22,10 @@ INSERT INTO blog_post (
     slug,
     excerpt,
     content,
+    meta_title,
+    meta_description,
     is_published,
     published_at,
-    author_name,
     created_at,
     updated_at
 ) VALUES (
@@ -111,20 +111,19 @@ Nossa inteligência artificial foi **treinada especificamente** para avaliar red
 
 ## Dicas Finais
 
-- ✅ Use dados atualizados do IBGE e IPEA
-- ✅ Cite o Estatuto do Idoso como base legal
-- ✅ Evite generalizações e estereótipos sobre idosos
-- ✅ Proponha soluções práticas e viáveis
-- ✅ Conecte o tema à realidade brasileira específica
+- Use dados atualizados do IBGE e IPEA
+- Cite o Estatuto do Idoso como base legal
+- Evite generalizações e estereótipos sobre idosos
+- Proponha soluções práticas e viáveis
+- Conecte o tema à realidade brasileira específica
 
 ---
 
-**Pratique agora!** Use o CorrigeAI para corrigir sua redação sobre este tema e receba feedback detalhado em segundos.
-
-[Começar Correção Gratuita](/cadastro)',
+**Pratique agora!** Use o CorrigeAI para corrigir sua redação sobre este tema e receba feedback detalhado em segundos.',
+    'Tema ENEM 2025: Envelhecimento na Sociedade Brasileira | CorrigeAI',
+    'Análise completa do tema ENEM 2025 sobre envelhecimento, com repertórios, dados do IBGE e dicas para sua redação nota 1000.',
     true,
     NOW(),
-    'CorrigeAI',
     NOW(),
     NOW()
 ) ON CONFLICT (slug) DO NOTHING;
@@ -134,7 +133,8 @@ INSERT INTO blog_post_tag (post_id, tag_id)
 SELECT 
     (SELECT id FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira'),
     (SELECT id FROM blog_tag WHERE slug = 'enem-2025')
-WHERE NOT EXISTS (
+WHERE EXISTS (SELECT 1 FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira')
+AND NOT EXISTS (
     SELECT 1 FROM blog_post_tag 
     WHERE post_id = (SELECT id FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira')
     AND tag_id = (SELECT id FROM blog_tag WHERE slug = 'enem-2025')
@@ -144,7 +144,8 @@ INSERT INTO blog_post_tag (post_id, tag_id)
 SELECT 
     (SELECT id FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira'),
     (SELECT id FROM blog_tag WHERE slug = 'temas-de-redacao')
-WHERE NOT EXISTS (
+WHERE EXISTS (SELECT 1 FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira')
+AND NOT EXISTS (
     SELECT 1 FROM blog_post_tag 
     WHERE post_id = (SELECT id FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira')
     AND tag_id = (SELECT id FROM blog_tag WHERE slug = 'temas-de-redacao')
@@ -154,7 +155,8 @@ INSERT INTO blog_post_tag (post_id, tag_id)
 SELECT 
     (SELECT id FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira'),
     (SELECT id FROM blog_tag WHERE slug = 'repertorios')
-WHERE NOT EXISTS (
+WHERE EXISTS (SELECT 1 FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira')
+AND NOT EXISTS (
     SELECT 1 FROM blog_post_tag 
     WHERE post_id = (SELECT id FROM blog_post WHERE slug = 'tema-enem-2025-envelhecimento-sociedade-brasileira')
     AND tag_id = (SELECT id FROM blog_tag WHERE slug = 'repertorios')
