@@ -26,7 +26,7 @@ router = APIRouter()
 @router.get("/posts", response_model=List[BlogPostListResponse])
 async def list_published_posts(
     skip: int = 0,
-    limit: int = 100,
+    limit: int = 500,
     tag_slug: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
