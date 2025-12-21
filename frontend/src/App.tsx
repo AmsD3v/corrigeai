@@ -61,6 +61,7 @@ const Ferramentas = lazy(() => import('./pages/Ferramentas'));
 const ContadorPalavras = lazy(() => import('./pages/Ferramentas/ContadorPalavras'));
 const GeradorTemasPublico = lazy(() => import('./pages/Ferramentas/GeradorTemasPublico'));
 const Estatisticas = lazy(() => import('./pages/Ferramentas/Estatisticas'));
+const VerificadorRepertorios = lazy(() => import('./pages/Ferramentas/VerificadorRepertorios'));
 
 // Panel pages (user dashboard)
 const Painel = lazy(() => import('./pages/Painel'));
@@ -119,6 +120,7 @@ function App() {
           <Route path="/ferramentas/contador-palavras" element={<ContadorPalavras />} />
           <Route path="/ferramentas/gerador-temas" element={<GeradorTemasPublico />} />
           <Route path="/estatisticas" element={<Estatisticas />} />
+          <Route path="/ferramentas/verificar-repertorio" element={<VerificadorRepertorios />} />
           <Route path="/recuperar-senha" element={<ForgotPassword />} />
 
           {/* Rotas Protegidas */}

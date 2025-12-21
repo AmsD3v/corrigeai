@@ -28,6 +28,14 @@ const ferramentas = [
         tags: ['Dados reais', 'Atualizado'],
     },
     {
+        id: 'verificador',
+        titulo: 'Verificador de Repertórios',
+        descricao: 'Identifique os repertórios socioculturais mencionados na sua redação.',
+        icone: '🔍',
+        link: '/ferramentas/verificar-repertorio',
+        tags: ['Grátis', 'Novo'],
+    },
+    {
         id: 'repertorios',
         titulo: 'Repertórios Socioculturais',
         descricao: 'Explore nossa biblioteca de repertórios para usar na sua redação.',
